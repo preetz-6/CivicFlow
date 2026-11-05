@@ -204,8 +204,8 @@ def _on_enter(obj, kind: str, from_: str, to: str, actor: Actor, t) -> None:
             obj.parent_sr_id = None
             obj.sla_state = None
     else:
-        if to == WOStatus.IN_PROGRESS and obj.started_at is None:
-            obj.started_at = t
+        if to == WOStatus.IN_PROGRESS and (obj.started_at is None or from_ == WOStatus.REWORK):
+            obj.started_at = t  # after rework a NEW after-photo is required (uploaded after this time)
         if to == WOStatus.COMPLETED:
             obj.completed_at = t
         if to == WOStatus.REWORK:

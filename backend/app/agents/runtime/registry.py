@@ -21,9 +21,10 @@ def agent_handler(agent):
 
 
 def register_agents() -> None:
+    from app.agents.auditor import auditor
     from app.agents.investigator import investigator
 
-    for a in (investigator,):
+    for a in (investigator, auditor):
         AGENTS[a.name] = a
         for trig in a.triggers:
             bus.subscribe(trig, agent_handler(a))
