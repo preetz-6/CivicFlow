@@ -25,6 +25,14 @@ def get_clock():
     return clock.state()
 
 
+@router.get("/demo/points")
+def demo_points():
+    """Coordinates the simulator uses (true potholes, speed breakers, rain areas)."""
+    from app.seed.geo import demo_points as pts
+
+    return pts()
+
+
 class AdvanceIn(BaseModel):
     hours: float
 

@@ -30,3 +30,11 @@ def save(db) -> None:
         row.value = clock.dump()
     else:
         db.add(SystemState(key=KEY, value=clock.dump()))
+
+
+def sync() -> None:
+    """Pick up clock changes made by another process (seed script, a second worker)."""
+    with session_scope() as db:
+        row = db.get(SystemState, KEY)
+        if row and row.value != clock.dump():
+            clock.load(row.value)

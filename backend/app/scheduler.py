@@ -8,6 +8,13 @@ _sched: BackgroundScheduler | None = None
 JOBS: list[tuple[str, callable, int]] = []  # (id, fn, every_seconds); modules append in C2/C3
 
 
+def add_job(job_id: str, fn, every_seconds: int) -> None:
+    if all(j[0] != job_id for j in JOBS):
+        JOBS.append((job_id, fn, every_seconds))
+        if _sched:
+            _sched.add_job(fn, "interval", seconds=every_seconds, id=job_id)
+
+
 def start() -> None:
     global _sched
     if _sched:

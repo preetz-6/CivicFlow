@@ -92,6 +92,7 @@ def transition(
     public_remark: str | None = None,
     public_remark_kn: str | None = None,
     meta: dict | None = None,
+    scope_verified: bool = False,
     **fields: Any,
 ):
     kind = _kind(obj)
@@ -109,7 +110,8 @@ def transition(
             f"{kind} {obj.id}: {from_} -> {to} is not allowed", allowed=allowed_targets(kind, from_)
         )
     _check_actor(rule, actor)
-    _check_scope(db, actor, kind, obj)
+    if not scope_verified:  # anonymous citizens are verified by tracking code in the router
+        _check_scope(db, actor, kind, obj)
     if rule.only_if_prev and obj.prev_status != to:
         raise InvalidTransition(f"{kind} {obj.id} can only resume to {obj.prev_status}")
 

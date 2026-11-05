@@ -8,10 +8,14 @@ from fastapi.responses import JSONResponse
 from app.config import settings
 from app.core.errors import DomainError
 from app.modules.auth.router import router as auth_router
+from app.modules.complaints.router import router as complaints_router
+from app.modules.media.router import router as media_router
+from app.modules.public.router import router as public_router
 from app.modules.system import clock_state
 from app.modules.system.router import router as system_router
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logging.getLogger("apscheduler").setLevel(logging.WARNING)
 
 
 @asynccontextmanager
@@ -51,3 +55,10 @@ def domain_error(_: Request, exc: DomainError):
 API = "/api/v1"
 app.include_router(auth_router, prefix=API)
 app.include_router(system_router, prefix=API)
+app.include_router(complaints_router, prefix=API)
+app.include_router(media_router, prefix=API)
+app.include_router(public_router, prefix=API)
+
+from app.modules.work_orders.router import router as wo_router  # noqa: E402
+
+app.include_router(wo_router, prefix=API)
