@@ -11,6 +11,8 @@ login refused, `/my/complaints` removed, `GET /agent-ops/feed` and `GET /agent-o
 
 ## B-T1. Remove citizen login entirely
 
+**Status: done by Machine B (2026-11-06).**
+
 Citizens never log in. They lodge (no account) and track with **Grievance No. + mobile or tracking code**.
 - Backend (Machine A): `POST /auth/login` now refuses CITIZEN accounts (401 "Citizens do not need to log in:
   use Track Grievance"). `GET /my/complaints` is removed. `POST /complaints/{id}/confirm` and `/reopen` take
@@ -22,12 +24,16 @@ Citizens never log in. They lodge (no account) and track with **Grievance No. + 
 
 ## B-T2. Remove the policy pages
 
+**Status: done by Machine B (2026-11-06).**
+
 Delete Website Policies, Hyperlinking, Copyright, Privacy, Terms of Use, Help and Sitemap pages and the footer
 link columns pointing to them. Keep: About Us, Citizen Charter, Ward Directory, FAQs, Contact Us,
 Accessibility Statement (one line in the footer is enough), Screen Reader Access (GIGW). Footer becomes one
 short row: "© CivicFlow Municipal Corporation · Accessibility · Visitors: N".
 
 ## B-T3. Agent Operations (Control Room) — the centrepiece of the demo
+
+**Status: done by Machine B (2026-11-06).**
 
 Purpose: show what a normal website cannot: **things happening that nobody clicked.** The presenter keeps this
 page on one half of the screen while playing the citizen / field crew on the other half.

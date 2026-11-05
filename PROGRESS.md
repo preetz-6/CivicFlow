@@ -106,3 +106,8 @@
   - (3) `web/package-lock.json` regenerated with the web container's npm 10 and committed (only difference: npm 11 on Machine B wrote `libc` metadata; same packages). Note: a local `npm install` with npm 11 re-adds those lines; commit only container-generated lock changes.
   - Playwright happy path re-run on the new backend: passed.
 - **Kannada reviewed (2026-11-06):** the team's Kannada reader checked the web app's Kannada (`web/src/i18n/kn.json`, Kannada ticker/advisory text, ward/department/stage names on the citizen pages) and confirmed it is correct. The earlier "needs review by a Kannada reader" notes for Machine B are closed.
+- **TASKS_FOR_B B-T1, B-T2, B-T3: done (2026-11-06)**
+  - B-T1: nav "Staff Login" (KN ಸಿಬ್ಬಂದಿ ಲಾಗಿನ್), staff-only login text, no citizen pre-fill or citizen landing; Track Confirm / Reopen send the typed code. Login page moved to `web/src/pages/staff/`.
+  - B-T2: policy, terms, help and sitemap pages deleted; footer is one row: © · Accessibility · Visitors. Screen Reader Access stays in the top strip.
+  - B-T3: `/control/operations` (first Control Room menu item): 2 s polling of `/agent-ops/feed`, keyed diff with enter animation, RUNNING pulse with steps filling in, "Started by" icons, hand-off links (scroll + highlight), amber guardrails, human outcome, counters, filters, pause, aria-live, chain view. Verified: `sim.py --once` shows Vehicle feed → Road Hazard Sensing → Case Investigator in the chain.
+  - Playwright happy path passed on the password-login backend (1.2 min).
