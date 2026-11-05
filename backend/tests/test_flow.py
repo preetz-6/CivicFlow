@@ -38,3 +38,13 @@ def test_vehicle_case_flow_starts_with_sensing(seeded):  # noqa: F811
     flow = TestClient(app).get("/api/v1/public/agent-flow", params={"sr": hc.sr_id}).json()
     titles = [b["title"] for b in flow["boxes"]]
     assert titles[:3] == ["Vehicle feed", "Road Hazard Sensing", "Case Investigator"]
+
+
+def test_agent_activity_is_public(seeded):  # noqa: F811
+    db = seeded
+    create_complaint(db, category="POTHOLE", description="Pothole by the gate", lat=sgeo.POTHOLE_SCHOOL[0],
+                     lon=sgeo.POTHOLE_SCHOOL[1], contact_phone="9811111111")
+    db.commit()
+    a = TestClient(app).get("/api/v1/public/agent-activity").json()
+    assert a["last_hour"] >= 1 and a["latest"][0]["agent_label"] == "Case Investigator"
+    assert "9811111111" not in str(a) and "gate" not in str(a)

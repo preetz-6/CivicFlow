@@ -40,3 +40,9 @@ html[data-contrast="high"] .org {
     border-color: #000;
   }
 }
+.slip {
+  border-radius: 14px;
+  border-width: 1px;
+  border-top: 6px solid var(--navy);
+  box-shadow: var(--shadow);
+}

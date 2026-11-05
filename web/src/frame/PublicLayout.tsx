@@ -21,7 +21,7 @@ export function PublicLayout() {
       <NavBar />
       <Ticker />
       <main id="main" tabIndex={-1} className={s.main}>
-        <div className="container">
+        <div className="container fade-up" key={pathname}>
           <Outlet />
         </div>
       </main>

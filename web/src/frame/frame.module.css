@@ -367,3 +367,47 @@ html[data-contrast="high"] .tickerBtn {
     min-height: var(--touch);
   }
 }
+
+/* ---------- Lively layer ---------- */
+.header {
+  border-bottom: 0;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  z-index: 2;
+}
+.nav {
+  background: var(--nav-bg);
+  border-bottom: 3px solid var(--saffron);
+}
+.navLink,
+.navLink:visited {
+  transition: background 0.15s;
+}
+.navLink:hover {
+  background: rgba(255, 255, 255, 0.12);
+  text-decoration: none;
+}
+.navLinkActive,
+.navLinkActive:visited {
+  background: var(--saffron-strong);
+  box-shadow: inset 0 -3px 0 #ffd2a8;
+}
+.ticker {
+  background: var(--white);
+}
+.main {
+  animation: cf-main-in 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes cf-main-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.footer {
+  margin-top: var(--gap-6);
+}

@@ -170,3 +170,49 @@ html[data-contrast="high"] .stat strong {
   margin-top: 2px;
   font-weight: 400;
 }
+
+/* ---------- Lively layer ---------- */
+.statRow {
+  gap: var(--gap-3);
+  border: 0;
+}
+.stat {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  border-top: 4px solid var(--navy);
+  box-shadow: var(--shadow-sm);
+  padding: var(--gap-3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.statRow > .stat:nth-child(5n + 2) {
+  border-top-color: var(--teal);
+}
+.statRow > .stat:nth-child(5n + 3) {
+  border-top-color: var(--amber);
+}
+.statRow > .stat:nth-child(5n + 4) {
+  border-top-color: var(--danger);
+}
+.statRow > .stat:nth-child(5n + 5) {
+  border-top-color: var(--purple);
+}
+a.stat:hover,
+button.stat:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.panelTitle {
+  background: var(--hero);
+}
+.filters {
+  border-radius: 12px;
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+}

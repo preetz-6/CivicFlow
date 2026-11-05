@@ -115,3 +115,50 @@ html[data-contrast="high"] .sideLink {
     padding: var(--gap-3);
   }
 }
+
+/* ---------- Lively layer ---------- */
+.topbar {
+  background: var(--hero);
+  box-shadow: var(--shadow);
+  position: relative;
+  z-index: 2;
+}
+.side {
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+.sideLink,
+.sideLink:visited {
+  border-bottom: 0;
+  margin: 2px 8px;
+  border-radius: var(--radius);
+  border-left: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.sideLink:hover {
+  background: var(--panel-bg);
+  text-decoration: none;
+}
+.sideActive,
+.sideActive:visited {
+  background: var(--navy);
+  color: var(--text-on-dark);
+  box-shadow: inset 4px 0 0 var(--saffron);
+}
+.side ul {
+  padding: 8px 0;
+}
+.content {
+  background: var(--page-bg);
+  animation: cf-main-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes cf-main-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

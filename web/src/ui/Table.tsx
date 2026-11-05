@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { downloadCsv, toCsv } from "./csv";
 import u from "./ui.module.css";
@@ -63,6 +63,8 @@ export function Table<T>(props: Props<T>) {
   const [localPage, setLocalPage] = useState(1);
   const [exporting, setExporting] = useState(false);
 
+  // rows that appear after the first load flash briefly (live updates)
+  const seen = useRef<Set<string | number> | null>(null);
   const server = isServer(props);
   const pageSize = props.pageSize ?? 10;
   const total = server ? props.total : props.rows.length;
@@ -70,6 +72,12 @@ export function Table<T>(props: Props<T>) {
   const page = Math.min(server ? props.page : localPage, pageCount);
   const offset = (page - 1) * pageSize;
   const visible = server ? props.rows : props.rows.slice(offset, offset + pageSize);
+  const { rowKey } = props;
+  useEffect(() => {
+    if (props.rows.length === 0) return;
+    seen.current ??= new Set();
+    props.rows.forEach((r) => seen.current!.add(rowKey(r)));
+  }, [props.rows, rowKey]);
   const from = total === 0 ? 0 : offset + 1;
   const to = Math.min(offset + visible.length, total);
 
@@ -128,10 +136,11 @@ export function Table<T>(props: Props<T>) {
             ) : (
               visible.map((row, i) => {
                 const selected = props.isRowSelected?.(row) ?? false;
+                const isNew = seen.current !== null && !seen.current.has(props.rowKey(row));
                 return (
                   <tr
                     key={props.rowKey(row)}
-                    className={`${props.onRowClick ? u.clickable : ""} ${selected ? u.selected : ""}`}
+                    className={`${props.onRowClick ? u.clickable : ""} ${selected ? u.selected : ""} ${isNew ? u.rowNew : ""}`}
                     onClick={props.onRowClick ? () => props.onRowClick!(row) : undefined}
                     aria-selected={props.onRowClick ? selected : undefined}
                   >

@@ -5,6 +5,7 @@ import { ackKey, fmtDate, fmtDateTime } from "../../api/public";
 import type { AckSlip } from "../../api/types";
 import { Breadcrumbs } from "../../frame/Breadcrumbs";
 import { Crest } from "../../frame/Crest";
+import { AckAgent } from "../../ui/AckAgent";
 import { StatusTag } from "../../ui/StatusTag";
 import a from "./ack.module.css";
 
@@ -93,6 +94,7 @@ export function Ack() {
               </tbody>
             </table>
           </div>
+          <AckAgent sr={ack.grievance_no} />
           <div className="actions no-print">
             <button type="button" className="btn" onClick={() => window.print()}>
               {t("ack.print")}

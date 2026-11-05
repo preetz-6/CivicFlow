@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { get } from "../../api/client";
 import type { PublicStats } from "../../api/types";
+import { CountUp, LiveNow } from "../../ui/Lively";
 import h from "./home.module.css";
 
 /* Simple 1.5px line icons (no emoji, no fills), 32x32 */
@@ -72,25 +73,39 @@ export function Home() {
   }, []);
 
   const num = (n: number | null | undefined, suffix = "") =>
-    n === null || n === undefined ? "-" : `${n.toLocaleString(i18n.language === "kn" ? "kn-IN" : "en-IN")}${suffix}`;
+    n === null || n === undefined ? "-" : <CountUp value={n} suffix={suffix} locale={i18n.language === "kn" ? "kn-IN" : "en-IN"} />;
 
   return (
     <>
-      <div className={h.grid}>
-        <section>
-          <h1 style={{ marginTop: 24 }}>{t("home.title")}</h1>
-          <p>{t("home.intro")}</p>
+      <section className={h.hero}>
+        <div className={h.heroText}>
+          <p className={h.kicker}>{t("header.subtitle")}</p>
+          <h1 className={h.heroTitle}>{t("home.title")}</h1>
+          <p className={h.heroIntro}>{t("home.intro")}</p>
+          <div className={h.heroBtns}>
+            <Link to="/lodge" className="btn btn-accent">
+              {t("homeX.lodge")}
+            </Link>
+            <Link to="/track" className={`btn ${h.ghost}`}>
+              {t("homeX.track")}
+            </Link>
+          </div>
           <Link to="/agents" className={h.agentsBtn}>
             <strong>{t("homeX.agents")} →</strong>
             <span>{t("homeX.agentsSub")}</span>
           </Link>
+        </div>
+        <LiveNow />
+      </section>
 
+      <div className={h.grid}>
+        <section>
           <h2>{t("homeX.services")}</h2>
           <ul className={h.tiles}>
-            {TILES.map((tile) => (
-              <li key={tile.key}>
-                <Link to={tile.to} className={h.tile}>
-                  {ICONS[tile.key]}
+            {TILES.map((tile, i) => (
+              <li key={tile.key} style={{ animationDelay: `${i * 60}ms` }} className={h.tileLi}>
+                <Link to={tile.to} className={`${h.tile} ${h["tile" + i]}`}>
+                  <span className={h.iconWrap}>{ICONS[tile.key]}</span>
                   <span>{t(`homeX.${tile.key}`)}</span>
                 </Link>
               </li>

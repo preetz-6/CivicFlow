@@ -195,3 +195,24 @@ def agent_flow(sr: str | None = Query(None, max_length=24), db: Session = Depend
     return {"sr_id": case.id, "found": True, "recent": recent,
             "title": f"{case.category.replace('_', ' ').capitalize()} in {case.ward_id or 'the city'}",
             "status": case.status.replace("_", " ").lower(), "boxes": start + rest}
+
+
+@router.get("/public/agent-activity")
+def agent_activity(limit: int = Query(6, ge=1, le=20), db: Session = Depends(get_db)):
+    """Public. Recent agent actions for the home page "Live now" strip and the staff pop-up notices.
+    Decisions only (category, ward, priority): no names, phones or complaint text."""
+    from datetime import timedelta
+
+    from app.core.clock import clock, now
+
+    # the app clock can run faster than real time (TIME_SCALE): "last hour" and "ago" are in real time
+    scale = max(clock.scale, 1e-9)
+    t = now()
+    base = select(AgentRun).where(AgentRun.trigger != "seed.backfill", AgentRun.status != "RUNNING")
+    hour = len(db.scalars(base.where(AgentRun.started_at >= t - timedelta(hours=scale))).all())
+    latest = [{"id": r.id, "agent": r.agent, "agent_label": LABELS.get(r.agent, r.agent), "subject_id": r.subject_id,
+               "text": _short(_plain(r.decision) or "checked the case", 90), "at": r.started_at,
+               "ago_s": max(0, int((t - r.started_at).total_seconds() / scale)),
+               "autonomous": _cause(db, r)["type"] not in ("citizen", "human")}
+              for r in db.scalars(base.order_by(AgentRun.id.desc()).limit(limit))]
+    return {"last_hour": hour, "latest": latest}

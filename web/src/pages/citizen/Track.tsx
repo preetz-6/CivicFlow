@@ -10,6 +10,7 @@ import { Field, Fieldset } from "../../ui/Fieldset";
 import { MapView } from "../../ui/MapPicker";
 import { StarRating } from "../../ui/StarRating";
 import { EscalationBadge, PriorityTag, StatusTag } from "../../ui/StatusTag";
+import { Stepper } from "../../ui/Stepper";
 import { Timeline } from "../../ui/Timeline";
 
 interface TrackState {
@@ -190,6 +191,7 @@ export function Track() {
         <>
           <section className="section">
             <h2>{t("track.status")}</h2>
+            <Stepper status={view.status} />
             <table className="kv">
               <tbody>
                 <tr>

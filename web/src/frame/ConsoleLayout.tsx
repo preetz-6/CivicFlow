@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ApiError, get, post } from "../api/client";
 import type { UserOut } from "../api/types";
+import { AgentToasts } from "../ui/Lively";
 import { Crest } from "./Crest";
 import c from "./console.module.css";
 
@@ -29,6 +30,7 @@ export function ConsoleLayout({
 }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [user, setUser] = useState<UserOut | null>(null);
   const [error, setError] = useState<string | null>(null);
   const rolesKey = roles.join(",");
@@ -115,9 +117,12 @@ export function ConsoleLayout({
           </ul>
         </nav>
         <main id="main" tabIndex={-1} className={c.content}>
-          <Outlet context={user} />
+          <div className="fade-up" key={pathname}>
+            <Outlet context={user} />
+          </div>
         </main>
       </div>
+      <AgentToasts />
     </div>
   );
 }

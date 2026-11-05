@@ -255,3 +255,41 @@ html[data-contrast="high"] .starOn {
 .star:focus-within {
   outline: 3px solid var(--focus);
 }
+
+/* ---------- Lively layer ---------- */
+.table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.table th,
+.table td {
+  border-width: 0 0 1px 0;
+}
+.table thead th {
+  background: var(--hero);
+}
+.table tbody tr {
+  transition: background 0.12s;
+}
+.table tbody tr:hover {
+  background: var(--info-bg);
+}
+.tag {
+  border-radius: 999px;
+  padding: 1px 10px;
+}
+@keyframes cf-row-flash {
+  from {
+    background: #fff3c4;
+  }
+  to {
+    background: transparent;
+  }
+}
+.rowNew td {
+  animation: cf-row-flash 2.4s ease-out;
+}

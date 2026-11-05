@@ -252,3 +252,91 @@ label {
   font-size: var(--fs-sm);
   padding-top: 4px;
 }
+
+/* ---------- Lively layer: depth, motion, colour ---------- */
+.btn {
+  transition: background 0.15s, transform 0.15s var(--ease), box-shadow 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+.btn-accent {
+  background: var(--saffron-strong);
+  border-color: var(--saffron-strong);
+}
+.btn-accent:hover {
+  background: #9a4708;
+}
+input,
+select,
+textarea {
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(26, 61, 124, 0.15);
+}
+.panel,
+.notice,
+.kv,
+.photo-grid figure {
+  border-radius: var(--radius);
+}
+.panel {
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+.kv {
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  background: var(--white);
+}
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  padding: var(--gap-4);
+}
+/* every page fades in */
+@keyframes cf-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fade-up {
+  animation: cf-fade-up 0.45s var(--ease) both;
+}
+@keyframes cf-pulse-dot {
+  0% {
+    box-shadow: 0 0 0 0 rgba(46, 158, 79, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 9px rgba(46, 158, 79, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(46, 158, 79, 0);
+  }
+}
+.live-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: cf-pulse-dot 1.8s infinite;
+}

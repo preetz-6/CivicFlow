@@ -227,5 +227,27 @@
   },
   "footerX": {
     "visitors": "Visitors"
+  },
+  "live": {
+    "title": "Live now",
+    "hour": "{{n}} actions by AI agents in the last hour",
+    "auto": "on its own",
+    "empty": "Agents are waiting for the next report.",
+    "see": "See how they work"
+  },
+  "stepper": {
+    "label": "Progress of your grievance",
+    "SUBMITTED": "Submitted",
+    "ASSIGNED": "Assigned",
+    "IN_PROGRESS": "Work in progress",
+    "RESOLVED": "Resolved",
+    "CLOSED": "Closed"
+  },
+  "ackAgent": {
+    "title": "Our AI agent is checking your complaint",
+    "done": "Checked and routed",
+    "wait": "Starting…",
+    "note": "This happens automatically within seconds. An officer then reviews it.",
+    "more": "See the full step-by-step view"
   }
 }
