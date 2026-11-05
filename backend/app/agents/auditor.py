@@ -148,7 +148,7 @@ def hard_checks(ctx: ToolContext, wo: WorkOrder, after: Attachment, *, by: str) 
         checks.append(Check(name="Photo taken after assignment", passed=None,
                             detail="No capture time in the photo (EXIF missing): cannot verify. Needs a human look."))
         facts["unverifiable"] = True
-    elif after.exif_time < wo.assigned_at:
+    elif after.exif_time < wo.assigned_at - timedelta(minutes=2):  # EXIF has whole-second precision
         hours = (wo.assigned_at - after.exif_time).total_seconds() / 3600
         checks.append(Check(name="Photo taken after assignment", passed=False,
                             detail=f"Photo was taken {hours:.0f} h BEFORE the job was assigned ({after.exif_time.astimezone(IST):%d %b %H:%M} IST)."))
