@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ApiError, get, post } from "../api/client";
-import type { UserOut } from "../api/pending";
+import type { UserOut } from "../api/types";
 import { Crest } from "./Crest";
 import { ProtoBanner } from "./PublicLayout";
 import c from "./console.module.css";

@@ -1,7 +1,7 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import { get } from "../api/client";
-import type { TickerItem } from "../api/pending";
+import type { TickerItem } from "../api/types";
 import s from "./frame.module.css";
 
 /**

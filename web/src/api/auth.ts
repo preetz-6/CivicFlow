@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ApiError, get } from "./client";
-import type { UserOut } from "./pending";
+import type { UserOut } from "./types";
 
 /** Where each role lands after login. */
 export function homeFor(role: string): string {

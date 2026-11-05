@@ -3,7 +3,7 @@
  * Machine A has not shipped. Shapes follow BUILD_PLAN §10 and ./pending.ts.
  */
 import { ApiError } from "./client";
-import type { TickerItem, UserOut } from "./pending";
+import type { TickerItem, UserOut } from "./types";
 
 const ticker: TickerItem[] = [
   {

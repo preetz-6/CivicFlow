@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { homeFor, useMe } from "../../api/auth";
 import { get, post } from "../../api/client";
-import type { DemoUser, LoginOut, UserOut } from "../../api/pending";
+import type { DemoUser, LoginOut, UserOut } from "../../api/types";
 import { Breadcrumbs } from "../../frame/Breadcrumbs";
 import { ErrorBox } from "../../ui/ErrorBox";
 import { Field, Fieldset } from "../../ui/Fieldset";
