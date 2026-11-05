@@ -37,3 +37,21 @@ export function SlaBadge({ state, dueAt, now }: { state: SlaState | string; dueA
     </span>
   );
 }
+
+/** SLA cell from the API's precomputed SlaOut (label like "2d 4h left" / "Breached by 6h"). */
+export function SlaLabel({ sla }: { sla: { state: string | null; label: string; due_at?: string | null } }) {
+  const tone =
+    sla.state === "BREACHED"
+      ? u.sla_breached
+      : sla.state === "AT_RISK"
+        ? u.sla_risk
+        : sla.state === "PAUSED" || !sla.state
+          ? u.sla_paused
+          : u.sla_ok;
+  return (
+    <span className={`${u.sla} ${tone}`} title={sla.due_at ? new Date(sla.due_at).toLocaleString("en-IN") : undefined}>
+      {sla.label}
+      {sla.state === "AT_RISK" ? <span className="visually-hidden"> (at risk)</span> : null}
+    </span>
+  );
+}

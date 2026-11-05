@@ -32,13 +32,15 @@ export function ConsoleLayout({
   const navigate = useNavigate();
   const [user, setUser] = useState<UserOut | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const rolesKey = roles.join(",");
 
   useEffect(() => {
+    const allowed = rolesKey.split(",");
     let alive = true;
     get<UserOut>("/auth/me")
       .then((u) => {
         if (!alive) return;
-        if (!roles.includes(u.role)) navigate("/login", { replace: true });
+        if (!allowed.includes(u.role)) navigate("/login", { replace: true });
         else setUser(u);
       })
       .catch((e: unknown) => {
@@ -49,7 +51,7 @@ export function ConsoleLayout({
     return () => {
       alive = false;
     };
-  }, [navigate, roles]);
+  }, [navigate, rolesKey]);
 
   async function logout() {
     try {

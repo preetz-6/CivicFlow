@@ -131,7 +131,7 @@ export interface CrewOut {
   capacity: number;
   open_jobs: number;
   contractor: string | null;
-  audit_priority: string | boolean | null;
+  audit_priority: string | null; // NORMAL | HIGH
   lat: number;
   lon: number;
 }
