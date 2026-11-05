@@ -22,8 +22,10 @@ from app.models.enums import Role
 router = APIRouter(tags=["public"])
 
 STATIC_NOTICES = [
-    {"text": "Lodge grievances online 24x7; track with your Grievance No. and mobile number.", "new": False},
-    {"text": "Citizen Charter: potholes on arterial roads are attended within 5 days.", "new": False},
+    {"id": "notice-1", "text": "Lodge grievances online 24x7; track with your Grievance No. and mobile number.",
+     "text_kn": "ದೂರುಗಳನ್ನು 24x7 ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಸಲ್ಲಿಸಿ; ದೂರು ಸಂಖ್ಯೆ ಮತ್ತು ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯೊಂದಿಗೆ ಸ್ಥಿತಿ ತಿಳಿಯಿರಿ.", "new": False},
+    {"id": "notice-2", "text": "Citizen Charter: potholes on arterial roads are attended within 5 days.",
+     "text_kn": "ನಾಗರಿಕ ಸನ್ನದು: ಮುಖ್ಯ ರಸ್ತೆಗಳ ಗುಂಡಿಗಳನ್ನು 5 ದಿನಗಳಲ್ಲಿ ಸರಿಪಡಿಸಲಾಗುತ್ತದೆ.", "new": False},
 ]
 
 
@@ -42,16 +44,50 @@ def stats(db: Session = Depends(get_db)):
         "within_sla_pct": round(100 * len(within) / len(closed), 1) if closed else None,
         "avg_days": round(sum(days) / len(days), 1) if days else None,
         "reopen_rate_pct": round(100 * sum(s.reopen_count > 0 for s in closed) / len(closed), 1) if closed else None,
+        "visits": _visits(db),
         "as_of": now(),
     }
 
 
+def _visits(db) -> int:
+    from app.models import SystemState
+
+    row = db.get(SystemState, "visits")
+    return int(row.value.get("count", 0)) if row else 12873
+
+
 @router.get("/public/ticker")
 def ticker(db: Session = Depends(get_db)):
-    items = [{"text": i.advisory_draft, "text_kn": i.advisory_draft_kn, "new": True, "at": i.published_at}
+    """Newest first: published Surge Commander advisories, then standing notices."""
+    items = [{"id": f"incident-{i.id}", "text": i.advisory_draft, "text_kn": i.advisory_draft_kn, "new": True,
+              "published_at": i.published_at}
              for i in db.scalars(select(Incident).where(Incident.advisory_published.is_(True))
                                  .order_by(Incident.published_at.desc()))]
-    return items + STATIC_NOTICES
+    seeded_at = now() - timedelta(days=10)
+    return items + [{**n, "published_at": seeded_at} for n in STATIC_NOTICES]
+
+
+@router.post("/public/visit")
+def visit(db: Session = Depends(get_db)):
+    """Called once per browser session by the web app (footer 'Visitors: N')."""
+    from app.models import SystemState
+
+    row = db.get(SystemState, "visits")
+    if row is None:
+        row = SystemState(key="visits", value={"count": 12873})  # demo starting count
+        db.add(row)
+    row.value = {"count": int(row.value.get("count", 0)) + 1}
+    db.commit()
+    return {"visits": row.value["count"]}
+
+
+@router.get("/public/sla-policies")
+def sla_policies(db: Session = Depends(get_db)):
+    from app.models import SlaPolicy
+
+    return [{"category": p.category, "category_label": CATEGORY_LABELS.get(p.category, (p.category,))[0],
+             "priority": p.priority, "resolution_hours": p.resolution_hours, "verification_hours": p.verification_hours}
+            for p in db.scalars(select(SlaPolicy).order_by(SlaPolicy.category, SlaPolicy.priority))]
 
 
 @router.get("/public/categories")
