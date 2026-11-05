@@ -7,8 +7,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=(".env", "../.env"), extra="ignore")
 
-    database_url: str = "postgresql+psycopg://civicflow:civicflow@localhost:5432/civicflow"
-    test_database_url: str = "postgresql+psycopg://civicflow:civicflow@localhost:5432/civicflow_test"
+    database_url: str = "postgresql+psycopg://civicflow:civicflow@localhost:5433/civicflow"
+    test_database_url: str = "postgresql+psycopg://civicflow:civicflow@localhost:5433/civicflow_test"
 
     anthropic_api_key: str = ""
     civicflow_llm_model: str = "claude-sonnet-5-5"

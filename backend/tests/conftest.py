@@ -2,7 +2,7 @@ import os
 
 # Point the app at the test database BEFORE anything imports app.config.
 os.environ["DATABASE_URL"] = os.environ.get(
-    "TEST_DATABASE_URL", "postgresql+psycopg://civicflow:civicflow@localhost:5432/civicflow_test"
+    "TEST_DATABASE_URL", "postgresql+psycopg://civicflow:civicflow@localhost:5433/civicflow_test"
 )
 os.environ["AGENT_MODE"] = "rules"
 os.environ["SCHEDULER_ENABLED"] = "false"
@@ -28,7 +28,8 @@ def _schema():
         for s in PRE:
             conn.execute(text(s))
         conn.execute(text("DROP TABLE IF EXISTS alembic_version"))
-        Base.metadata.drop_all(conn)
+        for t in reversed(Base.metadata.sorted_tables):
+            conn.execute(text(f'DROP TABLE IF EXISTS "{t.name}" CASCADE'))
         Base.metadata.create_all(conn)
         for s in POST:
             conn.execute(text(s))
