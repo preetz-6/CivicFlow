@@ -17,8 +17,13 @@
   text-align: left;
   color: var(--text);
 }
-button.stat {
+button.stat,
+a.stat {
   cursor: pointer;
+  text-decoration: none;
+}
+a.stat:hover {
+  background: var(--info-bg);
 }
 button.stat:hover {
   background: var(--info-bg);

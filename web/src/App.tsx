@@ -7,6 +7,10 @@ import { JobDetail } from "./pages/field/JobDetail";
 import { Verification } from "./pages/control/Verification";
 import { ActivityLog } from "./pages/control/ActivityLog";
 import { RunDetail } from "./pages/control/RunDetail";
+import { Dashboard } from "./pages/control/Dashboard";
+import { HazardMap } from "./pages/control/HazardMap";
+import { Incidents } from "./pages/control/Incidents";
+import { AgencyInbox } from "./pages/agency/Inbox";
 import { PublicLayout } from "./frame/PublicLayout";
 import { Home } from "./pages/citizen/Home";
 import { Login } from "./pages/citizen/Login";
@@ -22,6 +26,15 @@ import { Sitemap } from "./pages/info/Sitemap";
 const OFFICER_ROLES = ["WARD_OFFICER"];
 const FIELD_ROLES = ["FIELD_TEAM"];
 const CONTROL_ROLES = ["CONTROL_ROOM"];
+const CONTROL_MENU = [
+  { to: "/control", label: "Dashboard", end: true },
+  { to: "/control/complaints", label: "All Complaints" },
+  { to: "/control/verification", label: "Verification Queue" },
+  { to: "/control/hazards", label: "Road Hazard Map" },
+  { to: "/control/incidents", label: "Incidents" },
+  { to: "/control/activity", label: "Agent Activity Log" },
+  { to: "/control/agency", label: "Agency Inbox (Simulated)" },
+];
 
 export function App() {
   return (
@@ -32,7 +45,10 @@ export function App() {
           <ConsoleLayout
             title="Ward Officer Console"
             roles={OFFICER_ROLES}
-            menu={[{ to: "/officer", label: "Complaint Queue", end: true }]}
+            menu={[
+              { to: "/officer", label: "Complaint Queue", end: true },
+              { to: "/officer/agency", label: "Agency Inbox (Simulated)" },
+            ]}
           />
         }
       >
@@ -42,6 +58,7 @@ export function App() {
           path="activity/:id"
           element={<RunDetail backTo="/officer" backLabel="Complaint Queue" srBase="/officer/complaints" />}
         />
+        <Route path="agency" element={<AgencyInbox />} />
       </Route>
       <Route
         path="field"
@@ -58,16 +75,22 @@ export function App() {
           <ConsoleLayout
             title="Control Room"
             roles={CONTROL_ROLES}
-            menu={[
-              { to: "/control", label: "Verification Queue", end: true },
-              { to: "/control/activity", label: "Agent Activity Log" },
-            ]}
+            menu={CONTROL_MENU}
           />
         }
       >
-        <Route index element={<Verification />} />
+        <Route index element={<Dashboard />} />
+        <Route path="complaints" element={<Queue />} />
+        <Route path="complaints/:id" element={<CaseDetail />} />
+        <Route path="verification" element={<Verification />} />
+        <Route path="hazards" element={<HazardMap />} />
+        <Route path="incidents" element={<Incidents />} />
         <Route path="activity" element={<ActivityLog />} />
-        <Route path="activity/:id" element={<RunDetail backTo="/control/activity" backLabel="Agent Activity Log" />} />
+        <Route
+          path="activity/:id"
+          element={<RunDetail backTo="/control/activity" backLabel="Agent Activity Log" srBase="/control/complaints" />}
+        />
+        <Route path="agency" element={<AgencyInbox />} />
       </Route>
       <Route element={<PublicLayout />}>
         <Route index element={<Home />} />

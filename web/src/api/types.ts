@@ -208,3 +208,112 @@ export interface AgentStat {
   rules_runs: number;
   avg_latency_ms: number;
 }
+
+// ---------------------------------------------------------------- control room
+export interface Escalation {
+  id: number;
+  sr_id: string;
+  level: number;
+  trigger: string;
+  reason_summary: string | null;
+  authority: string | null;
+  created_at: string;
+  deadline: string | null;
+  agent_run_id: number | null;
+}
+
+export interface WeatherAlert {
+  id: number;
+  title: string;
+  severity: string;
+  area_name: string | null;
+  active: boolean;
+  issued_at: string;
+  expires_at: string | null;
+  simulated: boolean;
+}
+
+export interface Incident {
+  id: number;
+  name: string;
+  display_name: string;
+  category: string | null;
+  severity: string;
+  status: string;
+  report_count: number;
+  unique_issues: number;
+  resolved_count: number;
+  lat: number;
+  lon: number;
+  crew_suggestion: string | null;
+  advisory_draft: string | null;
+  advisory_draft_kn: string | null;
+  advisory_published: boolean;
+  published_at: string | null;
+  summary: string | null;
+  summary_at: string | null;
+  agent_run_id: number | null;
+  created_at: string;
+  sr_ids: string[];
+}
+
+export interface HazardCluster {
+  id: number;
+  lat: number;
+  lon: number;
+  status: string; // NEW | FILTERED | CORROBORATED | CREATED | REPAIR_FAILURE | REVIEW | IGNORED
+  hazard_type: string | null;
+  detections: number;
+  distinct_vehicles: number;
+  avg_confidence: number | null;
+  avg_jolt_g: number | null;
+  days_seen: number | null;
+  first_seen: string | null;
+  last_seen: string | null;
+  filter_reason: string | null;
+  decision_reason: string | null;
+  sr_id: string | null;
+  flagged_wo_id: string | null;
+  agent_run_id: number | null;
+}
+
+export interface HazardMapData {
+  clusters: HazardCluster[];
+  known_features: { type: string; name: string; lat: number; lon: number }[];
+  complaints: { id: string; lat: number; lon: number; source: string; status: string; priority: string; vehicles: number; category: string }[];
+  raw: { lat: number; lon: number; c: number; cluster_id: number | null }[];
+  simulated_source: boolean;
+}
+
+export interface DataSourceOut {
+  id: number;
+  name: string;
+  kind: string;
+  simulated: boolean;
+  last_ingested_at: string | null;
+  accepted: number;
+  rejected: number;
+  recent_rejections: { at: string; source_record_id: string | null; reason: string }[];
+}
+
+export interface AgencyReferral {
+  id: number;
+  agency: string;
+  sr_id: string;
+  category: string;
+  description: string;
+  reason: string | null;
+  status: string;
+  sent_at: string | null;
+  followups_sent: number;
+  agency_status: string | null;
+  agency_reply: string | null;
+  simulated: boolean;
+  messages: { direction: string; body: string; at: string }[];
+}
+
+export interface ClockOut {
+  now: string;
+  scale: number;
+  frozen: boolean;
+}

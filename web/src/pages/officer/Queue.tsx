@@ -8,6 +8,7 @@ import { SlaLabel } from "../../ui/SlaBadge";
 import { EscalationBadge, PriorityTag, StatusTag } from "../../ui/StatusTag";
 import { Table } from "../../ui/Table";
 import { ReassignmentsPanel } from "./Reassignments";
+import { useConsoleBase } from "../consoleBase";
 import o from "./officer.module.css";
 
 interface OfficerStats {
@@ -43,6 +44,7 @@ function queryString(f: Filters, page: number, pageSize: number) {
 /** Ward-scoped complaint queue (GET /officer/queue), newest and most urgent first. */
 export function Queue() {
   const navigate = useNavigate();
+  const base = useConsoleBase();
   const categories = useCategories();
   const [draft, setDraft] = useState<Filters>(EMPTY);
   const [filters, setFilters] = useState<Filters>(EMPTY);
@@ -105,7 +107,7 @@ export function Queue() {
 
   return (
     <>
-      <h1>Complaint Queue</h1>
+      <h1>{base === "/control" ? "All Complaints (city-wide)" : "Complaint Queue"}</h1>
       {stats ? (
         <div className={o.statRow} role="group" aria-label="Queue summary">
           <button type="button" className={o.stat} onClick={() => quick({})}>
@@ -218,13 +220,13 @@ export function Queue() {
           fetchAll={fetchAll}
           exportName="complaint-queue"
           rowKey={(r) => r.id}
-          onRowClick={(r) => navigate(`/officer/complaints/${encodeURIComponent(r.id)}`)}
+          onRowClick={(r) => navigate(`${base}/complaints/${encodeURIComponent(r.id)}`)}
           columns={[
             {
               key: "id",
               header: "Grievance No.",
               render: (r) => (
-                <Link to={`/officer/complaints/${encodeURIComponent(r.id)}`} onClick={(e) => e.stopPropagation()}>
+                <Link to={`${base}/complaints/${encodeURIComponent(r.id)}`} onClick={(e) => e.stopPropagation()}>
                   {r.id}
                 </Link>
               ),

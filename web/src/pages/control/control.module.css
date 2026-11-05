@@ -33,3 +33,28 @@
 .fail {
   color: var(--danger);
 }
+.grid2 {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--gap-4);
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+.layers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-4);
+  padding: var(--gap-2) var(--gap-3);
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  margin-bottom: var(--gap-2);
+}
+.layers label {
+  font-weight: 400;
+  display: inline-flex;
+  align-items: center;
+}

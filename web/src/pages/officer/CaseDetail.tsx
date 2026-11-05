@@ -11,6 +11,7 @@ import { EscalationBadge, PriorityTag, StatusTag } from "../../ui/StatusTag";
 import { Table } from "../../ui/Table";
 import { Timeline } from "../../ui/Timeline";
 import { SystemAnalysis } from "./SystemAnalysis";
+import { useConsoleBase } from "../consoleBase";
 import o from "./officer.module.css";
 
 interface Dept {
@@ -46,6 +47,8 @@ const val = (r: Record<string, unknown>, k: string) => {
 
 export function CaseDetail() {
   const { id = "" } = useParams();
+  const base = useConsoleBase();
+  const queueHref = base === "/control" ? "/control/complaints" : "/officer";
   const categories = useCategories();
   const [sr, setSr] = useState<ComplaintDetail | null>(null);
   const [departments, setDepartments] = useState<Dept[]>([]);
@@ -72,7 +75,7 @@ export function CaseDetail() {
   }, [id]);
 
   useEffect(() => {
-    document.title = `${id} | Officer Console`;
+    document.title = `${id} | ${base === "/control" ? "Control Room" : "Officer Console"}`;
     void load();
   }, [id, load]);
 
@@ -109,7 +112,7 @@ export function CaseDetail() {
     return (
       <>
         <p>
-          <Link to="/officer">Back to queue</Link>
+          <Link to={queueHref}>Back to complaints</Link>
         </p>
         <ErrorBox error={error} />
       </>
@@ -129,7 +132,7 @@ export function CaseDetail() {
   return (
     <>
       <p className="no-print" style={{ marginTop: 0 }}>
-        <Link to="/officer">Complaint Queue</Link> &raquo; {sr.id}
+        <Link to={queueHref}>Complaints</Link> &raquo; {sr.id}
       </p>
       <div className={o.head}>
         <h1>{sr.id}</h1>
@@ -389,7 +392,7 @@ export function CaseDetail() {
                     <tr>
                       <th scope="row">Merged into</th>
                       <td>
-                        <Link to={`/officer/complaints/${encodeURIComponent(sr.parent_sr_id)}`}>{sr.parent_sr_id}</Link>
+                        <Link to={`${base}/complaints/${encodeURIComponent(sr.parent_sr_id)}`}>{sr.parent_sr_id}</Link>
                       </td>
                     </tr>
                   ) : null}
@@ -672,6 +675,7 @@ function WorkOrders({
 
 /** Every agent run on this grievance (GET /agent-runs?subject_id=), newest first. */
 function AgentActivity({ srId, refreshKey }: { srId: string; refreshKey: number }) {
+  const base = useConsoleBase();
   const [runs, setRuns] = useState<AgentRunRow[] | null>(null);
   const [error, setError] = useState<unknown>(null);
   useEffect(() => {
@@ -690,7 +694,7 @@ function AgentActivity({ srId, refreshKey }: { srId: string; refreshKey: number 
       <div className={o.panelBody}>
         <ErrorBox error={error} />
         {runs ? (
-          <Table<AgentRunRow> rows={runs} rowKey={(r) => r.id} pageSize={5} columns={runColumns("/officer/activity")} />
+          <Table<AgentRunRow> rows={runs} rowKey={(r) => r.id} pageSize={5} columns={runColumns(`${base}/activity`)} />
         ) : null}
       </div>
     </section>

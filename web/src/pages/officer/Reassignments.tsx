@@ -4,6 +4,7 @@ import { ApiError, get, post } from "../../api/client";
 import { fmtDateTime } from "../../api/public";
 import { ErrorBox } from "../../ui/ErrorBox";
 import { Table } from "../../ui/Table";
+import { useConsoleBase } from "../consoleBase";
 import o from "./officer.module.css";
 
 /**
@@ -25,6 +26,7 @@ interface Proposal {
 }
 
 export function ReassignmentsPanel({ onChanged }: { onChanged?: () => void }) {
+  const base = useConsoleBase();
   const [items, setItems] = useState<Proposal[] | null>(null);
   const [available, setAvailable] = useState(false);
   const [error, setError] = useState<unknown>(null);
@@ -104,7 +106,7 @@ export function ReassignmentsPanel({ onChanged }: { onChanged?: () => void }) {
                     <>
                       {p.wo_id}
                       <div>
-                        <Link to={`/officer/complaints/${encodeURIComponent(p.sr_id)}`}>{p.sr_id}</Link>
+                        <Link to={`${base}/complaints/${encodeURIComponent(p.sr_id)}`}>{p.sr_id}</Link>
                       </div>
                     </>
                   ) : (
@@ -129,7 +131,7 @@ export function ReassignmentsPanel({ onChanged }: { onChanged?: () => void }) {
                     {p.reason}
                     {p.agent_run_id ? (
                       <div>
-                        <Link to={`/officer/activity/${p.agent_run_id}`}>Steps taken</Link>
+                        <Link to={`${base}/activity/${p.agent_run_id}`}>Steps taken</Link>
                       </div>
                     ) : null}
                   </>
