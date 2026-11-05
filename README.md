@@ -43,7 +43,7 @@ Windows without `make`: every Makefile target exists as `.\scripts\cf.ps1 <targe
 
 ## Demo logins
 
-No passwords. Go to **Login**, enter a User ID, click **Get OTP**; the OTP is shown on screen (Simulated SMS). The Login page lists every demo user.
+**Login** with User ID + password. Seeded passwords: citizens `Citizen@2026`, officers `Officer@2026`, field teams `Field@2026`, Control Room `Control@2026`.
 
 | User ID | Role | Lands on |
 |---|---|---|
@@ -105,7 +105,7 @@ flowchart TB
 
 - **Status changes** go through one declarative transition table and one `transition()` function (role, scope and required-field checks; status event, audit entry and bus event in the same transaction).
 - **Audit log and status events are append-only**, enforced by database triggers.
-- **SLA time** runs on one clock module; `TIME_SCALE=60` makes one real minute one SLA hour, and the Control Room has a demo clock to move it forward on cue.
+- **SLA time** runs on one clock module; `TIME_SCALE=60` makes one real minute one SLA hour, and `python scripts/ops.py advance <hours>` moves it forward on cue.
 
 ## What is real and what is simulated
 
@@ -113,8 +113,8 @@ flowchart TB
 |---|---|
 | The 5 agents, runtime, Activity Log, fallbacks, record/replay | Connected-vehicle (OEM) feed: no OEM data is public; `simulator/` follows a documented ingestion contract |
 | Workflow engine, SLA engine, escalation rules, append-only audit log, role and ward scoping | SMS / WhatsApp: on-screen outbox only |
-| PostGIS ward lookup, radius queries, DBSCAN clustering (ward polygons approximate) | BESCOM / BWSSB replies: the **Agency Inbox (Simulated)** page, played by the presenter |
-| Photo EXIF checks and perceptual hashing; vision with an API key | Weather alerts; OTP login (OTP shown on screen) |
+| PostGIS ward lookup, radius queries, DBSCAN clustering (ward polygons approximate) | BESCOM / BWSSB replies: the **Agency Liaison** page, where staff record replies, played by the presenter |
+| Photo EXIF checks and perceptual hashing; vision with an API key | Weather alerts |
 | Ingestion validation and dead letter | All people, wards, assets and history are synthetic seed data |
 
 ## Repository
