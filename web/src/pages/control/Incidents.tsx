@@ -8,7 +8,7 @@ import { CityMap } from "../../ui/CityMap";
 import { ErrorBox } from "../../ui/ErrorBox";
 import o from "../officer/officer.module.css";
 
-const SEVERITY_COLOR: Record<string, string> = { HIGH: "#b3261e", CRITICAL: "#b3261e", MEDIUM: "#b06a00", LOW: "#1b3a6b" };
+const SEVERITY_COLOR: Record<string, string> = { SEVERE: "#7a0f0a", HIGH: "#b3261e", CRITICAL: "#7a0f0a", MEDIUM: "#b06a00", LOW: "#1b3a6b" };
 
 /** Incidents from the Surge Commander: grouped reports, crew suggestion, advisory (edit + Publish), situation summary. */
 export function Incidents() {
