@@ -140,6 +140,21 @@ textarea {
 textarea {
   min-height: 90px;
 }
+input[type="checkbox"],
+input[type="radio"] {
+  min-height: 0;
+  padding: 0;
+  width: 18px;
+  height: 18px;
+  margin: 0 6px 0 0;
+  vertical-align: -3px;
+  accent-color: var(--navy);
+}
+input[type="file"] {
+  border: 0;
+  padding: 4px 0;
+  background: transparent;
+}
 label {
   font-weight: 700;
 }

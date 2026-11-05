@@ -6,7 +6,7 @@ import s from "./frame.module.css";
 export function Header() {
   const { t } = useTranslation();
   return (
-    <header className={s.header}>
+    <header className={`${s.header} no-print`}>
       <div className={`container ${s.headerInner}`}>
         <Link to="/" className={s.brand} aria-label={`${t("header.nameEn")} - ${t("nav.home")}`}>
           <Crest label={t("header.crestAlt")} />

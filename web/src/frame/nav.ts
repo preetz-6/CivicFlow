@@ -13,6 +13,7 @@ export interface NavItem {
 export const NAV: NavItem[] = [
   { key: "home", to: "/" },
   { key: "about", to: "/about" },
+  { key: "lodge", to: "/lodge" },
   { key: "charter", to: "/citizen-charter" },
   { key: "faqs", to: "/faqs" },
   { key: "contact", to: "/contact" },

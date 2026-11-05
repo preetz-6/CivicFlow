@@ -1,0 +1,42 @@
+.slip {
+  max-width: 720px;
+  border: 2px solid var(--navy);
+  padding: var(--gap-4);
+  background: var(--white);
+}
+.slipHead {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-3);
+  border-bottom: 2px solid var(--saffron);
+  padding-bottom: var(--gap-3);
+  margin-bottom: var(--gap-3);
+}
+.org {
+  font-weight: 700;
+  color: var(--navy);
+}
+html[data-contrast="high"] .org {
+  color: var(--text);
+}
+.slipTitle {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  margin-top: 2px;
+}
+.big {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.printOnly {
+  display: none;
+}
+@media print {
+  .printOnly {
+    display: block;
+  }
+  .slip {
+    border-color: #000;
+  }
+}
