@@ -23,8 +23,9 @@ def agent_handler(agent):
 def register_agents() -> None:
     from app.agents.auditor import auditor
     from app.agents.investigator import investigator
+    from app.agents.sensing import sensing
 
-    for a in (investigator, auditor):
+    for a in (investigator, auditor, sensing):
         AGENTS[a.name] = a
         for trig in a.triggers:
             bus.subscribe(trig, agent_handler(a))
@@ -46,4 +47,8 @@ def register_all() -> None:
 
     scheduler.add_job("clock_sync", clock_state.sync, 5)
     register_agents()
+    from app.agents.sensing import run_sensing
+    from app.config import settings
+
+    scheduler.add_job("sensing", run_sensing, settings.sensing_every_s)
     log.info("handlers and agents registered: %s", ", ".join(AGENTS))

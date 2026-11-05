@@ -60,7 +60,8 @@ class Bus:
         row = EventRow(name=name, payload=payload, at=now())
         session.add(row)
         session.flush()
-        session.info.setdefault("pending_events", []).append(Event(row.id, name, payload))
+        tx = session.get_nested_transaction() or session.get_transaction()
+        session.info.setdefault("pending_events", []).append((tx, Event(row.id, name, payload)))
 
     def dispatch(self, ev: Event) -> None:
         if not self.enabled:
@@ -85,11 +86,31 @@ bus = Bus()
 
 @sa_event.listens_for(Session, "after_commit")
 def _after_commit(session: Session) -> None:
+    # SQLAlchemy also fires after_commit when a SAVEPOINT is released; only the outermost commit
+    # makes the data visible to other sessions, so only then do handlers run.
+    if session.in_nested_transaction():
+        return
     pending = session.info.pop("pending_events", [])
-    for ev in pending:
+    for _tx, ev in pending:
         bus.dispatch(ev)
+
+
+def _within(tx, target) -> bool:
+    while tx is not None:
+        if tx is target:
+            return True
+        tx = tx.parent
+    return False
 
 
 @sa_event.listens_for(Session, "after_soft_rollback")
 def _after_rollback(session: Session, previous_transaction) -> None:
-    session.info.pop("pending_events", None)
+    # Drop only events published inside the transaction / savepoint that rolled back.
+    pending = session.info.get("pending_events")
+    if not pending:
+        return
+    keep = [(tx, ev) for tx, ev in pending if not _within(tx, previous_transaction)]
+    if keep:
+        session.info["pending_events"] = keep
+    else:
+        session.info.pop("pending_events", None)

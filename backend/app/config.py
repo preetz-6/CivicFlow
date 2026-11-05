@@ -26,6 +26,7 @@ class Settings(BaseSettings):
 
     cors_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
     scheduler_enabled: bool = True
+    sensing_every_s: int = 60  # brief: every 2 min; faster for the demo
 
     @property
     def llm_enabled(self) -> bool:

@@ -66,3 +66,9 @@ app.include_router(wo_router, prefix=API)
 from app.agents.router import router as agents_router  # noqa: E402
 
 app.include_router(agents_router, prefix=API)
+
+from app.modules.hazards.router import router as hazards_router  # noqa: E402
+from app.modules.ingestion.router import router as ingestion_router  # noqa: E402
+
+app.include_router(ingestion_router, prefix=API)
+app.include_router(hazards_router, prefix=API)

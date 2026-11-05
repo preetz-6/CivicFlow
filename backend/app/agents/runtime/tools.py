@@ -98,7 +98,8 @@ def invoke(ctx: ToolContext, name: str, args: dict, *, by: str = "model") -> Any
         except Exception as e:  # tool errors go back to the model, never crash the run
             result, err = {"error": f"{type(e).__name__}: {e}"}, str(e)
     ctx.step += 1
-    ctx.db.add(AgentStep(run_id=ctx.run_id, idx=ctx.step, tool=name if by == "model" else f"rule:{name}",
+    label = name if by == "model" else (f"action:{name}" if by == "apply" else f"rule:{name}")
+    ctx.db.add(AgentStep(run_id=ctx.run_id, idx=ctx.step, tool=label,
                          args=_summ(args, 1000), result_summary=_summ(result), error=err,
                          latency_ms=int((time.perf_counter() - t0) * 1000), at=now()))
     ctx.db.flush()

@@ -63,6 +63,18 @@ def demo_photo(variant: str, wo_id: str, db: Session = Depends(get_db)):
                     headers={"Content-Disposition": f'attachment; filename="{wo.id}-{variant}.jpg"'})
 
 
+@router.post("/demo/run/{agent}")
+def demo_run(agent: str):
+    """DEMO ONLY: run a scheduled agent now (sensing). Event-driven agents run by themselves."""
+    if not settings.demo_mode:
+        raise HTTPException(404)
+    if agent == "sensing":
+        from app.agents.sensing import run_sensing
+
+        return {"run_id": run_sensing(force=True)}
+    raise HTTPException(404, "Unknown scheduled agent")
+
+
 class AdvanceIn(BaseModel):
     hours: float
 

@@ -99,6 +99,7 @@ def run_agent(agent: Agent, trigger: str, payload: dict) -> int | None:
     try:
         inp = agent.build_input(db, payload)
         if inp is None:
+            db.commit()  # build_input may do deterministic prep work (e.g. re-clustering)
             return None
         run = AgentRun(agent=agent.name, trigger=trigger, subject_type=agent.subject_type,
                        subject_id=agent.subject_id(inp), status="RUNNING",

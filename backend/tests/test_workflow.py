@@ -250,3 +250,28 @@ def test_reopen_counts(db, world):
     assert sr.reopen_count == 1
     db.commit()
     assert db.get(ServiceRequest, sr.id).status == "REOPENED"
+
+
+def test_bus_waits_for_outer_commit_not_savepoint_release(db, world):
+    seen = []
+    bus.subscribe("x.inner", lambda ev: seen.append(ev.name))
+    with db.begin_nested():
+        bus.publish(db, "x.inner", {})
+    assert seen == []  # savepoint released: other sessions can't see the data yet
+    db.commit()
+    assert seen == ["x.inner"]
+
+
+def test_bus_savepoint_rollback_drops_only_its_own_events(db, world):
+    seen = []
+    bus.subscribe("x.kept", lambda ev: seen.append(ev.name))
+    bus.subscribe("x.dropped", lambda ev: seen.append(ev.name))
+    bus.publish(db, "x.kept", {})
+    try:
+        with db.begin_nested():
+            bus.publish(db, "x.dropped", {})
+            raise RuntimeError("tool failed")
+    except RuntimeError:
+        pass
+    db.commit()
+    assert seen == ["x.kept"]
