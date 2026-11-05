@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { get } from "../../api/client";
+import type { SlaPolicy } from "../../api/types";
 import { Link } from "react-router-dom";
 import { Table } from "../../ui/Table";
 
@@ -14,41 +16,49 @@ export interface InfoPageDef {
   body: () => ReactNode;
 }
 
-interface SlaRow {
-  category: string;
-  priority: string;
-  target: string;
+function fmtHours(h: number): string {
+  if (h % 24 === 0) return `${h / 24} day${h === 24 ? "" : "s"}`;
+  return `${h} hour${h === 1 ? "" : "s"}`;
 }
 
-const SLA_ROWS: SlaRow[] = [
-  { category: "Open manhole / live wire (emergency)", priority: "P1", target: "4 hours" },
-  { category: "Pothole on arterial road", priority: "P2", target: "5 days" },
-  { category: "Pothole on local road", priority: "P3", target: "7 days" },
-  { category: "Streetlight not working", priority: "P3", target: "7 days" },
-  { category: "Garbage not collected", priority: "P3", target: "2 days" },
-  { category: "Blocked drain / waterlogging", priority: "P2", target: "2 days" },
-];
-
 function Charter() {
+  const [policies, setPolicies] = useState<SlaPolicy[] | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    get<SlaPolicy[]>("/public/sla-policies")
+      .then(setPolicies)
+      .catch(() => setFailed(true));
+  }, []);
   return (
     <>
       <p>
         The Corporation commits to the following service standards for grievances lodged on this portal. Timelines
-        are counted from the time the grievance is assigned to the responsible officer. They pause only for reasons
+        are counted from the time the grievance is registered. They pause only for reasons
         outside the Corporation's control (waiting for another agency, weather, or information from the citizen),
         and every pause is recorded on the grievance.
       </p>
-      <h2>Resolution timelines (indicative, demo values)</h2>
-      <Table<SlaRow>
-        caption="Resolution timelines"
-        rows={SLA_ROWS}
-        rowKey={(r) => r.category}
-        columns={[
-          { key: "category", header: "Grievance type" },
-          { key: "priority", header: "Priority" },
-          { key: "target", header: "Target resolution time" },
-        ]}
-      />
+      <h2>Resolution timelines</h2>
+      {failed ? <p className="notice notice-error">The timelines could not be loaded. Please try again later.</p> : null}
+      {policies ? (
+        <Table<SlaPolicy>
+          caption="Resolution timelines"
+          rows={policies}
+          rowKey={(r) => `${r.category}-${r.priority}`}
+          pageSize={15}
+          exportName="citizen-charter-timelines"
+          columns={[
+            { key: "category_label", header: "Grievance type" },
+            { key: "priority", header: "Priority" },
+            { key: "resolution_hours", header: "Target resolution time", render: (r) => fmtHours(r.resolution_hours) },
+            {
+              key: "verification_hours",
+              header: "Time for you to confirm",
+              render: (r) => fmtHours(r.verification_hours),
+            },
+          ]}
+        />
+      ) : null}
+      <p className="muted">P1 is the most urgent (danger to life or property); P4 is the least urgent.</p>
       <h2>Your rights</h2>
       <ul>
         <li>A Grievance Number and acknowledgement for every grievance.</li>

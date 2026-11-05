@@ -5,6 +5,7 @@ import { Login } from "./pages/citizen/Login";
 import { Lodge } from "./pages/citizen/Lodge";
 import { Ack } from "./pages/citizen/Ack";
 import { Track } from "./pages/citizen/Track";
+import { Wards } from "./pages/citizen/Wards";
 import { INFO_PAGES } from "./pages/info/content";
 import { InfoPage } from "./pages/info/InfoPage";
 import { NotFound } from "./pages/info/NotFound";
@@ -21,6 +22,7 @@ export function App() {
         <Route path="lodge" element={<Lodge />} />
         <Route path="ack/:no" element={<Ack />} />
         <Route path="track" element={<Track />} />
+        <Route path="wards" element={<Wards />} />
         <Route path="login" element={<Login />} />
         <Route path="sitemap" element={<Sitemap />} />
         <Route path="*" element={<NotFound />} />

@@ -10,7 +10,8 @@ import s from "./frame.module.css";
  * published, the ticker is not rendered at all.
  */
 export function Ticker() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const kn = i18n.language === "kn";
   const [items, setItems] = useState<TickerItem[]>([]);
   const [paused, setPaused] = useState(false);
 
@@ -31,7 +32,7 @@ export function Ticker() {
 
   if (items.length === 0) return null;
 
-  const totalChars = items.reduce((n, i) => n + i.text.length, 0);
+  const totalChars = items.reduce((n, i) => n + (kn && i.text_kn ? i.text_kn : i.text).length, 0);
   const duration = `${Math.max(20, Math.round(totalChars / 6))}s`;
 
   return (
@@ -45,7 +46,8 @@ export function Ticker() {
           <div className={s.tickerTrack} style={{ "--ticker-duration": duration } as CSSProperties}>
             {items.map((item) => (
               <span key={item.id} className={s.tickerItem}>
-                {item.text}
+                {item.new ? <span className={s.newLabel}>{t("ticker.new")}</span> : null}{" "}
+                {kn && item.text_kn ? item.text_kn : item.text}
               </span>
             ))}
           </div>

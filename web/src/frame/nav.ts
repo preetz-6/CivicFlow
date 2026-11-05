@@ -16,6 +16,7 @@ export const NAV: NavItem[] = [
   { key: "lodge", to: "/lodge" },
   { key: "track", to: "/track" },
   { key: "charter", to: "/citizen-charter" },
+  { key: "wards", to: "/wards" },
   { key: "faqs", to: "/faqs" },
   { key: "contact", to: "/contact" },
   { key: "login", to: "/login" },
