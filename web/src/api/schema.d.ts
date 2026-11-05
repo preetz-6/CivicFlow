@@ -15,7 +15,7 @@ export interface paths {
         put?: never;
         /**
          * Login
-         * @description Accounts are created by the Corporation (no self-registration).
+         * @description Staff login. Accounts are created by the Corporation (no self-registration); citizens never log in.
          */
         post: operations["login_api_v1_auth_login_post"];
         delete?: never;
@@ -213,23 +213,6 @@ export interface paths {
         };
         /** Track */
         get: operations["track_api_v1_complaints_track_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/my/complaints": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** My Complaints */
-        get: operations["my_complaints_api_v1_my_complaints_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1267,6 +1250,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/agent-ops/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Feed */
+        get: operations["feed_api_v1_agent_ops_feed_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/agent-ops/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Summary
+         * @description Counters for the top of the page. 'autonomous' = runs that no person started (vehicle feed, clock, another
+         *     agent, weather): the part a normal website cannot do.
+         */
+        get: operations["summary_api_v1_agent_ops_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2220,26 +2241,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    my_complaints_api_v1_my_complaints_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["QueueItem"][];
                 };
             };
         };
@@ -3976,6 +3977,57 @@ export interface operations {
         };
     };
     clear_alerts_api_v1_demo_weather_alert_clear_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    feed_api_v1_agent_ops_feed_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    summary_api_v1_agent_ops_summary_get: {
         parameters: {
             query?: never;
             header?: never;

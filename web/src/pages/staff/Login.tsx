@@ -8,7 +8,7 @@ import { Breadcrumbs } from "../../frame/Breadcrumbs";
 import { ErrorBox } from "../../ui/ErrorBox";
 import { Field, Fieldset } from "../../ui/Fieldset";
 
-/** User ID + password. Accounts are created by the Corporation; there is no self-registration. */
+/** Staff Login: User ID + password. Citizens never log in. Accounts are created by the Corporation; there is no self-registration. */
 export function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ export function Login() {
       <Breadcrumbs items={[{ label: t("login.title") }]} />
       <h1>{t("login.title")}</h1>
 
-      {me ? (
+      {me && me.role !== "CITIZEN" ? (
         <div className="notice">
           {t("login.already", { name: me.name })}{" "}
           <span className="actions" style={{ display: "inline-flex", margin: 0 }}>

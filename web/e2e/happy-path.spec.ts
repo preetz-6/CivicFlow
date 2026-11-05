@@ -11,7 +11,6 @@ import { expect, test, type Browser, type Page } from "@playwright/test";
 
 // Seeded roster passwords (backend/app/seed/build.py PASSWORDS), one per role.
 const PASSWORDS: Record<string, string> = {
-  citizen: "Citizen@2026",
   officer: "Officer@2026",
   field: "Field@2026",
   control: "Control@2026",

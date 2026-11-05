@@ -1,7 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useMe } from "../../api/auth";
 import { post } from "../../api/client";
 import { ackKey, useCategories } from "../../api/public";
 import type { AckSlip } from "../../api/types";
@@ -21,7 +20,6 @@ export function Lodge() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const categories = useCategories();
-  const me = useMe();
 
   const [category, setCategory] = useState(params.get("category") ?? "");
   const [description, setDescription] = useState("");
@@ -45,11 +43,6 @@ export function Lodge() {
   useEffect(() => {
     document.title = `${t("lodge.title")} | ${t("header.nameEn")}`;
   }, [t]);
-
-  // A logged-in citizen's name is filled in for them.
-  useEffect(() => {
-    if (me && me.role === "CITIZEN" && !name) setName(me.name);
-  }, [me, name]);
 
   // Preview uses an object URL of the original file; nothing is re-encoded.
   useEffect(() => {
@@ -93,7 +86,7 @@ export function Lodge() {
     setLandmark("");
     setAddress("");
     setAnonymous(false);
-    setName(me?.role === "CITIZEN" ? me.name : "");
+    setName("");
     setMobile("");
     setDeclared(false);
     setConsented(false);

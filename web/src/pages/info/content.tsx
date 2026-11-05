@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { Table } from "../../ui/Table";
 
 /**
- * Static pages linked from the nav bar, top strip and footer. Bodies are English only for now; titles come
+ * Static pages linked from the nav bar, top strip and footer (About, Charter, FAQs, Contact, Accessibility, Screen Reader Access). Bodies are English only for now; titles come
  * from the i18n files where a key exists.
  */
 export interface InfoPageDef {
@@ -147,78 +147,6 @@ export const INFO_PAGES: InfoPageDef[] = [
     ),
   },
   {
-    slug: "website-policies",
-    titleKey: "footer.websitePolicies",
-    body: () => (
-      <>
-        <p>The policies that apply to this portal are listed below.</p>
-        <ul>
-          <li>
-            <Link to="/hyperlinking-policy">Hyperlinking Policy</Link>
-          </li>
-          <li>
-            <Link to="/copyright-policy">Copyright Policy</Link>
-          </li>
-          <li>
-            <Link to="/privacy-policy">Privacy Policy</Link>
-          </li>
-          <li>
-            <Link to="/terms-of-use">Terms of Use</Link>
-          </li>
-          <li>
-            <Link to="/accessibility-statement">Accessibility Statement</Link>
-          </li>
-        </ul>
-      </>
-    ),
-  },
-  {
-    slug: "hyperlinking-policy",
-    titleKey: "footer.hyperlinking",
-    body: () => (
-      <p>
-        You may link to any page of this portal without asking. This portal does not link to external websites,
-        except the OpenStreetMap attribution shown on maps.
-      </p>
-    ),
-  },
-  {
-    slug: "copyright-policy",
-    titleKey: "footer.copyright",
-    body: () => (
-      <p>
-        Content on this portal is © CivicFlow Municipal Corporation and may be reused with attribution. Map data is
-        © OpenStreetMap contributors.
-      </p>
-    ),
-  },
-  {
-    slug: "privacy-policy",
-    titleKey: "footer.privacy",
-    body: () => (
-      <>
-        <p>
-          The portal stores only what is needed to handle a grievance: the description, location, photographs
-          and, if you give them, your name and mobile number. Field teams cannot see citizens' phone numbers.
-        </p>
-        <p>
-          Connected-vehicle road data contains only road-hazard points and a rotating anonymous vehicle
-          reference. No vehicle number, rider name, phone number or trip trace is accepted.
-        </p>
-      </>
-    ),
-  },
-  {
-    slug: "terms-of-use",
-    titleKey: "footer.terms",
-    body: () => (
-      <p>
-        Use this portal to report civic problems in the Corporation's area. Do not use it to report emergencies:
-        where there is danger to life, call 112.
-      </p>
-    ),
-  },
-  {
     slug: "accessibility-statement",
     titleKey: "footer.accessibility",
     body: () => (
@@ -235,17 +163,6 @@ export const INFO_PAGES: InfoPageDef[] = [
           If you find a barrier, report it through <Link to="/lodge">Lodge Grievance</Link> (category: Other).
         </p>
       </>
-    ),
-  },
-  {
-    slug: "help",
-    titleKey: "footer.helpPage",
-    body: () => (
-      <ul>
-        <li>Use Lodge Grievance to report a problem. Keep the Grievance Number from the acknowledgement slip.</li>
-        <li>Use Track Grievance with your Grievance Number and mobile number or tracking code to see progress.</li>
-        <li>To change text size, contrast or language, use the controls in the dark strip at the top of every page.</li>
-      </ul>
     ),
   },
   {

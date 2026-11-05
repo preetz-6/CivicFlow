@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ApiError, get } from "./client";
 import type { UserOut } from "./types";
 
-/** Where each role lands after login. */
+/** Where each staff role lands after login. Citizens never log in. */
 export function homeFor(role: string): string {
   switch (role) {
     case "WARD_OFFICER":
@@ -12,7 +12,7 @@ export function homeFor(role: string): string {
     case "CONTROL_ROOM":
       return "/control";
     default:
-      return "/lodge";
+      return "/";
   }
 }
 

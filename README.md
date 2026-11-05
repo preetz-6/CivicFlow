@@ -43,14 +43,13 @@ Windows without `make`: every Makefile target exists as `.\scripts\cf.ps1 <targe
 
 ## Demo logins
 
-**Login** with User ID + password. Seeded passwords: citizens `Citizen@2026`, officers `Officer@2026`, field teams `Field@2026`, Control Room `Control@2026`.
+Citizens never log in: they lodge a grievance without an account and track it with the Grievance No. and their mobile number or tracking code. **Staff Login** takes a User ID + password. Seeded passwords: officers `Officer@2026`, field teams `Field@2026`, Control Room `Control@2026`.
 
 | User ID | Role | Lands on |
 |---|---|---|
-| `citizen1` (Kannada), `citizen2`, `citizen3` | Citizen | Lodge Grievance (citizens can also lodge and track without logging in) |
 | `officer.w12`, `officer.w13` | Ward Officer (sees only their ward) | Complaint Queue |
 | `field.w12a`, `field.w12b`, `field.w13a`, `field.w13b`, ... | Field Team (sees only its jobs, never citizen phone numbers) | My Jobs |
-| `control` | Control Room / Executive Engineer / Commissioner | Dashboard |
+| `control` | Control Room / Executive Engineer / Commissioner | Dashboard; **Agent Operations** is the first menu item (live timeline of agent runs, what started each one, and the hand-off chain) |
 
 The full eight-minute walkthrough is in [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
 

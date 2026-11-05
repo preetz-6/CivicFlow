@@ -29,7 +29,7 @@
     "wards": "Ward Directory",
     "faqs": "FAQs",
     "contact": "Contact Us",
-    "login": "Login"
+    "login": "Staff Login"
   },
   "ticker": {
     "title": "What's New",
@@ -44,19 +44,9 @@
     "home": "Home"
   },
   "footer": {
-    "policies": "Policies",
-    "help": "Help",
-    "websitePolicies": "Website Policies",
-    "hyperlinking": "Hyperlinking Policy",
-    "copyright": "Copyright Policy",
-    "privacy": "Privacy Policy",
-    "terms": "Terms of Use",
     "accessibility": "Accessibility Statement",
-    "helpPage": "Help",
-    "sitemap": "Sitemap",
-    "owned": "Content owned by CivicFlow Municipal Corporation",
-    "lastUpdated": "Last Updated",
-    "contactLine": "Grievances can be lodged online 24x7."
+    "copyrightLine": "© CivicFlow Municipal Corporation",
+    "accessibilityLink": "Accessibility"
   },
   "home": {
     "title": "Welcome",
@@ -67,9 +57,6 @@
     "title": "Page not found",
     "body": "The page you asked for does not exist.",
     "back": "Go to Home"
-  },
-  "sitemap": {
-    "title": "Sitemap"
   },
   "table": {
     "sno": "S.No.",
@@ -117,14 +104,14 @@
     "englishOnly": "This page is available in English only."
   },
   "login": {
-    "title": "Login",
-    "legend": "Login",
+    "title": "Staff Login",
+    "legend": "Login for Corporation staff",
     "username": "User ID",
     "already": "You are logged in as {{name}}.",
     "continue": "Continue",
     "password": "Password",
     "submit": "Login",
-    "accountsNote": "Accounts are issued by the Corporation. Citizens can lodge and track grievances without logging in."
+    "accountsNote": "This login is for Corporation staff only. Citizens lodge grievances without an account and track them with the Grievance No. and their mobile number or tracking code."
   },
   "lodge": {
     "title": "Lodge Grievance",

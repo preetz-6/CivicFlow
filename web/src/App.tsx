@@ -10,10 +10,11 @@ import { RunDetail } from "./pages/control/RunDetail";
 import { Dashboard } from "./pages/control/Dashboard";
 import { HazardMap } from "./pages/control/HazardMap";
 import { Incidents } from "./pages/control/Incidents";
+import { Operations } from "./pages/control/Operations";
 import { AgencyInbox } from "./pages/agency/Inbox";
 import { PublicLayout } from "./frame/PublicLayout";
 import { Home } from "./pages/citizen/Home";
-import { Login } from "./pages/citizen/Login";
+import { Login } from "./pages/staff/Login";
 import { Lodge } from "./pages/citizen/Lodge";
 import { Ack } from "./pages/citizen/Ack";
 import { Track } from "./pages/citizen/Track";
@@ -21,12 +22,12 @@ import { Wards } from "./pages/citizen/Wards";
 import { INFO_PAGES } from "./pages/info/content";
 import { InfoPage } from "./pages/info/InfoPage";
 import { NotFound } from "./pages/info/NotFound";
-import { Sitemap } from "./pages/info/Sitemap";
 
 const OFFICER_ROLES = ["WARD_OFFICER"];
 const FIELD_ROLES = ["FIELD_TEAM"];
 const CONTROL_ROLES = ["CONTROL_ROOM"];
 const CONTROL_MENU = [
+  { to: "/control/operations", label: "Agent Operations" },
   { to: "/control", label: "Dashboard", end: true },
   { to: "/control/complaints", label: "All Complaints" },
   { to: "/control/verification", label: "Verification Queue" },
@@ -82,6 +83,7 @@ export function App() {
         <Route index element={<Dashboard />} />
         <Route path="complaints" element={<Queue />} />
         <Route path="complaints/:id" element={<CaseDetail />} />
+        <Route path="operations" element={<Operations />} />
         <Route path="verification" element={<Verification />} />
         <Route path="hazards" element={<HazardMap />} />
         <Route path="incidents" element={<Incidents />} />
@@ -102,7 +104,6 @@ export function App() {
         <Route path="track" element={<Track />} />
         <Route path="wards" element={<Wards />} />
         <Route path="login" element={<Login />} />
-        <Route path="sitemap" element={<Sitemap />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
