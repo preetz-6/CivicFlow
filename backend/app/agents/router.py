@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
-from sqlalchemy import func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session
 
 from app.core import scope
@@ -81,7 +81,7 @@ def override_run(run_id: int, body: OverrideIn, db: Session = Depends(get_db),
 @router.get("/agent-stats")
 def stats(db: Session = Depends(get_db), actor: Actor = Depends(require_roles(Role.CONTROL_ROOM))):
     rows = db.execute(select(AgentRun.agent, func.count(), func.count(AgentRun.overridden_by),
-                             func.sum((AgentRun.model == "rules").cast(int)), func.avg(AgentRun.latency_ms))
+                             func.sum(case((AgentRun.model == "rules", 1), else_=0)), func.avg(AgentRun.latency_ms))
                       .group_by(AgentRun.agent)).all()
     return [{"agent": a, "agent_label": LABELS.get(a, a), "runs": n, "overridden": o, "rules_runs": int(rr or 0),
              "avg_latency_ms": int(lat or 0)} for a, n, o, rr, lat in rows]

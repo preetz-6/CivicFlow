@@ -34,6 +34,7 @@ def list_proposals(status: str = "PENDING", db: Session = Depends(get_db), actor
 
 class DecideIn(BaseModel):
     note: str | None = None
+    reason: str | None = None  # alias accepted by the web app
 
 
 def _get(db, pid, actor) -> ReassignmentProposal:
@@ -74,7 +75,7 @@ def reject(pid: int, body: DecideIn | None = None, db: Session = Depends(get_db)
     from app.models import AgentRun
 
     if p.agent_run_id and (run := db.get(AgentRun, p.agent_run_id)):
-        run.overridden_by, run.override_reason, run.overridden_at = actor.user_id, (body.note if body else None) or "Reassignment rejected", now()
+        run.overridden_by, run.override_reason, run.overridden_at = actor.user_id, (body and (body.reason or body.note)) or "Reassignment rejected", now()
     db.commit()
     return out(db, p)
 

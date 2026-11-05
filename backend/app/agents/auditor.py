@@ -249,8 +249,10 @@ class EvidenceAuditor(Agent):
                 "after_photo_id": after.id, "rework_count": wo.rework_count}
 
     def decision(self, out: AuditVerdict) -> str:
-        failed = [c.name for c in out.checks if c.passed is False]
-        return f"{out.verdict} (score {out.score})" + (f": {', '.join(failed)}" if failed else "")
+        failed = [c.detail.rstrip(".") for c in out.checks if c.passed is False]
+        unver = [c.name.lower() for c in out.checks if c.passed is None and "photo check" not in c.name]
+        tail = "; ".join(failed) if failed else (f"unverifiable: {', '.join(unver)}" if unver else "all checks passed")
+        return f"{out.verdict} (score {out.score}): {tail}"
 
     def fallback(self, ctx, inp):
         wo = ctx.db.get(WorkOrder, inp["wo_id"])
