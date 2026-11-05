@@ -105,3 +105,4 @@
   - (2) Every staff form control (work order, override, hold, reject, merge/unmerge, reassignment reject, verification reject, cluster dismiss, incident advisories, agency reply, run override) has an explicit `id` + `<label htmlFor>`; ids are unique per item where a page repeats a form.
   - (3) `web/package-lock.json` regenerated with the web container's npm 10 and committed (only difference: npm 11 on Machine B wrote `libc` metadata; same packages). Note: a local `npm install` with npm 11 re-adds those lines; commit only container-generated lock changes.
   - Playwright happy path re-run on the new backend: passed.
+- **Kannada reviewed (2026-11-06):** the team's Kannada reader checked the web app's Kannada (`web/src/i18n/kn.json`, Kannada ticker/advisory text, ward/department/stage names on the citizen pages) and confirmed it is correct. The earlier "needs review by a Kannada reader" notes for Machine B are closed.
