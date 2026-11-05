@@ -267,10 +267,18 @@ class SurgeCommander(Agent):
 surge = SurgeCommander()
 
 
+_RUN_LOCK = __import__('threading').Lock()
+
+
 def run_surge_check(force: bool = False) -> int | None:
     from app.agents.runtime.loop import run_agent
 
-    return run_agent(surge, "demo.run" if force else "scheduler.surge_check", {"force": force})
+    if not _RUN_LOCK.acquire(blocking=False):
+        return None  # a run is already in progress (scheduler and demo trigger must not overlap)
+    try:
+        return run_agent(surge, "demo.run" if force else "scheduler.surge_check", {"force": force})
+    finally:
+        _RUN_LOCK.release()
 
 
 def display_name(inc: Incident) -> str:

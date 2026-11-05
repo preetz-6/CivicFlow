@@ -353,7 +353,15 @@ class RoadHazardSensing(Agent):
 sensing = RoadHazardSensing()
 
 
+_RUN_LOCK = __import__('threading').Lock()
+
+
 def run_sensing(force: bool = False) -> int | None:
     from app.agents.runtime.loop import run_agent
 
-    return run_agent(sensing, "scheduler.sensing" if not force else "demo.run", {"force": force})
+    if not _RUN_LOCK.acquire(blocking=False):
+        return None  # a run is already in progress (scheduler and demo trigger must not overlap)
+    try:
+        return run_agent(sensing, "scheduler.sensing" if not force else "demo.run", {"force": force})
+    finally:
+        _RUN_LOCK.release()
