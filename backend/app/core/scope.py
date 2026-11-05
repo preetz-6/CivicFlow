@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.core.actor import Actor
 from app.core.errors import Forbidden
-from app.models import ServiceRequest, SrReporter, WorkOrder
+from app.models import ServiceRequest, SrReporter, Ward, WorkOrder
 from app.models.enums import ActorKind, Role
 
 
@@ -18,6 +18,8 @@ def scope_srs(q: Select, actor: Actor) -> Select:
     if actor.kind != ActorKind.HUMAN or actor.role == Role.CONTROL_ROOM:
         return q
     if actor.role == Role.WARD_OFFICER:
+        if actor.ward_id is None and actor.zone:  # zonal officer sees every ward in the zone
+            return q.where(ServiceRequest.ward_id.in_(select(Ward.id).where(Ward.zone == actor.zone)))
         return q.where(ServiceRequest.ward_id == actor.ward_id)
     if actor.role == Role.CITIZEN:
         return q.where(
@@ -39,9 +41,10 @@ def scope_wos(q: Select, actor: Actor) -> Select:
     if actor.role == Role.FIELD_TEAM:
         return q.where(WorkOrder.crew_id == actor.crew_id)
     if actor.role == Role.WARD_OFFICER:
-        return q.join(ServiceRequest, ServiceRequest.id == WorkOrder.sr_id).where(
-            ServiceRequest.ward_id == actor.ward_id
-        )
+        q = q.join(ServiceRequest, ServiceRequest.id == WorkOrder.sr_id)
+        if actor.ward_id is None and actor.zone:
+            return q.where(ServiceRequest.ward_id.in_(select(Ward.id).where(Ward.zone == actor.zone)))
+        return q.where(ServiceRequest.ward_id == actor.ward_id)
     return q.where(False)
 
 

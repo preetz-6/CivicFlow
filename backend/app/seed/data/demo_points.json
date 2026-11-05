@@ -1,0 +1,171 @@
+{
+  "bbox": {
+    "lat_min": 12.88,
+    "lat_max": 12.95,
+    "lon_min": 77.46,
+    "lon_max": 77.55
+  },
+  "potholes": [
+    {
+      "id": "PH-01",
+      "kind": "school",
+      "lat": 12.9099,
+      "lon": 77.4855,
+      "vehicles": 7
+    },
+    {
+      "id": "PH-02",
+      "kind": "arterial",
+      "lat": 12.915269,
+      "lon": 77.496731,
+      "vehicles": 9
+    },
+    {
+      "id": "PH-03",
+      "kind": "repaired",
+      "lat": 12.9052,
+      "lon": 77.5205,
+      "vehicles": 5
+    },
+    {
+      "id": "PH-04",
+      "kind": "seeded_open",
+      "lat": 12.9302,
+      "lon": 77.48,
+      "vehicles": 4
+    },
+    {
+      "id": "PH-05",
+      "kind": "seeded_open",
+      "lat": 12.921,
+      "lon": 77.532,
+      "vehicles": 5
+    },
+    {
+      "id": "PH-06",
+      "kind": "seeded_open",
+      "lat": 12.8952,
+      "lon": 77.532,
+      "vehicles": 4
+    },
+    {
+      "id": "PH-07",
+      "kind": "seeded_open",
+      "lat": 12.9399,
+      "lon": 77.515,
+      "vehicles": 3
+    },
+    {
+      "id": "PH-08",
+      "kind": "seeded_open",
+      "lat": 12.915,
+      "lon": 77.49,
+      "vehicles": 6
+    },
+    {
+      "id": "PH-09",
+      "kind": "seeded_open",
+      "lat": 12.8851,
+      "lon": 77.5,
+      "vehicles": 3
+    },
+    {
+      "id": "PH-10",
+      "kind": "unreported",
+      "lat": 12.9301,
+      "lon": 77.54,
+      "vehicles": 4
+    },
+    {
+      "id": "PH-11",
+      "kind": "unreported",
+      "lat": 12.944,
+      "lon": 77.53,
+      "vehicles": 3
+    },
+    {
+      "id": "PH-12",
+      "kind": "unreported",
+      "lat": 12.899,
+      "lon": 77.493,
+      "vehicles": 5
+    },
+    {
+      "id": "PH-13",
+      "kind": "weak",
+      "lat": 12.942,
+      "lon": 77.51,
+      "vehicles": 2
+    },
+    {
+      "id": "PH-14",
+      "kind": "weak",
+      "lat": 12.887,
+      "lon": 77.472,
+      "vehicles": 2
+    },
+    {
+      "id": "PH-15",
+      "kind": "weak",
+      "lat": 12.923,
+      "lon": 77.47,
+      "vehicles": 1
+    }
+  ],
+  "speed_breakers": [
+    {
+      "name": "Speed breaker near Kengeri Satellite Town bus stop",
+      "lat": 12.915,
+      "lon": 77.476
+    },
+    {
+      "name": "Speed breaker, Kommaghatta Road school zone",
+      "lat": 12.9255,
+      "lon": 77.4655
+    },
+    {
+      "name": "Speed breaker, Valagerahalli Road",
+      "lat": 12.919,
+      "lon": 77.47
+    },
+    {
+      "name": "Speed breaker, Ideal Homes Road",
+      "lat": 12.921,
+      "lon": 77.525
+    },
+    {
+      "name": "Speed breaker, Channasandra Main Road",
+      "lat": 12.895,
+      "lon": 77.515
+    }
+  ],
+  "rail_crossings": [
+    {
+      "name": "Kengeri railway level crossing",
+      "lat": 12.9068,
+      "lon": 77.4795
+    }
+  ],
+  "rain_areas": [
+    {
+      "name": "Kengeri Underpass",
+      "lat": 12.9131,
+      "lon": 77.4893,
+      "reports": 17
+    },
+    {
+      "name": "RR Nagar Arch",
+      "lat": 12.9274,
+      "lon": 77.5155,
+      "reports": 8
+    }
+  ],
+  "school_pothole": {
+    "lat": 12.9099,
+    "lon": 77.4855
+  },
+  "streetlight_demo": {
+    "lat": 12.9079,
+    "lon": 77.4828
+  }
+}
