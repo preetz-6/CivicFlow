@@ -1,0 +1,125 @@
+{
+  "strip": {
+    "gov": "Government of Karnataka (Demo)",
+    "skip": "Skip to main content",
+    "screenReader": "Screen Reader Access",
+    "textSize": "Text size",
+    "decrease": "Decrease text size",
+    "reset": "Normal text size",
+    "increase": "Increase text size",
+    "contrast": "High contrast",
+    "contrastOn": "Turn high contrast on",
+    "contrastOff": "Turn high contrast off",
+    "language": "Language"
+  },
+  "header": {
+    "nameEn": "CivicFlow Municipal Corporation",
+    "nameKn": "ಸಿವಿಕ್‌ಫ್ಲೋ ಮಹಾನಗರ ಪಾಲಿಕೆ",
+    "subtitle": "Citizen Grievance Redressal Portal",
+    "helpline": "Helpline",
+    "demo": "Demo",
+    "crestAlt": "CivicFlow Municipal Corporation crest"
+  },
+  "nav": {
+    "label": "Main menu",
+    "menu": "Menu",
+    "home": "Home",
+    "about": "About Us",
+    "lodge": "Lodge Grievance",
+    "track": "Track Grievance",
+    "charter": "Citizen Charter",
+    "wards": "Ward Directory",
+    "faqs": "FAQs",
+    "contact": "Contact Us",
+    "login": "Login"
+  },
+  "ticker": {
+    "title": "What's New",
+    "new": "NEW",
+    "pause": "Pause",
+    "play": "Play",
+    "pauseLabel": "Pause scrolling news",
+    "playLabel": "Resume scrolling news"
+  },
+  "banner": {
+    "prototype": "Hackathon prototype — not an official government website."
+  },
+  "breadcrumb": {
+    "label": "Breadcrumb",
+    "home": "Home"
+  },
+  "footer": {
+    "policies": "Policies",
+    "help": "Help",
+    "websitePolicies": "Website Policies",
+    "hyperlinking": "Hyperlinking Policy",
+    "copyright": "Copyright Policy",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use",
+    "accessibility": "Accessibility Statement",
+    "helpPage": "Help",
+    "sitemap": "Sitemap",
+    "owned": "Content owned by CivicFlow Municipal Corporation (Hackathon Prototype)",
+    "lastUpdated": "Last Updated",
+    "contactLine": "Helpline 1800-000-0000 (Demo)"
+  },
+  "home": {
+    "title": "Welcome",
+    "intro": "Report civic issues in your ward such as potholes, broken streetlights, garbage, water leaks and blocked drains. Every grievance gets a number, a responsible officer and a target date, and you can track it until it is resolved.",
+    "notices": "Notices",
+    "noticeDemo": "This is a hackathon prototype. Data shown is synthetic, and services marked (Simulated) do not contact any real agency."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you asked for does not exist.",
+    "back": "Go to Home"
+  },
+  "sitemap": {
+    "title": "Sitemap"
+  },
+  "table": {
+    "sno": "S.No.",
+    "showing": "Showing {{from}}–{{to}} of {{total}}",
+    "empty": "No records found.",
+    "export": "Export CSV",
+    "prev": "Previous",
+    "next": "Next",
+    "page": "Page {{n}}",
+    "pagination": "Pagination"
+  },
+  "captcha": {
+    "legend": "Security check",
+    "question": "What is {{a}} + {{b}}?",
+    "refresh": "New question",
+    "wrong": "Answer is incorrect."
+  },
+  "sla": {
+    "left": "{{t}} left",
+    "breachedBy": "Breached by {{t}}",
+    "paused": "Paused",
+    "atRisk": "At risk"
+  },
+  "status": {
+    "SUBMITTED": "Submitted",
+    "ASSIGNED": "Assigned",
+    "IN_PROGRESS": "In Progress",
+    "WORK_COMPLETED": "Work Completed",
+    "VERIFIED": "Verified",
+    "RESOLVED": "Resolved",
+    "CLOSED": "Closed",
+    "MERGED": "Merged",
+    "REJECTED": "Rejected",
+    "ON_HOLD": "On Hold",
+    "REOPENED": "Reopened",
+    "COMPLETED": "Completed",
+    "REWORK": "Rework"
+  },
+  "console": {
+    "logout": "Logout",
+    "menu": "Console menu",
+    "ward": "Ward"
+  },
+  "info": {
+    "englishOnly": "This page is available in English only."
+  }
+}
