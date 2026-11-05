@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { post } from "../../api/client";
 import type { Analysis, Category, ComplaintDetail } from "../../api/types";
+import { modelLabel, rationaleLines, StepsList } from "../../ui/AgentSteps";
 import { ErrorBox } from "../../ui/ErrorBox";
 import o from "./officer.module.css";
 
@@ -9,23 +10,8 @@ interface Dept {
   name: string;
 }
 
-function modelLabel(model: string): string {
-  if (model === "rules") return "Rule-based analysis";
-  if (model.startsWith("replay:")) return `Recorded analysis (${model.slice(7)})`;
-  return `Model: ${model}`;
-}
-
 function bullets(a: Analysis): string[] {
-  if (a.output?.rationale?.length) return a.output.rationale;
-  return (a.rationale ?? "")
-    .split("\n")
-    .map((l) => l.replace(/^\s*-\s*/, "").trim())
-    .filter(Boolean);
-}
-
-function short(v: unknown): string {
-  const s = typeof v === "string" ? v : JSON.stringify(v, null, 2);
-  return s.length > 1500 ? `${s.slice(0, 1500)}\n...` : s;
+  return rationaleLines(a.output?.rationale, a.rationale);
 }
 
 /**
@@ -195,21 +181,7 @@ export function SystemAnalysis({
                 Overridden by the ward officer{a.override_reason ? `: ${a.override_reason}` : "."}
               </p>
             ) : null}
-            <details className={o.steps}>
-              <summary>Steps taken ({a.steps.length})</summary>
-              <ol>
-                {a.steps.map((s) => (
-                  <li key={s.idx}>
-                    <strong>{s.tool.replace(/^rule:/, "")}</strong>
-                    {s.tool.startsWith("rule:") ? <span className="muted"> (rule)</span> : null}
-                    <div className="muted">Input</div>
-                    <pre className={o.code}>{short(s.args)}</pre>
-                    <div className="muted">Result</div>
-                    <pre className={o.code}>{s.error ? `Error: ${s.error}` : short(s.result)}</pre>
-                  </li>
-                ))}
-              </ol>
-            </details>
+            <StepsList steps={a.steps} />
           </>
         )}
 

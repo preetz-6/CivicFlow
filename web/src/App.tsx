@@ -5,6 +5,8 @@ import { CaseDetail } from "./pages/officer/CaseDetail";
 import { MyJobs } from "./pages/field/MyJobs";
 import { JobDetail } from "./pages/field/JobDetail";
 import { Verification } from "./pages/control/Verification";
+import { ActivityLog } from "./pages/control/ActivityLog";
+import { RunDetail } from "./pages/control/RunDetail";
 import { PublicLayout } from "./frame/PublicLayout";
 import { Home } from "./pages/citizen/Home";
 import { Login } from "./pages/citizen/Login";
@@ -36,6 +38,10 @@ export function App() {
       >
         <Route index element={<Queue />} />
         <Route path="complaints/:id" element={<CaseDetail />} />
+        <Route
+          path="activity/:id"
+          element={<RunDetail backTo="/officer" backLabel="Complaint Queue" srBase="/officer/complaints" />}
+        />
       </Route>
       <Route
         path="field"
@@ -52,11 +58,16 @@ export function App() {
           <ConsoleLayout
             title="Control Room"
             roles={CONTROL_ROLES}
-            menu={[{ to: "/control", label: "Verification Queue", end: true }]}
+            menu={[
+              { to: "/control", label: "Verification Queue", end: true },
+              { to: "/control/activity", label: "Agent Activity Log" },
+            ]}
           />
         }
       >
         <Route index element={<Verification />} />
+        <Route path="activity" element={<ActivityLog />} />
+        <Route path="activity/:id" element={<RunDetail backTo="/control/activity" backLabel="Agent Activity Log" />} />
       </Route>
       <Route element={<PublicLayout />}>
         <Route index element={<Home />} />

@@ -67,3 +67,9 @@
   - Verified in the browser: lodge SR-2026-001273 → officer Accept → WO-2026-001232 → field uploads 2.1 km-away photo → Auditor FAIL → REWORK shown with reason → correct photo → PASS 75 → Control approves → citizen confirms 5 stars → CLOSED.
   - Not done in step 2: officer Reassignment approvals (step 3), Agent Activity Log (step 3), Kannada review by a native reader, Playwright.
   - New requests for Machine A: B-5 (audit check times in UTC), B-6 (failed after-photo shown to citizen), B-7 (`stage_kn`).
+- **Step 3: Agent Activity Log, run drill-down, reassignment approvals (built; Activity Log verified in the browser)**
+  - Control Room → **Agent Activity Log** (`/control/activity`): every run city-wide (time, agent, trigger, decision, confidence, model or Rules, accepted/overridden by whom), filters by agent / overridden / grievance No., CSV export, 15 s refresh. Per-agent summary table appears once `GET /agent-stats` works (B-9).
+  - Run drill-down (`/control/activity/:id`, and `/officer/activity/:id` for the officer's own ward): decision, trigger, object, fallback reason, confidence, human decision, rationale, **every tool call with input and result**, the agent's input and structured output, and "Record disagreement (override)" → `POST /agent-runs/{id}/override`.
+  - Officer case page: new "Agent Activity on this Grievance" panel; the System Analysis panel and the drill-down share one `StepsList`.
+  - Officer queue: "Pending Reassignment Proposals" with Approve / Reject (reason), built to the BUILD_PLAN §10 contract. It renders only when `GET /reassignments` exists (request B-8, comes with Agent 2); today it returns 404 so nothing is shown.
+  - New requests for Machine A: B-8 (reassignments API), B-9 (`/agent-stats` 500), B-10 (auditor FAIL decision text). B-5..B-7 done.

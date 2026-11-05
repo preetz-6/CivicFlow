@@ -114,6 +114,8 @@ export interface Analysis {
   overridden: boolean | string | null;
   override_reason: string | null;
   accepted: boolean | null;
+  started_at?: string;
+  latency_ms?: number | null;
 }
 
 /** Generated ComplaintDetail, with `analysis` typed (the backend declares it as a dict). */
@@ -149,4 +151,60 @@ export interface FieldJob extends WorkOrderOut {
   sr_status: string;
   ward_id: string | null;
   citizen_photos: AttachmentOut[];
+}
+
+// ---------------------------------------------------------------- agent activity log
+/** GET /agent-runs items */
+export interface AgentRunRow {
+  id: number;
+  at: string;
+  agent: string;
+  agent_label: string;
+  trigger: string;
+  subject_type: string | null;
+  subject_id: string | null;
+  decision: string | null;
+  confidence: number | null;
+  model: string;
+  mode: "rules" | "model";
+  status: string;
+  latency_ms: number | null;
+  overridden: boolean;
+  overridden_by: string | null;
+  override_reason: string | null;
+  accepted: boolean;
+}
+
+/** GET /agent-runs/{id} */
+export interface AgentRunDetail {
+  run_id: number;
+  agent: string;
+  agent_label: string;
+  status: string;
+  model: string;
+  confidence: number | null;
+  decision: string | null;
+  rationale: string | null;
+  output: Record<string, unknown> | null;
+  started_at: string;
+  latency_ms: number | null;
+  overridden: boolean;
+  override_reason: string | null;
+  accepted: boolean;
+  steps: AnalysisStep[];
+  trigger: string;
+  subject_type: string | null;
+  subject_id: string | null;
+  input: unknown;
+  error: string | null;
+}
+
+/** GET /agent-stats */
+export interface AgentStat {
+  agent: string;
+  agent_label: string;
+  runs: number;
+  overridden: number;
+  rules_runs: number;
+  avg_latency_ms: number;
 }

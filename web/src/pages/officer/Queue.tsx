@@ -7,6 +7,7 @@ import { ErrorBox } from "../../ui/ErrorBox";
 import { SlaLabel } from "../../ui/SlaBadge";
 import { EscalationBadge, PriorityTag, StatusTag } from "../../ui/StatusTag";
 import { Table } from "../../ui/Table";
+import { ReassignmentsPanel } from "./Reassignments";
 import o from "./officer.module.css";
 
 interface OfficerStats {
@@ -133,6 +134,8 @@ export function Queue() {
           </div>
         </div>
       ) : null}
+
+      <ReassignmentsPanel onChanged={() => void load()} />
 
       <form className={o.filters} onSubmit={apply} aria-label="Filter complaints">
         <label>

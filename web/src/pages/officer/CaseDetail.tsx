@@ -2,7 +2,8 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 import { get, post } from "../../api/client";
 import { fmtDateTime, useCategories } from "../../api/public";
-import type { ComplaintDetail, CrewOut, StatusEventOut, WorkOrderOut } from "../../api/types";
+import type { AgentRunRow, ComplaintDetail, CrewOut, Page, StatusEventOut, WorkOrderOut } from "../../api/types";
+import { runColumns } from "../control/ActivityLog";
 import { ErrorBox } from "../../ui/ErrorBox";
 import { MapView } from "../../ui/MapPicker";
 import { SlaLabel } from "../../ui/SlaBadge";
@@ -487,6 +488,8 @@ export function CaseDetail() {
             </section>
           ) : null}
 
+          <AgentActivity srId={sr.id} refreshKey={sr.status_events.length} />
+
           <section className={o.panel}>
             <h2 className={o.panelTitle}>Citizen Timeline</h2>
             <div className={o.panelBody}>
@@ -661,6 +664,33 @@ function WorkOrders({
               </form>
             )}
           </>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
+/** Every agent run on this grievance (GET /agent-runs?subject_id=), newest first. */
+function AgentActivity({ srId, refreshKey }: { srId: string; refreshKey: number }) {
+  const [runs, setRuns] = useState<AgentRunRow[] | null>(null);
+  const [error, setError] = useState<unknown>(null);
+  useEffect(() => {
+    get<Page<AgentRunRow>>(`/agent-runs?subject_id=${encodeURIComponent(srId)}&page_size=50`)
+      .then((r) => {
+        setRuns(r.items);
+        setError(null);
+      })
+      .catch((e) => setError(e));
+  }, [srId, refreshKey]);
+  return (
+    <section className={o.panel} aria-labelledby="aa-h">
+      <h2 id="aa-h" className={o.panelTitle}>
+        Agent Activity on this Grievance
+      </h2>
+      <div className={o.panelBody}>
+        <ErrorBox error={error} />
+        {runs ? (
+          <Table<AgentRunRow> rows={runs} rowKey={(r) => r.id} pageSize={5} columns={runColumns("/officer/activity")} />
         ) : null}
       </div>
     </section>
