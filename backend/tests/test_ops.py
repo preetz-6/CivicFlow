@@ -33,6 +33,8 @@ def test_feed_shows_causes_and_handoffs(seeded):  # noqa: F811
     keys = [i["key"] for i in items]
     assert len(keys) == len(set(keys))  # stable unique keys for the UI diff
 
+    assert not any(i["kind"] == "human" and i["text"].startswith("Seed") for i in items)  # seed history hidden
+    assert ctl.get("/api/v1/agent-ops/summary", params={"hours": 1}).json()["window_hours"] == 1
     s = ctl.get("/api/v1/agent-ops/summary").json()
     assert s["autonomous_runs"] >= len(handoff) + 1 and s["actions"] > 0
     # staff only

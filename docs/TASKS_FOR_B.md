@@ -89,3 +89,12 @@ type Cause =
 ### Done when
 With the rain scenario or the vehicle feed running, runs appear within 2 s, steps fill in while RUNNING, and the
 chain view shows Vehicle feed → Sensing → Investigator for a vehicle-created complaint.
+
+## B-T4 (small, after B-T1..T3)
+
+- `GET /agent-ops/summary?hours=1` now counts only the last N hours (server clock); the response includes
+  `window_hours`. Use it for the counters and label them "last hour" (keep "all time" as a toggle if you like).
+- Seed history no longer appears in the feed, and citizen lodges now appear as `kind: "citizen"` items
+  ("Citizen lodged SR-…: pothole in W12").
+- Step `summary` is now a plain sentence for every common tool ("Ward W13 Rajarajeshwari Nagar",
+  "6 detections from 3 vehicles", "2.1 km from the site"); no change needed on your side.
