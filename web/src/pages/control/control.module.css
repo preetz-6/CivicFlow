@@ -1,0 +1,35 @@
+.photos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--gap-3);
+  margin-bottom: var(--gap-3);
+}
+.photo {
+  margin: 0;
+  border: 1px solid var(--border);
+  padding: 6px;
+  background: var(--white);
+  font-size: var(--fs-sm);
+}
+.photo img {
+  display: block;
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  margin: 4px 0;
+}
+.verdict {
+  display: inline-block;
+  padding: 0 8px;
+  border: 1px solid;
+  border-radius: var(--radius);
+}
+.pass {
+  color: var(--ok);
+}
+.flag {
+  color: var(--warn);
+}
+.fail {
+  color: var(--danger);
+}

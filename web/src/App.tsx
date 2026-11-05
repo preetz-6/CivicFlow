@@ -2,6 +2,9 @@ import { Route, Routes } from "react-router-dom";
 import { ConsoleLayout } from "./frame/ConsoleLayout";
 import { Queue } from "./pages/officer/Queue";
 import { CaseDetail } from "./pages/officer/CaseDetail";
+import { MyJobs } from "./pages/field/MyJobs";
+import { JobDetail } from "./pages/field/JobDetail";
+import { Verification } from "./pages/control/Verification";
 import { PublicLayout } from "./frame/PublicLayout";
 import { Home } from "./pages/citizen/Home";
 import { Login } from "./pages/citizen/Login";
@@ -15,6 +18,8 @@ import { NotFound } from "./pages/info/NotFound";
 import { Sitemap } from "./pages/info/Sitemap";
 
 const OFFICER_ROLES = ["WARD_OFFICER"];
+const FIELD_ROLES = ["FIELD_TEAM"];
+const CONTROL_ROLES = ["CONTROL_ROOM"];
 
 export function App() {
   return (
@@ -31,6 +36,27 @@ export function App() {
       >
         <Route index element={<Queue />} />
         <Route path="complaints/:id" element={<CaseDetail />} />
+      </Route>
+      <Route
+        path="field"
+        element={
+          <ConsoleLayout title="Field Team" roles={FIELD_ROLES} menu={[{ to: "/field", label: "My Jobs", end: true }]} />
+        }
+      >
+        <Route index element={<MyJobs />} />
+        <Route path="jobs/:id" element={<JobDetail />} />
+      </Route>
+      <Route
+        path="control"
+        element={
+          <ConsoleLayout
+            title="Control Room"
+            roles={CONTROL_ROLES}
+            menu={[{ to: "/control", label: "Verification Queue", end: true }]}
+          />
+        }
+      >
+        <Route index element={<Verification />} />
       </Route>
       <Route element={<PublicLayout />}>
         <Route index element={<Home />} />
