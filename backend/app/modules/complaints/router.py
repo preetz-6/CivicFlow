@@ -143,6 +143,39 @@ def queue(
             "page_size": page_size}
 
 
+@router.get("/officer/map")
+def case_map(fixed_days: int = Query(3, ge=0, le=30), db: Session = Depends(get_db),
+             actor: Actor = Depends(require_roles(*OFFICERS))):
+    """Pins for the live map: every open case, plus cases fixed in the last `fixed_days` days.
+    Each pin carries a photo (the citizen's photo; for a fixed case the crew's after-photo) and the agent's decision."""
+    from datetime import timedelta
+
+    from app.adapters.storage import signed_url
+    from app.models import Attachment, WorkOrder
+
+    since = now() - timedelta(days=fixed_days)
+    stmt = scope.scope_srs(select(ServiceRequest), actor).where(or_(
+        ServiceRequest.status.notin_(["CLOSED", "REJECTED", "MERGED", "RESOLVED"]),
+        (ServiceRequest.status.in_(["RESOLVED", "CLOSED"])) & (ServiceRequest.resolved_at >= since)))
+    rows = db.scalars(stmt.order_by(ServiceRequest.created_at.desc()).limit(400)).all()
+    ids = [r.id for r in rows]
+    decisions = dict(db.execute(select(AgentRun.subject_id, AgentRun.decision).where(
+        AgentRun.agent == "investigator", AgentRun.subject_id.in_(ids)).order_by(AgentRun.id)).all())
+    citizen_photo = dict(db.execute(select(Attachment.sr_id, Attachment.id).where(
+        Attachment.sr_id.in_(ids), Attachment.wo_id.is_(None)).order_by(Attachment.id)).all())
+    after_photo = dict(db.execute(select(WorkOrder.sr_id, Attachment.id).join(Attachment, Attachment.wo_id == WorkOrder.id)
+                                  .where(WorkOrder.sr_id.in_(ids)).order_by(Attachment.id)).all())
+    out = []
+    for r in rows:
+        item = serialize.queue_item(db, r, {}, decisions)
+        item.pop("description", None)
+        fixed = r.status in ("RESOLVED", "CLOSED")
+        att = (after_photo.get(r.id) or citizen_photo.get(r.id)) if fixed else (citizen_photo.get(r.id) or after_photo.get(r.id))
+        item.update(fixed=fixed, photo_url=signed_url(att) if att else None)
+        out.append(item)
+    return out
+
+
 @router.get("/complaints/{sr_id}", response_model=ComplaintDetail)
 def complaint_detail(sr_id: str, db: Session = Depends(get_db), actor: Actor = Depends(current_actor)):
     sr = get_sr(db, sr_id)

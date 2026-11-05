@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { CircleMarker, Popup } from "react-leaflet";
 import { get } from "../../api/client";
 import { fmtDateTime } from "../../api/public";
 import type { Escalation, Page, PublicStats, QueueItem, WeatherAlert } from "../../api/types";
-import { CityMap, Legend } from "../../ui/CityMap";
+import { CasePins, CaseLegend } from "../../ui/CasePins";
+import { CityMap } from "../../ui/CityMap";
 import { ErrorBox } from "../../ui/ErrorBox";
 import { SlaLabel } from "../../ui/SlaBadge";
 import { EscalationBadge, PriorityTag, StatusTag } from "../../ui/StatusTag";
@@ -21,8 +21,6 @@ interface CityStats {
   p1: number;
   awaiting_verification: number;
 }
-
-const SLA_COLOR: Record<string, string> = { BREACHED: "#b3261e", AT_RISK: "#b06a00", PAUSED: "#6b6b6b" };
 
 function complaintColumns() {
   return [
@@ -50,7 +48,6 @@ function complaintColumns() {
 export function Dashboard() {
   const [kpi, setKpi] = useState<PublicStats | null>(null);
   const [city, setCity] = useState<CityStats | null>(null);
-  const [open, setOpen] = useState<QueueItem[]>([]);
   const [p1, setP1] = useState<QueueItem[]>([]);
   const [breached, setBreached] = useState<QueueItem[]>([]);
   const [escalations, setEscalations] = useState<Escalation[]>([]);
@@ -59,10 +56,9 @@ export function Dashboard() {
 
   const load = useCallback(async () => {
     try {
-      const [k, s, q, qp1, qb, esc, w] = await Promise.all([
+      const [k, s, qp1, qb, esc, w] = await Promise.all([
         get<PublicStats>("/public/stats"),
         get<CityStats>("/officer/stats"),
-        get<Page<QueueItem>>("/officer/queue?page_size=100"),
         get<Page<QueueItem>>("/officer/queue?priority=P1&page_size=50"),
         get<Page<QueueItem>>("/officer/queue?sla=BREACHED&page_size=50"),
         get<Escalation[]>("/escalations"),
@@ -70,7 +66,6 @@ export function Dashboard() {
       ]);
       setKpi(k);
       setCity(s);
-      setOpen(q.items);
       setP1(qp1.items);
       setBreached(qb.items);
       setEscalations(esc);
@@ -163,42 +158,12 @@ export function Dashboard() {
 
       <div className={c.grid2}>
         <section className={o.panel}>
-          <h2 className={o.panelTitle}>Live map: open grievances</h2>
+          <h2 className={o.panelTitle}>Live map: grievances</h2>
           <div className={o.panelBody}>
-            <CityMap label="Open grievances map" height={380}>
-              {open.map((q) => (
-                <CircleMarker
-                  key={q.id}
-                  center={[q.lat, q.lon]}
-                  radius={q.priority === "P1" ? 9 : 6}
-                  pathOptions={{
-                    color: SLA_COLOR[q.sla.state ?? ""] ?? "#1b3a6b",
-                    fillColor: SLA_COLOR[q.sla.state ?? ""] ?? "#1b3a6b",
-                    fillOpacity: 0.7,
-                    weight: 2,
-                  }}
-                >
-                  <Popup>
-                    <strong>
-                      <Link to={`/control/complaints/${encodeURIComponent(q.id)}`}>{q.id}</Link>
-                    </strong>
-                    <br />
-                    {q.category_label}, {q.priority}, {q.status.replace(/_/g, " ")}
-                    <br />
-                    {q.sla.label}
-                  </Popup>
-                </CircleMarker>
-              ))}
+            <CityMap label="Open grievances map" height={460} satellite>
+              <CasePins />
             </CityMap>
-            <Legend
-              items={[
-                { color: "#1b3a6b", label: "On track" },
-                { color: "#b06a00", label: "At risk" },
-                { color: "#b3261e", label: "Breached" },
-                { color: "#6b6b6b", label: "Paused" },
-              ]}
-            />
-            {open.length >= 100 ? <p className="muted">Showing the 100 most urgent open grievances.</p> : null}
+            <CaseLegend />
           </div>
         </section>
 

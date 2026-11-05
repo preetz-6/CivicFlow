@@ -104,7 +104,7 @@ export function HazardMap() {
         </label>
       </div>
 
-      <CityMap label="Road hazard map" height={520}>
+      <CityMap label="Road hazard map" height={520} satellite>
         {showRaw
           ? (data?.raw ?? []).map((r, i) => (
               <CircleMarker

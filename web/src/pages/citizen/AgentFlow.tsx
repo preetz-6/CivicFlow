@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useSearchParams } from "react-router-dom";
 import { get } from "../../api/client";
 import { Breadcrumbs } from "../../frame/Breadcrumbs";
 import s from "./agentflow.module.css";
@@ -40,8 +41,10 @@ const time = (iso: string) =>
   new Date(iso).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
 export function AgentFlow() {
-  const [follow, setFollow] = useState(true);
-  const [sr, setSr] = useState("");
+  const [params] = useSearchParams();
+  const initial = (params.get("sr") ?? "").trim().toUpperCase();
+  const [follow, setFollow] = useState(!initial);
+  const [sr, setSr] = useState(initial);
   const [typed, setTyped] = useState("");
   const [flow, setFlow] = useState<Flow | null>(null);
   const [error, setError] = useState(false);

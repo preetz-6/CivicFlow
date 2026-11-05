@@ -1,31 +1,52 @@
 import type { ReactNode } from "react";
-import { MapContainer, TileLayer } from "react-leaflet";
+import { LayerGroup, LayersControl, MapContainer, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 /** Corporation area: Kengeri / RR Nagar, Bengaluru. */
 export const CITY_CENTER: [number, number] = [12.915, 77.505];
 
-/** Base map for staff screens (OpenStreetMap tiles). */
+const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services";
+
+/** Base map for staff screens, with a Map / Satellite switch (top right). */
 export function CityMap({
   children,
   height = 420,
   label,
   center = CITY_CENTER,
   zoom = 13,
+  satellite = false,
 }: {
   children?: ReactNode;
   height?: number;
   label: string;
   center?: [number, number];
   zoom?: number;
+  /** start in satellite view */
+  satellite?: boolean;
 }) {
   return (
     <div role="region" aria-label={label} style={{ border: "1px solid var(--border-strong)" }}>
       <MapContainer center={center} zoom={zoom} style={{ height }} scrollWheelZoom={false}>
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        <LayersControl position="topright">
+          <LayersControl.BaseLayer checked={!satellite} name="Map">
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer checked={satellite} name="Satellite">
+            <LayerGroup>
+              <TileLayer
+                attribution="Imagery &copy; Esri, Maxar, Earthstar Geographics"
+                url={`${ESRI}/World_Imagery/MapServer/tile/{z}/{y}/{x}`}
+                maxZoom={19}
+              />
+              {/* road names and places on top of the photo */}
+              <TileLayer url={`${ESRI}/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}`} maxZoom={19} />
+              <TileLayer url={`${ESRI}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`} maxZoom={19} />
+            </LayerGroup>
+          </LayersControl.BaseLayer>
+        </LayersControl>
         {children}
       </MapContainer>
     </div>
