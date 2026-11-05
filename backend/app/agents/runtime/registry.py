@@ -14,7 +14,7 @@ def agent_handler(agent):
     def handle(ev: Event) -> None:
         from app.agents.runtime.loop import run_agent
 
-        run_agent(agent, ev.name, ev.payload)
+        run_agent(agent, ev.name, {**ev.payload, "_event": ev.name})
 
     handle.__name__ = f"run_{agent.name}"
     return handle
@@ -23,9 +23,10 @@ def agent_handler(agent):
 def register_agents() -> None:
     from app.agents.auditor import auditor
     from app.agents.investigator import investigator
+    from app.agents.followup import followup
     from app.agents.sensing import sensing
 
-    for a in (investigator, auditor, sensing):
+    for a in (investigator, auditor, sensing, followup):
         AGENTS[a.name] = a
         for trig in a.triggers:
             bus.subscribe(trig, agent_handler(a))
@@ -51,4 +52,7 @@ def register_all() -> None:
     from app.config import settings
 
     scheduler.add_job("sensing", run_sensing, settings.sensing_every_s)
+    from app.agents.followup import run_followup_timer
+
+    scheduler.add_job("agency_followups", run_followup_timer, 20)
     log.info("handlers and agents registered: %s", ", ".join(AGENTS))

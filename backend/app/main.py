@@ -72,3 +72,6 @@ from app.modules.ingestion.router import router as ingestion_router  # noqa: E40
 
 app.include_router(ingestion_router, prefix=API)
 app.include_router(hazards_router, prefix=API)
+from app.modules.reassignments.router import router as reassign_router  # noqa: E402
+
+app.include_router(reassign_router, prefix=API)
