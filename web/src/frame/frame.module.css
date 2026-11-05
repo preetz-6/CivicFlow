@@ -127,6 +127,16 @@ html[data-contrast="high"] .helpline {
   color: var(--text);
 }
 
+.search {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: var(--gap-2);
+}
+.search input {
+  width: 180px;
+}
+
 /* ---------- Nav bar ---------- */
 .nav {
   background: var(--navy);

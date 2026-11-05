@@ -218,3 +218,40 @@ html[data-contrast="high"] .legend {
 .tlRemarks {
   font-size: var(--fs-base);
 }
+
+/* ---------- Star rating ---------- */
+.stars {
+  border: 0;
+  margin: 0 0 var(--gap-3);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.starsLegend {
+  font-weight: 700;
+  padding: 0;
+  margin-bottom: 4px;
+  width: 100%;
+}
+.star {
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--border-strong);
+  cursor: pointer;
+  padding: 2px 4px;
+  min-width: var(--touch);
+  min-height: var(--touch);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.starOn {
+  color: var(--saffron-strong);
+}
+html[data-contrast="high"] .starOn {
+  color: var(--saffron);
+}
+.star:focus-within {
+  outline: 3px solid var(--focus);
+}
