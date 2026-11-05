@@ -34,3 +34,11 @@
   - SLA engine: sweep every 15 s (state changes → `sla.at_risk`/`sla.breached` events), escalation L1–L4 on breach (never resets the clock), auto-close after the verification window, second reopen → L2.
 
 ## Machine B (web / simulator / docs)
+- **Step 1: Vite scaffold + government frame (built, `npm run build` passes; not yet seen against the real API)**
+  - `web/`: React 18 + Vite + TS, React Router, react-i18next (EN + Kannada), plain CSS with `styles/tokens.css` (navy/saffron, flat, 0-3 px corners, AA contrast, high-contrast overrides). Vite proxies `/api` and `/media` to `VITE_API_TARGET` (default `http://localhost:8000`).
+  - Frame on every public page: top strip (Skip to main content, Screen Reader Access, A-/A/A+, high contrast, English/ಕನ್ನಡ, all saved in localStorage), original SVG crest (not the State Emblem or the Karnataka emblem), bilingual header with helpline, navy nav bar (mobile menu), prototype banner, "What's New" ticker with Pause, dark footer with Last Updated (build date).
+  - Shared UI: `Table` (S.No., zebra, navy header, "Showing x–y of n", Previous/Next, CSV export with BOM; client or server pagination), `Fieldset`/`Field` (red asterisk), math `Captcha`, `StatusTag`/`PriorityTag`/`EscalationBadge`, `SlaBadge` (uses the backend clock), `Timeline`, `Breadcrumbs`. Staff `ConsoleLayout` (top bar with name, designation, ward, Logout; left menu; redirects to /login without a session) is ready for step 2.
+  - Pages: Home (welcome + notices), About, Citizen Charter, FAQs, Contact, 5 policy pages, Accessibility Statement, Help, Screen Reader Access, Sitemap, 404. Static bodies are English only (a Kannada note says so).
+  - Not rendered until they work: nav items Lodge / Track / Ward Directory / Login (step 2), header search (needs Track), footer Visitors count (needs B-2), ticker (hidden until `GET /public/ticker` exists; mocked in `npm run dev:mock`).
+  - Kannada strings were machine-assisted: **needs review by a Kannada reader**.
+  - Requests for Machine A: `docs/REQUESTS_FOR_A.md` (B-1 ticker, B-2 visitor counter, B-3 SLA policies for the charter).
