@@ -311,3 +311,57 @@ export interface ClockOut {
   scale: number;
   frozen: boolean;
 }
+
+/* ---------- Agent Operations feed (GET /agent-ops/feed, /agent-ops/summary; untyped dicts) ---------- */
+
+export type OpsCause =
+  | { type: "citizen"; label: string; subject_id: string }
+  | { type: "vehicle_feed"; label: string }
+  | { type: "clock"; label: string }
+  | { type: "agent"; label: string; run_id: number; agent: string }
+  | { type: "human"; label: string }
+  | { type: "weather"; label: string };
+
+export interface OpsStep {
+  idx: number;
+  tool: string;
+  kind: "lookup" | "rule" | "action";
+  label: string;
+  summary: string;
+}
+
+export interface OpsRun {
+  kind: "agent_run";
+  key: string;
+  at: string;
+  id: number;
+  agent: string;
+  agent_label: string;
+  status: "RUNNING" | "OK" | "FALLBACK" | "ERROR";
+  model: string | null;
+  trigger: string;
+  cause: OpsCause;
+  subject_type: string | null;
+  subject_id: string | null;
+  decision: string | null;
+  confidence: number | null;
+  latency_ms: number | null;
+  steps: OpsStep[];
+  guardrails: string[];
+  human: { accepted_by: string | null; overridden_by: string | null; override_reason: string | null };
+}
+
+export type OpsItem =
+  | OpsRun
+  | { kind: "human"; key: string; at: string; actor: string; role: string; text: string; subject_id: string | null }
+  | { kind: "citizen"; key: string; at: string; text: string; subject_id: string }
+  | { kind: "feed"; key: string; at: string; source: string; text: string };
+
+export interface OpsSummary {
+  runs: number;
+  by_agent: Record<string, number>;
+  autonomous_runs: number;
+  actions: number;
+  human_decisions: number;
+  incidents: number;
+}
