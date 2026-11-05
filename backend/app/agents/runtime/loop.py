@@ -115,7 +115,8 @@ def run_agent(agent: Agent, trigger: str, payload: dict) -> int | None:
         model = "rules"
         if llm.available():
             try:
-                out, model = _llm_run(agent, ctx, inp, t0 + agent.timeout_s)
+                budget = agent.timeout_s * (10 if getattr(llm, "mode", "live") == "record" else 1)  # recording may wait out rate limits
+                out, model = _llm_run(agent, ctx, inp, t0 + budget)
             except (LLMUnavailable, AgentFailed) as e:
                 error = str(e)
             except Exception as e:  # network, API status, anything: never break the pipeline

@@ -277,21 +277,29 @@ class EvidenceAuditor(Agent):
         # and can never PASS a photo that a hard check failed.
         checks, facts = hard_checks(ctx, wo, after, by="rules")
         hard = facts["far"] or facts["reused"] or facts["before_assignment"]
-        verdict = out.verdict
+        # The displayed checks are always the deterministic ones (same names, IST times) plus ONE visual check,
+        # which is the only thing the model contributes.
+        vis = next((c for c in out.checks if any(w in c.name.lower() for w in ("vision", "visib", "fixed", "photo check"))), None)
+        vision = Check(name="Work visibly done (photo check)",
+                       passed=vis.passed if vis else None,
+                       detail=(vis.detail if vis else "Not assessed by the vision model."))
+        all_checks = checks + [vision]
+        score, rule_verdict, _ = score_and_verdict(all_checks, facts)
         if hard:
             verdict = "FAIL"
-        elif verdict == "FAIL":
-            verdict = "FLAG"
-            note(ctx, "fail_downgraded", {"reason": "no hard evidence; a human decides"})
-        elif verdict == "PASS" and any(c.passed is not True for c in checks):
-            verdict = "FLAG"
-            note(ctx, "pass_downgraded", {"reason": "a deterministic check did not pass"})
-        if verdict != out.verdict:
-            out.verdict = verdict
-            out.hard_evidence = hard
+        elif rule_verdict == "FLAG" or out.verdict != "PASS":
+            verdict = "FLAG"  # the model can never FAIL a crew without hard evidence
+            if out.verdict == "FAIL":
+                note(ctx, "fail_downgraded", {"reason": "no hard evidence; a human decides"})
+        else:
+            verdict = "PASS"
+        if out.verdict == "PASS" and verdict != "PASS":
+            note(ctx, "pass_downgraded", {"reason": "a deterministic or visual check did not pass"})
+        out.checks, out.verdict, out.hard_evidence = all_checks, verdict, hard
+        out.score = min(out.score, score) if not hard else min(score, 20)
         wo.audit_verdict, wo.audit_score, wo.audit_run_id = verdict, out.score, ctx.run_id
         if verdict == "FAIL" and wo.status == "COMPLETED":
-            reason = "Auto-check failed: " + "; ".join(c.detail for c in checks if c.passed is False)
+            reason = "Auto-check failed: " + "; ".join(c.detail for c in checks if c.passed is False)  # hard checks only
             transition(db, wo, "REWORK", ctx.actor, rework_reason=reason[:900])
             for u in db.scalars(select(User).where(User.crew_id == wo.crew_id)):
                 notify_staff(db, u.id, "WO_REWORK", f"{wo.id} sent back for rework. {reason[:300]}", wo.sr_id, "FIELD",

@@ -14,6 +14,9 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import re
+import threading
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -53,6 +56,28 @@ class LLMClient:
     def __init__(self) -> None:
         self._client = None
         self._fallbacks_ok = True
+        self._pace_lock = threading.Lock()
+        self._last_call = 0.0
+
+    def _pace(self) -> None:
+        """Space calls out (free-tier rate limits). Only sleeps when LLM_MIN_INTERVAL_S > 0."""
+        gap = settings.llm_min_interval_s
+        if gap <= 0:
+            return
+        with self._pace_lock:
+            wait = self._last_call + gap - time.monotonic()
+            if wait > 0:
+                time.sleep(wait)
+            self._last_call = time.monotonic()
+
+    @staticmethod
+    def _retry_after(err: Exception) -> float | None:
+        """Seconds to wait if the provider said 'rate limited, retry in N s' (429)."""
+        msg = str(err)
+        if "429" not in msg and "RESOURCE_EXHAUSTED" not in msg and "rate" not in msg.lower():
+            return None
+        m = re.search(r"retry in ([0-9.]+)s", msg) or re.search(r"retryDelay'?:\s*'?([0-9.]+)s", msg)
+        return float(m.group(1)) if m else 30.0
 
     @property
     def mode(self) -> str:
@@ -87,7 +112,17 @@ class LLMClient:
             return LLMResult(d["content"], d["stop_reason"], d["model"], "replay", d.get("usage"))
         if not self.available():
             raise LLMUnavailable("no API key configured")
-        res = self._call(model, system, tools, messages, max_tokens, timeout_s)
+        self._pace()
+        try:
+            res = self._call(model, system, tools, messages, max_tokens, timeout_s)
+        except Exception as e:
+            # When RECORDING, wait out a rate limit once instead of falling back (a fallback would not be recorded).
+            wait = self._retry_after(e) if self.mode == "record" else None
+            if wait is None or wait > 70:
+                raise
+            log.warning("rate limited; waiting %.0f s before retrying (record mode)", wait)
+            time.sleep(wait + 1)
+            res = self._call(model, system, tools, messages, max_tokens, timeout_s + wait)
         if self.mode == "record":
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_text(_canon({"content": res.content, "stop_reason": res.stop_reason, "model": res.model,

@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     google_api_key: str = ""  # accepted as a fallback name for the Gemini key
     gemini_model: str = "gemini-2.5-flash"
+    # Minimum seconds between model calls (free tiers allow ~5 requests/min: use 13 when recording on Gemini free tier)
+    llm_min_interval_s: float = 0.0
     agent_mode: str = "live"  # live | record | replay | rules
     agent_cache_dir: str = "agent_cache"
 
