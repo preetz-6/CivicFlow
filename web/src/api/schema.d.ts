@@ -4,26 +4,6 @@
  */
 
 export interface paths {
-    "/api/v1/auth/demo-users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Demo Users
-         * @description Listed on the login page (demo only).
-         */
-        get: operations["demo_users_api_v1_auth_demo_users_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/auth/login": {
         parameters: {
             query?: never;
@@ -33,25 +13,11 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Login */
+        /**
+         * Login
+         * @description Accounts are created by the Corporation (no self-registration).
+         */
         post: operations["login_api_v1_auth_login_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/verify": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Verify */
-        post: operations["verify_api_v1_auth_verify_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1364,7 +1330,7 @@ export interface components {
         AlertIn: {
             /**
              * Title
-             * @default Heavy rain warning (IMD orange alert) - SIMULATED
+             * @default Heavy rain warning
              */
             title: string;
             /**
@@ -1589,19 +1555,6 @@ export interface components {
             /** Reason */
             reason?: string | null;
         };
-        /** DemoUser */
-        DemoUser: {
-            /** Username */
-            username: string;
-            /** Name */
-            name: string;
-            /** Role */
-            role: string;
-            /** Designation */
-            designation: string | null;
-            /** Ward Id */
-            ward_id: string | null;
-        };
         /** DismissIn */
         DismissIn: {
             /** Reason */
@@ -1623,13 +1576,8 @@ export interface components {
         LoginIn: {
             /** Username */
             username: string;
-        };
-        /** LoginOut */
-        LoginOut: {
-            /** Sent To */
-            sent_to: string;
-            /** Otp Demo */
-            otp_demo: string | null;
+            /** Password */
+            password: string;
         };
         /** Page[QueueItem] */
         Page_QueueItem_: {
@@ -1869,13 +1817,6 @@ export interface components {
             /** Context */
             ctx?: Record<string, never>;
         };
-        /** VerifyIn */
-        VerifyIn: {
-            /** Username */
-            username: string;
-            /** Otp */
-            otp: string;
-        };
         /** WoHoldIn */
         WoHoldIn: {
             /** Reason Code */
@@ -1955,26 +1896,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    demo_users_api_v1_auth_demo_users_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DemoUser"][];
-                };
-            };
-        };
-    };
     login_api_v1_auth_login_post: {
         parameters: {
             query?: never;
@@ -1985,39 +1906,6 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["LoginIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LoginOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    verify_api_v1_auth_verify_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["VerifyIn"];
             };
         };
         responses: {

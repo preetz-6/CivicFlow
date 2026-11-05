@@ -114,7 +114,7 @@ def get_sensitive_places_nearby(ctx, lat: float, lon: float, radius_m: float = 2
 
 
 @tool("get_vehicle_detections_nearby",
-      "Connected-vehicle road-hazard detections (SIMULATED OEM feed) near a point: count and distinct vehicles.",
+      "Connected-vehicle road-hazard detections (vehicle partner feed) near a point: count and distinct vehicles.",
       {"properties": {**LATLON, **props(radius_m=("number", "default 30"), days=("integer", "default 14"))},
        "required": ["lat", "lon"]})
 def get_vehicle_detections_nearby(ctx, lat: float, lon: float, radius_m: float = 30, days: int = 14):

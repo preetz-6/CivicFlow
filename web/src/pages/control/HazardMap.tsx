@@ -22,7 +22,7 @@ const STATUS_STYLE: Record<string, { color: string; label: string }> = {
 };
 const style = (s: string) => STATUS_STYLE[s] ?? { color: "#1b3a6b", label: s };
 
-/** Road Hazard Map (Simulated connected-vehicle feed): raw detections, clusters, complaints, review queue, data sources. */
+/** Road Hazard Map (connected-vehicle feed): raw detections, clusters, complaints, review queue, data sources. */
 export function HazardMap() {
   const [data, setData] = useState<HazardMapData | null>(null);
   const [sources, setSources] = useState<DataSourceOut[]>([]);
@@ -78,10 +78,6 @@ export function HazardMap() {
   return (
     <>
       <h1>Road Hazard Map</h1>
-      <p className="notice">
-        <strong>Simulated data source.</strong> Vehicle-maker (OEM) data is not publicly available. These detections
-        come from a simulated connected-vehicle feed that follows the documented ingestion contract.
-      </p>
       <ErrorBox error={error} />
       {notice ? (
         <p className="notice notice-success" role="status">
@@ -307,7 +303,7 @@ export function HazardMap() {
             rows={sources}
             rowKey={(s) => s.id}
             columns={[
-              { key: "name", header: "Source", render: (s) => `${s.name}${s.simulated ? " (Simulated)" : ""}` },
+              { key: "name", header: "Source", render: (s) => s.name },
               { key: "kind", header: "Type" },
               {
                 key: "last_ingested_at",

@@ -1,5 +1,5 @@
 /**
- * Original, generic municipal crest drawn for this prototype.
+ * Original, generic municipal crest of CivicFlow Municipal Corporation.
  * Deliberately NOT the State Emblem of India or the Karnataka emblem (their use is
  * restricted by law). Motif: a civic hall above lake waves, ringed by the name.
  * Keep in sync with public/crest.svg (favicon).

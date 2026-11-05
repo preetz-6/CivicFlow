@@ -18,7 +18,7 @@ import app.models  # noqa: F401
 from app.config import settings
 from app.core.clock import clock
 from app.core.db import Base, SessionLocal
-from app.core.security import hash_api_key
+from app.core.security import hash_api_key, hash_password
 from app.domain_config import (
     CATEGORY_DEPARTMENT, DEFAULT_RESOLUTION_HOURS, VERIFICATION_HOURS, resolution_hours,
 )
@@ -79,6 +79,10 @@ DEPARTMENTS = [
     ("PARKS", "Parks & Trees", "ಉದ್ಯಾನ ಮತ್ತು ಮರಗಳು"),
 ]
 
+# Initial passwords for the seeded roster (one per role). Change them for any real deployment.
+PASSWORDS = {"CITIZEN": "Citizen@2026", "WARD_OFFICER": "Officer@2026", "FIELD_TEAM": "Field@2026",
+             "CONTROL_ROOM": "Control@2026"}
+
 USERS = [
     # username, name, role, designation, ward, zone, crew, lang, phone
     ("citizen1", "Lakshmi Narayan", "CITIZEN", "Citizen", None, None, None, "kn", "9845000001"),
@@ -95,7 +99,7 @@ USERS = [
     ("field.w13b", "Crew W13-B (Joseph)", "FIELD_TEAM", "Field Supervisor, Crew W13-B", "W13", "West Zone", "W13-B", "en", "9000001302"),
     ("field.w14a", "Crew W14-A (Basavaraj)", "FIELD_TEAM", "Field Supervisor, Crew W14-A", "W14", "West Zone", "W14-A", "kn", "9000001401"),
     ("field.w15a", "Crew W15-A (Venkatesh)", "FIELD_TEAM", "Field Supervisor, Crew W15-A", "W15", "West Zone", "W15-A", "kn", "9000001501"),
-    ("control", "Dr. K. Prakash", "CONTROL_ROOM", "Executive Engineer / Commissioner (Demo)", None, None, None, "en", "9480000001"),
+    ("control", "Dr. K. Prakash", "CONTROL_ROOM", "Executive Engineer / Commissioner", None, None, None, "en", "9480000001"),
 ]
 
 CREWS = [
@@ -243,7 +247,8 @@ class Seeder:
         db.flush()
         for un, name, role, desig, ward, zone, crew, lang, phone in USERS:
             u = User(username=un, name=name, role=role, designation=desig, ward_id=ward, zone=zone,
-                     crew_id=crew, language=lang, phone=phone, created_at=E - D(120))
+                     crew_id=crew, language=lang, phone=phone, created_at=E - D(120),
+                     password_hash=hash_password(PASSWORDS[role]))
             db.add(u)
             self.users[un] = u
             if role == "WARD_OFFICER" and ward:

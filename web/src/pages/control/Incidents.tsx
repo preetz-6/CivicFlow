@@ -47,7 +47,7 @@ export function Incidents() {
       <ErrorBox error={error} />
       {alerts.map((a) => (
         <p key={a.id} className="notice notice-error" role="alert">
-          <strong>Weather alert (Simulated):</strong> {a.title}
+          <strong>Weather alert:</strong> {a.title}
           {a.area_name ? ` - ${a.area_name}` : ""}, issued {fmtDateTime(a.issued_at)}
         </p>
       ))}

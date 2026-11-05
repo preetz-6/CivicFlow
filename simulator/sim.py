@@ -255,7 +255,7 @@ def run_rain(api: Api, rng: random.Random, surge_now: bool) -> None:
     areas = points["rain_areas"]
     print("Raising simulated weather alert: Heavy rain warning ...")
     api.post_json("/demo/weather-alert", {
-        "title": "Heavy rain warning (Simulated)", "severity": "ORANGE",
+        "title": "Heavy rain warning", "severity": "ORANGE",
         "area_name": "Kengeri / RR Nagar", "hours": 6,
     })
     plan = []

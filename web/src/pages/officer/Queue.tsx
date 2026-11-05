@@ -77,7 +77,7 @@ export function Queue() {
 
   useEffect(() => {
     void load();
-    // SLA countdowns move with the simulated clock; refresh every 30 s.
+    // SLA countdowns move with the server clock; refresh every 30 s.
     const timer = window.setInterval(() => void load(), 30_000);
     return () => window.clearInterval(timer);
   }, [load]);

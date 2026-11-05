@@ -9,8 +9,6 @@ import type { components } from "./schema";
 type S = components["schemas"];
 
 export type UserOut = S["UserOut"];
-export type DemoUser = S["DemoUser"];
-export type LoginOut = S["LoginOut"];
 export type AttachmentOut = S["AttachmentOut"];
 export type SlaOut = S["SlaOut"];
 export type AckSlip = S["AckSlip"];
@@ -230,7 +228,6 @@ export interface WeatherAlert {
   active: boolean;
   issued_at: string;
   expires_at: string | null;
-  simulated: boolean;
 }
 
 export interface Incident {
@@ -282,14 +279,12 @@ export interface HazardMapData {
   known_features: { type: string; name: string; lat: number; lon: number }[];
   complaints: { id: string; lat: number; lon: number; source: string; status: string; priority: string; vehicles: number; category: string }[];
   raw: { lat: number; lon: number; c: number; cluster_id: number | null }[];
-  simulated_source: boolean;
 }
 
 export interface DataSourceOut {
   id: number;
   name: string;
   kind: string;
-  simulated: boolean;
   last_ingested_at: string | null;
   accepted: number;
   rejected: number;
@@ -308,7 +303,6 @@ export interface AgencyReferral {
   followups_sent: number;
   agency_status: string | null;
   agency_reply: string | null;
-  simulated: boolean;
   messages: { direction: string; body: string; at: string }[];
 }
 

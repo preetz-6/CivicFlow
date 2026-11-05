@@ -12,8 +12,8 @@ const STATUSES: [string, string][] = [
 ];
 
 /**
- * External Agency Inbox (Simulated). There is no real link to BESCOM or BWSSB:
- * during the demo the presenter plays the agency here and replies to referrals.
+ * Agency Liaison: referrals the Corporation sent to BESCOM / BWSSB, the follow-ups, and the replies.
+ * Liaison staff record the agency's response here (status + message) when it is received.
  */
 export function AgencyInbox() {
   const [agency, setAgency] = useState("");
@@ -30,7 +30,7 @@ export function AgencyInbox() {
   }, [agency]);
 
   useEffect(() => {
-    document.title = "External Agency Inbox (Simulated)";
+    document.title = "Agency Liaison";
     void load();
     const timer = window.setInterval(() => void load(), 15_000);
     return () => window.clearInterval(timer);
@@ -38,10 +38,10 @@ export function AgencyInbox() {
 
   return (
     <>
-      <h1>External Agency Inbox (Simulated)</h1>
-      <p className="notice">
-        <strong>Simulated.</strong> CivicFlow has no real connection to BESCOM or BWSSB. This page plays the agency side:
-        it shows the referrals and follow-ups the Corporation sent, and lets you reply as the agency.
+      <h1>Agency Liaison</h1>
+      <p className="muted">
+        Referrals sent to BESCOM and BWSSB, every follow-up, and the agency's responses. Record a response when the
+        agency replies; the citizen and the ward officer are informed automatically.
       </p>
       <div className={o.filters} style={{ marginBottom: 16 }}>
         <label htmlFor="inbox-agency">
@@ -76,7 +76,7 @@ function ReferralPanel({ r, onChanged }: { r: AgencyReferral; onChanged: () => P
     setError(null);
     try {
       await post(`/agency/referrals/${r.id}/reply`, { status, message: message.trim() });
-      setNotice(`Reply sent as ${r.agency}.`);
+      setNotice(`${r.agency} response recorded.`);
       setMessage("");
       await onChanged();
     } catch (e) {
@@ -142,7 +142,7 @@ function ReferralPanel({ r, onChanged }: { r: AgencyReferral; onChanged: () => P
             }}
           >
             <label htmlFor={`inbox-reply-as-r-agency-status-${r.id}`}>
-              <span className="required">Reply as {r.agency}: status</span>
+              <span className="required">{r.agency} response: status</span>
               <select
                 id={`inbox-reply-as-r-agency-status-${r.id}`} value={status} onChange={(e) => setStatus(e.target.value)}>
                 {STATUSES.map(([v, l]) => (
@@ -163,7 +163,7 @@ function ReferralPanel({ r, onChanged }: { r: AgencyReferral; onChanged: () => P
               />
             </label>
             <button type="submit" className="btn" disabled={busy || !message.trim()}>
-              Send reply as {r.agency}
+              Record {r.agency} response
             </button>
           </form>
         ) : (

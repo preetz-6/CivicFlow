@@ -33,7 +33,7 @@ const CONTROL_MENU = [
   { to: "/control/hazards", label: "Road Hazard Map" },
   { to: "/control/incidents", label: "Incidents" },
   { to: "/control/activity", label: "Agent Activity Log" },
-  { to: "/control/agency", label: "Agency Inbox (Simulated)" },
+  { to: "/control/agency", label: "Agency Liaison" },
 ];
 
 export function App() {
@@ -47,7 +47,7 @@ export function App() {
             roles={OFFICER_ROLES}
             menu={[
               { to: "/officer", label: "Complaint Queue", end: true },
-              { to: "/officer/agency", label: "Agency Inbox (Simulated)" },
+              { to: "/officer/agency", label: "Agency Liaison" },
             ]}
           />
         }

@@ -22,7 +22,7 @@ export function Ticker() {
         .then((data) => alive && setItems(Array.isArray(data) ? data : []))
         .catch(() => alive && setItems([]));
     void load();
-    // Advisories are published live during the demo, so refresh periodically.
+    // Advisories can be published at any time, so refresh periodically.
     const timer = window.setInterval(load, 30_000);
     return () => {
       alive = false;

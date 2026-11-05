@@ -35,7 +35,7 @@ def hazard_map(raw: bool = True, days: int = 14, db: Session = Depends(get_db), 
     out = {"clusters": [cluster_out(h) for h in db.scalars(select(HazardCluster).order_by(HazardCluster.id))],
            "known_features": [{"type": f.type, "name": f.name, **dict(zip(("lat", "lon"), geo.latlon(f.location)))}
                               for f in db.scalars(select(KnownRoadFeature))],
-           "complaints": [], "raw": [], "simulated_source": True}
+           "complaints": [], "raw": []}
     srs = db.scalars(select(ServiceRequest).where(
         (ServiceRequest.source == "VEHICLE_FEED") | (ServiceRequest.corroboration_count > 0))
         .where(ServiceRequest.status.notin_(["MERGED", "REJECTED"])))
@@ -95,7 +95,7 @@ def data_sources(db: Session = Depends(get_db), actor: Actor = Depends(require_r
     for s in db.scalars(select(DataSource).order_by(DataSource.id)):
         recent = db.scalars(select(RejectedDetection).where(RejectedDetection.source_id == s.id)
                             .order_by(RejectedDetection.id.desc()).limit(5)).all()
-        out.append({"id": s.id, "name": s.name, "kind": s.kind, "simulated": s.simulated,
+        out.append({"id": s.id, "name": s.name, "kind": s.kind,
                     "last_ingested_at": s.last_ingested_at, "accepted": s.accepted_count, "rejected": s.rejected_count,
                     "recent_rejections": [{"at": r.at, "source_record_id": r.source_record_id, "reason": r.reason} for r in recent]})
     return out

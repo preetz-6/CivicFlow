@@ -114,7 +114,7 @@ def get_referral_status(ctx, referral_id: int):
 
 
 # ----------------------------------------------------------------------------- action tools (called from apply)
-@tool("send_agency_followup", "Send a follow-up message to the agency for a referral (simulated agency inbox).",
+@tool("send_agency_followup", "Send a follow-up message to the agency for a referral.",
       {"properties": props(referral_id="integer", message="string"), "required": ["referral_id", "message"]})
 def send_agency_followup(ctx, referral_id: int, message: str):
     from app.adapters.agency import agency_adapter

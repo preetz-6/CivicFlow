@@ -1,11 +1,9 @@
-"""Demo auth: seeded users only (no self-registration). OTP is shown on screen in demo mode."""
+"""Authentication: roster users only (no self-registration), username + password, signed session cookie."""
 from __future__ import annotations
 
 import hashlib
 import hmac
 import secrets
-import threading
-import time
 
 from fastapi import Depends, HTTPException, Request
 from itsdangerous import BadSignature, URLSafeTimedSerializer
@@ -18,26 +16,30 @@ from app.models import User
 from app.models.enums import Role
 
 COOKIE = "cf_session"
-SESSION_MAX_AGE = 60 * 60 * 24
+SESSION_MAX_AGE = 60 * 60 * 12
 _serializer = URLSafeTimedSerializer(settings.secret_key, salt="cf-session")
-_otps: dict[str, tuple[str, float]] = {}
-_lock = threading.Lock()
+PBKDF2_ITERATIONS = 200_000
 
 
-def issue_otp(username: str) -> str:
-    otp = f"{secrets.randbelow(1_000_000):06d}"
-    with _lock:
-        _otps[username] = (otp, time.time() + 300)
-    return otp
+def hash_password(password: str, *, iterations: int = PBKDF2_ITERATIONS) -> str:
+    salt = secrets.token_hex(16)
+    digest = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), iterations).hex()
+    return f"pbkdf2_sha256${iterations}${salt}${digest}"
 
 
-def check_otp(username: str, otp: str) -> bool:
-    with _lock:
-        rec = _otps.get(username)
-        if not rec or rec[1] < time.time() or not hmac.compare_digest(rec[0], otp):
-            return False
-        _otps.pop(username, None)
-    return True
+def verify_password(password: str, stored: str | None) -> bool:
+    try:
+        algo, iterations, salt, digest = (stored or "").split("$")
+    except ValueError:
+        return False
+    if algo != "pbkdf2_sha256":
+        return False
+    calc = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), int(iterations)).hex()
+    return hmac.compare_digest(calc, digest)
+
+
+# A real hash to compare against when the user does not exist, so timing does not reveal valid user IDs.
+_DUMMY_HASH = hash_password(secrets.token_hex(8), iterations=PBKDF2_ITERATIONS)
 
 
 def make_session_token(user_id: int) -> str:
@@ -70,7 +72,7 @@ def current_actor(user: User = Depends(current_user)) -> Actor:
 def require_roles(*roles: Role):
     def dep(actor: Actor = Depends(current_actor)) -> Actor:
         if actor.role not in roles:
-            raise HTTPException(403, f"This page is for {', '.join(r.value for r in roles)}")
+            raise HTTPException(403, "You do not have access to this page")
         return actor
 
     return dep

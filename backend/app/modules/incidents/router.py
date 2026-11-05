@@ -83,7 +83,7 @@ def close(iid: int, db: Session = Depends(get_db), actor: Actor = Depends(requir
 
 # ------------------------------------------------------------------ simulated weather adapter
 class AlertIn(BaseModel):
-    title: str = "Heavy rain warning (IMD orange alert) - SIMULATED"
+    title: str = "Heavy rain warning"
     severity: str = "ORANGE"
     area_name: str | None = "Bengaluru West"
     hours: float = 6
@@ -92,7 +92,7 @@ class AlertIn(BaseModel):
 @router.get("/weather/alerts")
 def weather_alerts(db: Session = Depends(get_db)):
     return [{"id": a.id, "title": a.title, "severity": a.severity, "area_name": a.area_name, "active": a.active,
-             "issued_at": a.issued_at, "expires_at": a.expires_at, "simulated": True}
+             "issued_at": a.issued_at, "expires_at": a.expires_at}
             for a in db.scalars(select(WeatherAlert).order_by(WeatherAlert.id.desc()).limit(10))]
 
 

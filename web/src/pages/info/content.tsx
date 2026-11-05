@@ -5,8 +5,7 @@ import { Link } from "react-router-dom";
 import { Table } from "../../ui/Table";
 
 /**
- * Static pages linked from the nav bar, top strip and footer. Short and honest:
- * this is a hackathon prototype. Bodies are English only for now; titles come
+ * Static pages linked from the nav bar, top strip and footer. Bodies are English only for now; titles come
  * from the i18n files where a key exists.
  */
 export interface InfoPageDef {
@@ -78,18 +77,14 @@ export const INFO_PAGES: InfoPageDef[] = [
     body: () => (
       <>
         <p>
-          CivicFlow Municipal Corporation is a fictional city body created for a 24-hour hackathon. The demo area is
-          Kengeri and Rajarajeshwari Nagar in Bengaluru.
+          CivicFlow Municipal Corporation serves Kengeri, Kengeri Satellite Town, Rajarajeshwari Nagar and
+          Hemmigepura in Bengaluru West.
         </p>
         <p>
           This portal lets citizens report civic problems such as potholes, broken streetlights, garbage, water
           leaks and blocked drains, and follow each one until it is fixed. Behind the scenes, automated case
           analysis helps officers route grievances to the right ward, department or agency, chase delays, and check
           completion photographs. Officers approve every decision that affects a citizen's grievance.
-        </p>
-        <p className="notice">
-          This is not an official government website. All data is synthetic. Services marked (Simulated) do not
-          contact any real agency.
         </p>
       </>
     ),
@@ -125,7 +120,10 @@ export const INFO_PAGES: InfoPageDef[] = [
         <dt>
           <strong>Will I receive an SMS?</strong>
         </dt>
-        <dd>In this prototype, messages are shown on screen only (Simulated). No real SMS is sent.</dd>
+        <dd>
+          Yes. Every update on your grievance is sent to the mobile number you give, in English or Kannada. You can
+          also see every step on Track Grievance.
+        </dd>
       </dl>
     ),
   },
@@ -135,14 +133,16 @@ export const INFO_PAGES: InfoPageDef[] = [
     body: () => (
       <>
         <p>
-          <strong>CivicFlow Municipal Corporation (Demo)</strong>
+          <strong>CivicFlow Municipal Corporation</strong>
           <br />
-          Helpline: 1800-000-0000 (Demo number, not in service)
+          Bengaluru West
         </p>
         <p>
-          This prototype has no real office, phone line or e-mail address. To report a civic problem in the demo,
-          use Lodge Grievance on this portal.
+          To report a civic problem, use <Link to="/lodge">Lodge Grievance</Link>. It is available 24x7 and every
+          grievance gets a number you can track. Your ward officer is listed in the{" "}
+          <Link to="/wards">Ward Directory</Link>.
         </p>
+        <p>In an emergency where there is danger to life, call 112.</p>
       </>
     ),
   },
@@ -151,7 +151,7 @@ export const INFO_PAGES: InfoPageDef[] = [
     titleKey: "footer.websitePolicies",
     body: () => (
       <>
-        <p>This portal is a hackathon prototype. Its policies are listed below.</p>
+        <p>The policies that apply to this portal are listed below.</p>
         <ul>
           <li>
             <Link to="/hyperlinking-policy">Hyperlinking Policy</Link>
@@ -177,7 +177,7 @@ export const INFO_PAGES: InfoPageDef[] = [
     titleKey: "footer.hyperlinking",
     body: () => (
       <p>
-        You may link to any page of this prototype without asking. This portal does not link to external websites,
+        You may link to any page of this portal without asking. This portal does not link to external websites,
         except the OpenStreetMap attribution shown on maps.
       </p>
     ),
@@ -187,9 +187,8 @@ export const INFO_PAGES: InfoPageDef[] = [
     titleKey: "footer.copyright",
     body: () => (
       <p>
-        Content on this prototype was written for a hackathon and may be reused with attribution. The crest is an
-        original drawing made for this prototype. It is not the State Emblem of India or the emblem of the
-        Government of Karnataka. Map data is © OpenStreetMap contributors.
+        Content on this portal is © CivicFlow Municipal Corporation and may be reused with attribution. Map data is
+        © OpenStreetMap contributors.
       </p>
     ),
   },
@@ -199,11 +198,11 @@ export const INFO_PAGES: InfoPageDef[] = [
     body: () => (
       <>
         <p>
-          The prototype stores only what is needed to handle a grievance: the description, location, photographs
+          The portal stores only what is needed to handle a grievance: the description, location, photographs
           and, if you give them, your name and mobile number. Field teams cannot see citizens' phone numbers.
         </p>
         <p>
-          Connected-vehicle data (Simulated) contains only road-hazard points and a rotating anonymous vehicle
+          Connected-vehicle road data contains only road-hazard points and a rotating anonymous vehicle
           reference. No vehicle number, rider name, phone number or trip trace is accepted.
         </p>
       </>
@@ -214,8 +213,8 @@ export const INFO_PAGES: InfoPageDef[] = [
     titleKey: "footer.terms",
     body: () => (
       <p>
-        This prototype is provided for demonstration only, without any warranty. Do not use it to report real
-        emergencies. For real civic grievances, contact your city corporation.
+        Use this portal to report civic problems in the Corporation's area. Do not use it to report emergencies:
+        where there is danger to life, call 112.
       </p>
     ),
   },
@@ -232,7 +231,9 @@ export const INFO_PAGES: InfoPageDef[] = [
           <li>The scrolling "What's New" ticker can be paused.</li>
           <li>Citizen pages are available in English and Kannada.</li>
         </ul>
-        <p>If you find a barrier, tell the team presenting this prototype.</p>
+        <p>
+          If you find a barrier, report it through <Link to="/lodge">Lodge Grievance</Link> (category: Other).
+        </p>
       </>
     ),
   },

@@ -98,7 +98,6 @@ export function Home() {
             {t("home.notices")}
           </h2>
           <ul className={h.boxList}>
-            <li>{t("home.noticeDemo")}</li>
             <li>
               <Link to="/citizen-charter">{t("nav.charter")}</Link>
             </li>

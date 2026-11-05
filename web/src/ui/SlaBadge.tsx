@@ -16,7 +16,7 @@ export function formatDuration(ms: number): string {
 
 /**
  * SLA countdown cell: "2d 4h left" (green), amber when AT_RISK,
- * "Breached by 6h" (red), "Paused". `now` must be the backend's simulated
+ * "Breached by 6h" (red), "Paused". `now` must be the backend's
  * clock (GET /clock), not the browser clock, because of TIME_SCALE.
  */
 export function SlaBadge({ state, dueAt, now }: { state: SlaState | string; dueAt: string; now: string | Date }) {

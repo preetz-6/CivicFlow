@@ -105,7 +105,7 @@ def cluster_complaints(ctx, eps_m: float = GROUP_EPS_M):
     return [{k: v for k, v in g.items() if k != "sr_ids"} for g in groups(ctx.db, eps_m)]
 
 
-@tool("get_weather_alerts", "Active weather alerts (SIMULATED weather adapter).", {"properties": {}})
+@tool("get_weather_alerts", "Active weather alerts.", {"properties": {}})
 def get_weather_alerts(ctx):
     return [{"title": a.title, "severity": a.severity, "area": a.area_name,
              "issued": a.issued_at.astimezone(IST).strftime("%d %b %H:%M")} for a in active_alerts(ctx.db)]

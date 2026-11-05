@@ -15,6 +15,7 @@ from app.models import (
 )
 
 _n = count(1)
+TEST_PASSWORD = "Test@1234"
 
 W12_BOX = box(77.47, 12.90, 77.50, 12.93)
 W7_BOX = box(77.50, 12.90, 77.53, 12.93)
@@ -65,6 +66,10 @@ def make_world(db) -> World:
         field12=User(username="field.w12a", name="Field 12", role="FIELD_TEAM", crew_id="W12-A", ward_id="W12"),
         field7=User(username="field.w7a", name="Field 7", role="FIELD_TEAM", crew_id="W7-A", ward_id="W7"),
     )
+    from app.core.security import hash_password
+
+    for u in users.values():
+        u.password_hash = hash_password(TEST_PASSWORD, iterations=1000)  # fast in tests
     db.add_all(users.values())
     db.flush()
     return World(**users, crew12=db.get(Crew, "W12-A"), crew7=db.get(Crew, "W7-A"))

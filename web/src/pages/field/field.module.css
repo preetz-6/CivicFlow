@@ -73,18 +73,6 @@ html[data-contrast="high"] .jobCat {
 .fileBtn:focus-within {
   outline: 3px solid var(--focus);
 }
-.demo {
-  margin-top: var(--gap-5);
-  border: 1px dashed var(--border-strong);
-  padding: var(--gap-2) var(--gap-3);
-}
-.demo summary {
-  cursor: pointer;
-  font-weight: 700;
-  min-height: var(--touch);
-  display: flex;
-  align-items: center;
-}
 @media (max-width: 760px) {
   .actions > * {
     flex: 1 1 100%;

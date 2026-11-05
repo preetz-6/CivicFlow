@@ -168,7 +168,7 @@ export function SystemAnalysis({
                   ) : null}
                   {out.vehicle_corroboration ? (
                     <tr>
-                      <th scope="row">Connected vehicles (Simulated)</th>
+                      <th scope="row">Connected vehicles</th>
                       <td>{String(out.vehicle_corroboration)}</td>
                     </tr>
                   ) : null}

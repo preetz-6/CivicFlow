@@ -27,7 +27,6 @@ export function Wards() {
     <>
       <Breadcrumbs items={[{ label: t("wards.title") }]} />
       <h1>{t("wards.title")}</h1>
-      <p className="muted">{t("wards.note")}</p>
       <ErrorBox error={error} />
       {wards ? (
         <Table<WardOut>
@@ -46,7 +45,6 @@ export function Wards() {
               render: (w) => w.officer?.designation ?? "-",
               csv: (w) => w.officer?.designation,
             },
-            { key: "phone", header: t("wards.phone"), render: (w) => w.officer?.phone ?? "-", csv: (w) => w.officer?.phone },
           ]}
         />
       ) : null}

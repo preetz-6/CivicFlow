@@ -231,7 +231,7 @@ class SensingReport(BaseModel):
 
 
 SYSTEM = f"""You are the Road Hazard Sensing analyst for CivicFlow Municipal Corporation. Connected two-wheelers
-(SIMULATED OEM feed) report sharp vertical jolts. They have already been clustered (DBSCAN, {EPS_M:.0f} m) and clusters on
+(vehicle partner feed) report sharp vertical jolts. They have already been clustered (DBSCAN, {EPS_M:.0f} m) and clusters on
 known speed breakers, railway crossings and single-vehicle clusters were filtered out automatically.
 For EACH candidate cluster decide exactly one of:
 - CORROBORATE (give sr_id): an OPEN citizen pothole/road complaint within {CORROBORATE_M:.0f} m. Check this first.

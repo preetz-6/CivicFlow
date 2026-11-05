@@ -37,6 +37,7 @@ class User(Base):
     crew_id: Mapped[str | None] = mapped_column(ForeignKey("crews.id", use_alter=True))
     language: Mapped[str] = mapped_column(String(2), default="en")
     phone: Mapped[str | None]
+    password_hash: Mapped[str | None] = mapped_column(String(160))  # pbkdf2_sha256$iterations$salt$hash
     created_at: Mapped[datetime] = mapped_column(TZ, default=ts_default)
 
 

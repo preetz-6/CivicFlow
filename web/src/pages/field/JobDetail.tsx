@@ -8,15 +8,6 @@ import { MapView } from "../../ui/MapPicker";
 import { PriorityTag, StatusTag } from "../../ui/StatusTag";
 import f from "./field.module.css";
 
-const DEMO_VARIANTS: [string, string][] = [
-  ["before", "Before photo"],
-  ["after_good", "After photo (correct)"],
-  ["after_far", "After photo (taken 2 km away)"],
-  ["after_old", "After photo (taken before assignment)"],
-  ["after_noexif", "After photo (no EXIF)"],
-  ["after_reused", "After photo (reused from another job)"],
-];
-
 function PhotoList({ photos }: { photos: AttachmentOut[] }) {
   if (!photos.length) return <p className="muted">None yet.</p>;
   return (
@@ -49,7 +40,6 @@ export function JobDetail() {
   const [actionError, setActionError] = useState<unknown>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [demoPhotos, setDemoPhotos] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -73,16 +63,6 @@ export function JobDetail() {
     return () => window.clearInterval(timer);
   }, [waitingForAudit, load]);
 
-  // Demo-mode test photos exist only when the backend serves them; check once.
-  useEffect(() => {
-    let alive = true;
-    fetch(`/api/v1/demo/photos/before.jpg?wo_id=${encodeURIComponent(id)}`, { credentials: "include" })
-      .then((r) => alive && setDemoPhotos(r.ok))
-      .catch(() => alive && setDemoPhotos(false));
-    return () => {
-      alive = false;
-    };
-  }, [id]);
 
   async function run(path: string, message: string) {
     setBusy(true);
@@ -288,23 +268,6 @@ export function JobDetail() {
       <h3>After</h3>
       <PhotoList photos={after} />
 
-      {demoPhotos ? (
-        <details className={f.demo}>
-          <summary>Demo test photos (Simulated)</summary>
-          <p className="muted">
-            Download one, then upload it with the buttons above so the real auto-check runs on it.
-          </p>
-          <ul>
-            {DEMO_VARIANTS.map(([v, label]) => (
-              <li key={v}>
-                <a href={`/api/v1/demo/photos/${v}.jpg?wo_id=${encodeURIComponent(job.id)}`} download={`${job.id}-${v}.jpg`}>
-                  {label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </details>
-      ) : null}
     </>
   );
 }

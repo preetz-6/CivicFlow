@@ -9,17 +9,21 @@ import { expect, test, type Browser, type Page } from "@playwright/test";
  * Each role uses its own browser context (its own session cookie).
  */
 
+// Seeded roster passwords (backend/app/seed/build.py PASSWORDS), one per role.
+const PASSWORDS: Record<string, string> = {
+  citizen: "Citizen@2026",
+  officer: "Officer@2026",
+  field: "Field@2026",
+  control: "Control@2026",
+};
+
 async function login(browser: Browser, username: string): Promise<Page> {
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
   await page.goto("/login");
   await page.getByLabel("User ID").fill(username);
-  await page.getByRole("button", { name: "Get OTP" }).click();
-  const otpText = await page.getByText(/^Demo OTP:/).locator("..").textContent();
-  const otp = otpText?.match(/(\d{4,8})/)?.[1];
-  expect(otp, "demo OTP shown on screen").toBeTruthy();
-  await page.getByLabel("OTP", { exact: true }).fill(otp!);
-  await page.getByRole("button", { name: "Verify and Login" }).click();
+  await page.getByLabel("Password").fill(PASSWORDS[username.split(".")[0].replace(/\d+$/, "")]);
+  await page.getByRole("button", { name: "Login", exact: true }).click();
   await expect(page).not.toHaveURL(/\/login$/);
   return page;
 }
@@ -93,7 +97,7 @@ test("citizen lodges, officer accepts, field fixes, auditor passes, control appr
   await field.getByRole("button", { name: "Start job" }).click();
   await expect(field.getByText("Job started.")).toBeVisible();
   const photo = await field.request.get(`/api/v1/demo/photos/after_good.jpg?wo_id=${woId}`);
-  expect(photo.ok(), "demo photo endpoint (demo mode)").toBeTruthy();
+  expect(photo.ok(), "test photo stamped at the site").toBeTruthy();
   await field.getByLabel("Upload after photo").setInputFiles({
     name: `${woId}-after.jpg`,
     mimeType: "image/jpeg",

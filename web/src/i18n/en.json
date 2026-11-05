@@ -1,6 +1,6 @@
 {
   "strip": {
-    "gov": "Government of Karnataka (Demo)",
+    "gov": "CivicFlow Municipal Corporation",
     "skip": "Skip to main content",
     "screenReader": "Screen Reader Access",
     "textSize": "Text size",
@@ -16,8 +16,6 @@
     "nameEn": "CivicFlow Municipal Corporation",
     "nameKn": "ಸಿವಿಕ್‌ಫ್ಲೋ ಮಹಾನಗರ ಪಾಲಿಕೆ",
     "subtitle": "Citizen Grievance Redressal Portal",
-    "helpline": "Helpline",
-    "demo": "Demo",
     "crestAlt": "CivicFlow Municipal Corporation crest"
   },
   "nav": {
@@ -41,9 +39,6 @@
     "pauseLabel": "Pause scrolling news",
     "playLabel": "Resume scrolling news"
   },
-  "banner": {
-    "prototype": "Hackathon prototype — not an official government website."
-  },
   "breadcrumb": {
     "label": "Breadcrumb",
     "home": "Home"
@@ -59,15 +54,14 @@
     "accessibility": "Accessibility Statement",
     "helpPage": "Help",
     "sitemap": "Sitemap",
-    "owned": "Content owned by CivicFlow Municipal Corporation (Hackathon Prototype)",
+    "owned": "Content owned by CivicFlow Municipal Corporation",
     "lastUpdated": "Last Updated",
-    "contactLine": "Helpline 1800-000-0000 (Demo)"
+    "contactLine": "Grievances can be lodged online 24x7."
   },
   "home": {
     "title": "Welcome",
     "intro": "Report civic issues in your ward such as potholes, broken streetlights, garbage, water leaks and blocked drains. Every grievance gets a number, a responsible officer and a target date, and you can track it until it is resolved.",
-    "notices": "Notices",
-    "noticeDemo": "This is a hackathon prototype. Data shown is synthetic, and services marked (Simulated) do not contact any real agency."
+    "notices": "Notices"
   },
   "notFound": {
     "title": "Page not found",
@@ -124,21 +118,13 @@
   },
   "login": {
     "title": "Login",
-    "legend": "Login with OTP",
-    "legendOtp": "Enter OTP",
+    "legend": "Login",
     "username": "User ID",
-    "getOtp": "Get OTP",
-    "otp": "OTP",
-    "verify": "Verify and Login",
-    "changeUser": "Change User ID",
-    "sentTo": "An OTP has been sent to {{to}} (Simulated SMS).",
-    "demoOtp": "Demo OTP",
-    "demoOtpNote": "shown on screen in demo mode only",
-    "demoUsers": "Demo users",
-    "demoUsersNote": "Accounts are created by the Corporation. Choose a demo user, then click Get OTP.",
-    "use": "Use",
     "already": "You are logged in as {{name}}.",
-    "continue": "Continue"
+    "continue": "Continue",
+    "password": "Password",
+    "submit": "Login",
+    "accountsNote": "Accounts are issued by the Corporation. Citizens can lodge and track grievances without logging in."
   },
   "lodge": {
     "title": "Lodge Grievance",
@@ -163,7 +149,7 @@
     "anonymous": "Lodge anonymously (you will get a tracking code instead)",
     "name": "Name",
     "mobile": "Mobile number",
-    "mobileHint": "10-digit mobile number. Used for SMS updates (Simulated).",
+    "mobileHint": "10-digit mobile number. Updates on your grievance are sent by SMS.",
     "mobileInvalid": "Enter a 10-digit mobile number starting with 6, 7, 8 or 9.",
     "declare": "I declare that the information given above is true to the best of my knowledge.",
     "consent": "I agree that the Corporation may use these details and photographs to resolve this grievance.",
@@ -243,9 +229,7 @@
     "name": "Ward name",
     "zone": "Zone",
     "officer": "Ward Officer",
-    "designation": "Designation",
-    "phone": "Helpline",
-    "note": "Ward boundaries are approximate and drawn for this demo."
+    "designation": "Designation"
   },
   "search": {
     "label": "Search by Grievance No.",

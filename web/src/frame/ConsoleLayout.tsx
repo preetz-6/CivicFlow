@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { ApiError, get, post } from "../api/client";
 import type { UserOut } from "../api/types";
 import { Crest } from "./Crest";
-import { ProtoBanner } from "./PublicLayout";
 import c from "./console.module.css";
 
 export interface ConsoleMenuItem {
@@ -99,7 +98,6 @@ export function ConsoleLayout({
           </button>
         </div>
       </header>
-      <ProtoBanner />
       <div className={c.body}>
         <nav className={c.side} aria-label={t("console.menu")}>
           <ul>

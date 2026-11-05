@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { CircleMarker, Popup } from "react-leaflet";
-import { get, post } from "../../api/client";
+import { get } from "../../api/client";
 import { fmtDateTime } from "../../api/public";
-import type { ClockOut, Escalation, Page, PublicStats, QueueItem, WeatherAlert } from "../../api/types";
+import type { Escalation, Page, PublicStats, QueueItem, WeatherAlert } from "../../api/types";
 import { CityMap, Legend } from "../../ui/CityMap";
 import { ErrorBox } from "../../ui/ErrorBox";
 import { SlaLabel } from "../../ui/SlaBadge";
@@ -46,7 +46,7 @@ function complaintColumns() {
   ];
 }
 
-/** Control Room overview: KPIs, live map, P1 queue, SLA breaches, escalations, demo clock. */
+/** Control Room overview: KPIs, live map, P1 queue, SLA breaches, escalations. */
 export function Dashboard() {
   const [kpi, setKpi] = useState<PublicStats | null>(null);
   const [city, setCity] = useState<CityStats | null>(null);
@@ -97,7 +97,7 @@ export function Dashboard() {
 
       {alerts.map((a) => (
         <p key={a.id} className="notice notice-error" role="alert">
-          <strong>Weather alert (Simulated):</strong> {a.title}
+          <strong>Weather alert:</strong> {a.title}
           {a.area_name ? ` - ${a.area_name}` : ""} (issued {fmtDateTime(a.issued_at)}
           {a.expires_at ? `, until ${fmtDateTime(a.expires_at)}` : ""}). See <Link to="/control/incidents">Incidents</Link>.
         </p>
@@ -203,7 +203,6 @@ export function Dashboard() {
         </section>
 
         <div>
-          <DemoClock onChanged={() => void load()} />
           <section className={o.panel}>
             <h2 className={o.panelTitle}>P1 queue</h2>
             <div className={o.panelBody}>
@@ -269,88 +268,5 @@ export function Dashboard() {
         </div>
       </section>
     </>
-  );
-}
-
-/**
- * Demo clock (Simulated): shows the SLA clock and moves it forward so SLA,
- * follow-up and escalation scenes can be shown on cue. Demo mode only; the API
- * refuses these calls outside demo mode and the error is shown.
- */
-function DemoClock({ onChanged }: { onChanged: () => void }) {
-  const [clock, setClock] = useState<ClockOut | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<unknown>(null);
-  const [notice, setNotice] = useState<string | null>(null);
-
-  const load = useCallback(() => {
-    get<ClockOut>("/clock")
-      .then(setClock)
-      .catch(() => setClock(null));
-  }, []);
-
-  useEffect(() => {
-    load();
-    const timer = window.setInterval(load, 10_000);
-    return () => window.clearInterval(timer);
-  }, [load]);
-
-  async function act(path: string, body: unknown, message: string) {
-    setBusy(true);
-    setError(null);
-    setNotice(null);
-    try {
-      await post(path, body);
-      setNotice(message);
-      load();
-      onChanged();
-    } catch (e) {
-      setError(e);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  if (!clock) return null;
-  return (
-    <section className={o.panel}>
-      <h2 className={o.panelTitle}>
-        Demo clock (Simulated)
-        <span className={o.panelMeta}>1 real minute = {clock.scale / 60} SLA hour</span>
-      </h2>
-      <div className={o.panelBody}>
-        <p style={{ margin: 0 }}>
-          SLA time now: <strong>{fmtDateTime(clock.now)}</strong>
-          {clock.frozen ? " (frozen)" : ""}
-        </p>
-        <ErrorBox error={error} />
-        {notice ? (
-          <p className="notice notice-success" role="status">
-            {notice}
-          </p>
-        ) : null}
-        <div className="actions">
-          {[1, 6, 24].map((h) => (
-            <button
-              key={h}
-              type="button"
-              className="btn btn-secondary"
-              disabled={busy}
-              onClick={() => void act("/demo/clock/advance", { hours: h }, `Clock moved forward ${h} h.`)}
-            >
-              +{h} h
-            </button>
-          ))}
-          <button
-            type="button"
-            className="btn btn-secondary"
-            disabled={busy}
-            onClick={() => void act("/demo/run/followup", {}, "SLA check and follow-up agent run done.")}
-          >
-            Run SLA check now
-          </button>
-        </div>
-      </div>
-    </section>
   );
 }

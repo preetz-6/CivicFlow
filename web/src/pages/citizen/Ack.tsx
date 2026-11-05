@@ -92,7 +92,6 @@ export function Ack() {
                 </tr>
               </tbody>
             </table>
-            <p className={`muted ${a.printOnly}`}>{t("banner.prototype")}</p>
           </div>
           <div className="actions no-print">
             <button type="button" className="btn" onClick={() => window.print()}>

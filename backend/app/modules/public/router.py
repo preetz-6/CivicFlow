@@ -101,7 +101,7 @@ def wards(geometry: bool = False, db: Session = Depends(get_db)):
     for w in db.scalars(select(Ward).order_by(Ward.id)):
         officer = db.scalar(select(User).where(User.role == Role.WARD_OFFICER, User.ward_id == w.id))
         d = {"id": w.id, "name": w.name, "name_kn": w.name_kn, "zone": w.zone,
-             "officer": {"name": officer.name, "designation": officer.designation, "phone": "1800-000-0000 (Demo)"} if officer else None}
+             "officer": {"name": officer.name, "designation": officer.designation} if officer else None}
         if geometry:
             d["geometry"] = mapping(to_shape(w.geom))
         out.append(d)
@@ -124,7 +124,7 @@ def outbox(sr_id: str | None = None, recipient_type: str | None = None, limit: i
         q = q.where(Notification.recipient_type == recipient_type)
     return [{"id": n.id, "at": n.created_at, "recipient": n.recipient if n.recipient.startswith(("user:", "agency:")) else f"******{n.recipient[-4:]}",
              "recipient_type": n.recipient_type, "channel": n.channel, "language": n.language, "event": n.event,
-             "body": n.body, "sr_id": n.related_sr_id, "simulated": True} for n in db.scalars(q)]
+             "body": n.body, "sr_id": n.related_sr_id} for n in db.scalars(q)]
 
 
 # ------------------------------------------------------------------ External Agency Inbox (SIMULATED)
@@ -140,7 +140,7 @@ def agency_inbox(agency: str | None = None, db: Session = Depends(get_db),
         msgs = db.scalars(select(AgencyMessage).where(AgencyMessage.referral_id == r.id).order_by(AgencyMessage.id)).all()
         out.append({"id": r.id, "agency": r.agency, "sr_id": r.sr_id, "category": sr.category, "description": sr.description,
                     "reason": r.reason, "status": r.status, "sent_at": r.sent_at, "followups_sent": r.followups_sent,
-                    "agency_status": r.agency_status, "agency_reply": r.agency_reply, "simulated": True,
+                    "agency_status": r.agency_status, "agency_reply": r.agency_reply,
                     "messages": [{"direction": m.direction, "body": m.body, "at": m.at} for m in msgs]})
     return out
 

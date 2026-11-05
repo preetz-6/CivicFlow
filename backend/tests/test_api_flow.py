@@ -10,7 +10,7 @@ from app.core.clock import clock
 from app.main import app
 from app.modules.complaints import handlers
 from app.modules.media.service import read_exif, write_exif
-from tests.factories import W12_PT
+from tests.factories import TEST_PASSWORD, W12_PT
 
 
 def jpeg(lat=None, lon=None, t=None, color=(90, 90, 90)) -> bytes:
@@ -20,11 +20,17 @@ def jpeg(lat=None, lon=None, t=None, color=(90, 90, 90)) -> bytes:
 
 
 def login(c: TestClient, username: str) -> TestClient:
-    otp = c.post("/api/v1/auth/login", json={"username": username}).json()["otp_demo"]
-    r = c.post("/api/v1/auth/verify", json={"username": username, "otp": otp})
-    assert r.status_code == 200, r.text
-    assert "cf_session" in c.cookies
-    return c
+    """Tests on the small factory world use TEST_PASSWORD; tests on the real seed use the seeded role passwords."""
+    from app.seed.build import PASSWORDS
+
+    role = {"citizen": "CITIZEN", "officer": "WARD_OFFICER", "zonal": "WARD_OFFICER", "field": "FIELD_TEAM",
+            "control": "CONTROL_ROOM"}[username.split(".")[0].rstrip("0123456789")]
+    for pw in (TEST_PASSWORD, PASSWORDS[role]):
+        r = c.post("/api/v1/auth/login", json={"username": username, "password": pw})
+        if r.status_code == 200:
+            assert "cf_session" in c.cookies
+            return c
+    raise AssertionError(f"could not log in as {username}: {r.text}")
 
 
 @pytest.fixture
@@ -51,7 +57,17 @@ def test_exif_roundtrip():
 
 
 def test_unknown_user_cannot_login(client):
-    assert client().post("/api/v1/auth/login", json={"username": "newbie"}).status_code == 404
+    assert client().post("/api/v1/auth/login", json={"username": "newbie", "password": "x"}).status_code == 401
+
+
+def test_wrong_password_rejected_and_right_one_sets_cookie(client):
+    c = client()
+    assert c.post("/api/v1/auth/login", json={"username": "officer.w12", "password": "wrong"}).status_code == 401
+    assert "cf_session" not in c.cookies
+    r = c.post("/api/v1/auth/login", json={"username": "officer.w12", "password": TEST_PASSWORD})
+    assert r.status_code == 200 and r.json()["role"] == "WARD_OFFICER" and "cf_session" in c.cookies
+    assert "password_hash" not in r.json()
+    assert c.get("/api/v1/auth/me").json()["username"] == "officer.w12"
 
 
 def test_full_happy_path(client):

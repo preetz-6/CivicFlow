@@ -11,7 +11,7 @@ import { ErrorBox } from "../../ui/ErrorBox";
 import { Field, Fieldset } from "../../ui/Fieldset";
 import { MapPicker, type LatLon } from "../../ui/MapPicker";
 
-/** Demo default: the school pothole in Kengeri (BUILD_PLAN §8). */
+/** Default map centre: Kengeri (users can use their GPS position or drag the pin). */
 const DEFAULT_PIN: LatLon = { lat: 12.9099, lon: 77.4855 };
 const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
 const MOBILE_RE = /^[6-9]\d{9}$/;

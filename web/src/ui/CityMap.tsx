@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-/** Demo geography: Kengeri / RR Nagar, Bengaluru. */
+/** Corporation area: Kengeri / RR Nagar, Bengaluru. */
 export const CITY_CENTER: [number, number] = [12.915, 77.505];
 
 /** Base map for staff screens (OpenStreetMap tiles). */

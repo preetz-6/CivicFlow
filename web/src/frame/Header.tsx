@@ -31,10 +31,6 @@ export function Header() {
           </span>
         </Link>
         <div className={s.headerRight}>
-          <div>{t("header.helpline")}</div>
-          <div className={s.helpline}>
-            1800-000-0000 ({t("header.demo")})
-          </div>
           <form className={s.search} role="search" onSubmit={search}>
             <label htmlFor="header-search" className="visually-hidden">
               {t("search.label")}

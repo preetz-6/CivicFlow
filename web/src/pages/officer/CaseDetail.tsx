@@ -405,7 +405,7 @@ export function CaseDetail() {
                   <tr>
                     <th scope="row">Source</th>
                     <td>
-                      {sr.source === "VEHICLE_FEED" ? "Connected vehicles (Simulated)" : sr.source.replace(/_/g, " ")}
+                      {sr.source === "VEHICLE_FEED" ? "Connected vehicles" : sr.source.replace(/_/g, " ")}
                     </td>
                   </tr>
                   <tr>
