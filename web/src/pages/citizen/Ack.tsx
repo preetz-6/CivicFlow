@@ -74,11 +74,11 @@ export function Ack() {
                 </tr>
                 <tr>
                   <th scope="row">{t("ack.ward")}</th>
-                  <td>{ack.ward_name ?? t("ack.pending")}</td>
+                  <td>{(lang === "kn" && ack.ward_name_kn) || ack.ward_name || t("ack.pending")}</td>
                 </tr>
                 <tr>
                   <th scope="row">{t("ack.department")}</th>
-                  <td>{ack.department_name ?? t("ack.pending")}</td>
+                  <td>{(lang === "kn" && ack.department_name_kn) || ack.department_name || t("ack.pending")}</td>
                 </tr>
                 <tr>
                   <th scope="row">{t("ack.expected")}</th>

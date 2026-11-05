@@ -161,9 +161,10 @@ export function RunDetail({ backTo, backLabel, srBase }: { backTo: string; backL
                         This records that you disagree with this suggestion and why. It does not change the
                         grievance; use the grievance's own actions for that.
                       </p>
-                      <label>
+                      <label htmlFor="rundetail-reason">
                         <span className="required">Reason</span>
-                        <textarea value={reason} onChange={(e) => setReason(e.target.value)} minLength={5} required />
+                        <textarea
+                          id="rundetail-reason" value={reason} onChange={(e) => setReason(e.target.value)} minLength={5} required />
                       </label>
                       <div className="actions">
                         <button type="submit" className="btn" disabled={busy || reason.trim().length < 5}>

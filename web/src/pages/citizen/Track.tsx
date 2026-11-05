@@ -224,11 +224,11 @@ export function Track() {
                 </tr>
                 <tr>
                   <th scope="row">{t("ack.ward")}</th>
-                  <td>{view.ward_name ?? "-"}</td>
+                  <td>{(kn && view.ward_name_kn) || view.ward_name || "-"}</td>
                 </tr>
                 <tr>
                   <th scope="row">{t("ack.department")}</th>
-                  <td>{view.department_name ?? "-"}</td>
+                  <td>{(kn && view.department_name_kn) || view.department_name || "-"}</td>
                 </tr>
                 <tr>
                   <th scope="row">{t("track.priority")}</th>
@@ -263,7 +263,7 @@ export function Track() {
               locale={kn ? "kn-IN" : "en-IN"}
               entries={view.timeline.map((e) => ({
                 at: e.at,
-                stage: e.stage,
+                stage: kn && e.stage_kn ? e.stage_kn : e.stage,
                 remarks: kn && e.remarks_kn ? e.remarks_kn : e.remarks,
                 actor: e.actor_type,
               }))}

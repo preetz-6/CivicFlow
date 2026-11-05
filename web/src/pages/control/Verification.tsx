@@ -195,9 +195,10 @@ export function Verification() {
                     void decide(w.id, "/reject", { reason: reason.trim() }, `${w.id} sent back for rework.`);
                   }}
                 >
-                  <label>
+                  <label htmlFor={`verification-reason-for-rework-shown-to-the-field-tea-${w.id}`}>
                     <span className="required">Reason for rework (shown to the field team)</span>
-                    <textarea value={reason} onChange={(e) => setReason(e.target.value)} minLength={5} required />
+                    <textarea
+                      id={`verification-reason-for-rework-shown-to-the-field-tea-${w.id}`} value={reason} onChange={(e) => setReason(e.target.value)} minLength={5} required />
                   </label>
                   <button type="submit" className="btn btn-danger" disabled={busyId === w.id || reason.trim().length < 5}>
                     Send for rework

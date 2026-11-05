@@ -44,9 +44,10 @@ export function AgencyInbox() {
         it shows the referrals and follow-ups the Corporation sent, and lets you reply as the agency.
       </p>
       <div className={o.filters} style={{ marginBottom: 16 }}>
-        <label>
+        <label htmlFor="inbox-agency">
           Agency
-          <select value={agency} onChange={(e) => setAgency(e.target.value)}>
+          <select
+            id="inbox-agency" value={agency} onChange={(e) => setAgency(e.target.value)}>
             <option value="">All</option>
             <option value="BESCOM">BESCOM (electricity)</option>
             <option value="BWSSB">BWSSB (water and sewerage)</option>
@@ -140,9 +141,10 @@ function ReferralPanel({ r, onChanged }: { r: AgencyReferral; onChanged: () => P
               void reply();
             }}
           >
-            <label>
+            <label htmlFor={`inbox-reply-as-r-agency-status-${r.id}`}>
               <span className="required">Reply as {r.agency}: status</span>
-              <select value={status} onChange={(e) => setStatus(e.target.value)}>
+              <select
+                id={`inbox-reply-as-r-agency-status-${r.id}`} value={status} onChange={(e) => setStatus(e.target.value)}>
                 {STATUSES.map(([v, l]) => (
                   <option key={v} value={v}>
                     {l}
@@ -150,9 +152,10 @@ function ReferralPanel({ r, onChanged }: { r: AgencyReferral; onChanged: () => P
                 ))}
               </select>
             </label>
-            <label>
+            <label htmlFor={`inbox-message-${r.id}`}>
               <span className="required">Message</span>
               <textarea
+                id={`inbox-message-${r.id}`}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="e.g. Feeder fault identified; repair crew will attend tomorrow by 11 am."

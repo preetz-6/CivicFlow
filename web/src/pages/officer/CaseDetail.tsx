@@ -205,9 +205,10 @@ export function CaseDetail() {
                       void act("/hold", { reason_code: holdReason, note: holdNote.trim() || null }, "Grievance put on hold.");
                     }}
                   >
-                    <label>
+                    <label htmlFor="casedetail-reason">
                       <span className="required">Reason</span>
-                      <select value={holdReason} onChange={(e) => setHoldReason(e.target.value)}>
+                      <select
+                        id="casedetail-reason" value={holdReason} onChange={(e) => setHoldReason(e.target.value)}>
                         {HOLD_REASONS.map(([v, l]) => (
                           <option key={v} value={v}>
                             {l}
@@ -215,9 +216,10 @@ export function CaseDetail() {
                         ))}
                       </select>
                     </label>
-                    <label>
+                    <label htmlFor="casedetail-note">
                       Note
-                      <input value={holdNote} onChange={(e) => setHoldNote(e.target.value)} />
+                      <input
+                        id="casedetail-note" value={holdNote} onChange={(e) => setHoldNote(e.target.value)} />
                     </label>
                     <div className="actions">
                       <button type="submit" className="btn" disabled={busy}>
@@ -242,9 +244,10 @@ export function CaseDetail() {
                       );
                     }}
                   >
-                    <label>
+                    <label htmlFor="casedetail-reason-code">
                       <span className="required">Reason code</span>
-                      <select value={rejectCode} onChange={(e) => setRejectCode(e.target.value)}>
+                      <select
+                        id="casedetail-reason-code" value={rejectCode} onChange={(e) => setRejectCode(e.target.value)}>
                         {REJECT_REASONS.map(([v, l]) => (
                           <option key={v} value={v}>
                             {l}
@@ -252,9 +255,10 @@ export function CaseDetail() {
                         ))}
                       </select>
                     </label>
-                    <label>
+                    <label htmlFor="casedetail-explanation-for-the-citizen-plain-langua">
                       <span className="required">Explanation for the citizen (plain language)</span>
                       <textarea
+                        id="casedetail-explanation-for-the-citizen-plain-langua"
                         value={rejectText}
                         onChange={(e) => setRejectText(e.target.value)}
                         minLength={10}
@@ -297,9 +301,10 @@ export function CaseDetail() {
                         ))}
                       </p>
                     ) : null}
-                    <label>
+                    <label htmlFor="casedetail-parent-grievance-no">
                       <span className="required">Parent grievance No.</span>
                       <input
+                        id="casedetail-parent-grievance-no"
                         value={parentId}
                         onChange={(e) => setParentId(e.target.value)}
                         placeholder="SR-2026-000123"
@@ -325,9 +330,10 @@ export function CaseDetail() {
                       void act("/unmerge", { reason: unmergeReason.trim() }, "Grievance unmerged.");
                     }}
                   >
-                    <label>
+                    <label htmlFor="casedetail-reason-2">
                       <span className="required">Reason</span>
                       <textarea
+                        id="casedetail-reason-2"
                         value={unmergeReason}
                         onChange={(e) => setUnmergeReason(e.target.value)}
                         minLength={3}
@@ -620,9 +626,10 @@ function WorkOrders({
             ) : (
               <form className={o.formBox} onSubmit={(e) => void create(e)}>
                 <ErrorBox error={error} />
-                <label>
+                <label htmlFor="casedetail-crew">
                   <span className="required">Crew</span>
-                  <select value={crewId} onChange={(e) => setCrewId(e.target.value)} required>
+                  <select
+                    id="casedetail-crew" value={crewId} onChange={(e) => setCrewId(e.target.value)} required>
                     {crews.map((c) => (
                       <option key={c.id} value={c.id}>
                         {c.name && !c.name.includes(c.id) ? `${c.id} - ${c.name}` : (c.name ?? c.id)} ({c.open_jobs}/
@@ -632,29 +639,34 @@ function WorkOrders({
                     ))}
                   </select>
                 </label>
-                <label>
+                <label htmlFor="casedetail-scope-of-work">
                   <span className="required">Scope of work</span>
-                  <textarea value={scope} onChange={(e) => setScope(e.target.value)} required />
+                  <textarea
+                    id="casedetail-scope-of-work" value={scope} onChange={(e) => setScope(e.target.value)} required />
                 </label>
-                <label>
+                <label htmlFor="casedetail-root-cause">
                   Root cause
-                  <input value={rootCause} onChange={(e) => setRootCause(e.target.value)} />
+                  <input
+                    id="casedetail-root-cause" value={rootCause} onChange={(e) => setRootCause(e.target.value)} />
                 </label>
-                <label>
+                <label htmlFor="casedetail-estimated-cost-inr">
                   Estimated cost (INR)
                   <input
+                    id="casedetail-estimated-cost-inr"
                     inputMode="decimal"
                     value={cost}
                     onChange={(e) => setCost(e.target.value.replace(/[^0-9.]/g, ""))}
                   />
                 </label>
-                <label>
+                <label htmlFor="casedetail-asset-id">
                   Asset ID
-                  <input value={assetId} onChange={(e) => setAssetId(e.target.value)} />
+                  <input
+                    id="casedetail-asset-id" value={assetId} onChange={(e) => setAssetId(e.target.value)} />
                 </label>
-                <label>
+                <label htmlFor="casedetail-before-photo-optional-uploaded-unchanged">
                   Before photo (optional, uploaded unchanged)
-                  <input type="file" accept="image/jpeg,image/png" onChange={(e) => setPhoto(e.target.files?.[0] ?? null)} />
+                  <input
+                    id="casedetail-before-photo-optional-uploaded-unchanged" type="file" accept="image/jpeg,image/png" onChange={(e) => setPhoto(e.target.files?.[0] ?? null)} />
                 </label>
                 <div className="actions">
                   <button type="submit" className="btn" disabled={busy || !crewId || !scope.trim()}>

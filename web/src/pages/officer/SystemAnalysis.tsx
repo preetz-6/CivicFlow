@@ -207,13 +207,15 @@ export function SystemAnalysis({
                 <p className="muted" style={{ marginTop: 0 }}>
                   Change only what is wrong. Fields left blank keep the system suggestion.
                 </p>
-                <label>
+                <label htmlFor="systemanalysis-reason-for-override">
                   <span className="required">Reason for override</span>
-                  <textarea value={reason} onChange={(e) => setReason(e.target.value)} minLength={5} required />
+                  <textarea
+                    id="systemanalysis-reason-for-override" value={reason} onChange={(e) => setReason(e.target.value)} minLength={5} required />
                 </label>
-                <label>
+                <label htmlFor="systemanalysis-category">
                   Category
-                  <select value={category} onChange={(e) => setCategory(e.target.value)}>
+                  <select
+                    id="systemanalysis-category" value={category} onChange={(e) => setCategory(e.target.value)}>
                     <option value="">Keep</option>
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -222,18 +224,20 @@ export function SystemAnalysis({
                     ))}
                   </select>
                 </label>
-                <label>
+                <label htmlFor="systemanalysis-priority">
                   Priority
-                  <select value={priority} onChange={(e) => setPriority(e.target.value)}>
+                  <select
+                    id="systemanalysis-priority" value={priority} onChange={(e) => setPriority(e.target.value)}>
                     <option value="">Keep</option>
                     {["P1", "P2", "P3", "P4"].map((p) => (
                       <option key={p}>{p}</option>
                     ))}
                   </select>
                 </label>
-                <label>
+                <label htmlFor="systemanalysis-department">
                   Department
-                  <select value={department} onChange={(e) => setDepartment(e.target.value)}>
+                  <select
+                    id="systemanalysis-department" value={department} onChange={(e) => setDepartment(e.target.value)}>
                     <option value="">Keep</option>
                     {departments.map((d) => (
                       <option key={d.id} value={d.id}>
@@ -242,9 +246,10 @@ export function SystemAnalysis({
                     ))}
                   </select>
                 </label>
-                <label>
+                <label htmlFor="systemanalysis-merge-into-grievance-optional">
                   Merge into grievance (optional)
                   <input
+                    id="systemanalysis-merge-into-grievance-optional"
                     value={mergeInto}
                     onChange={(e) => setMergeInto(e.target.value)}
                     placeholder="SR-2026-000123"

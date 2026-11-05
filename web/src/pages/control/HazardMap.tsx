@@ -255,9 +255,10 @@ export function HazardMap() {
                 void act(dismissing, "dismiss", { reason: reason.trim() }, `Cluster ${dismissing} dismissed.`);
               }}
             >
-              <label>
+              <label htmlFor="hazardmap-reason-for-dismissing-cluster-dismissing">
                 <span className="required">Reason for dismissing cluster {dismissing}</span>
-                <input value={reason} onChange={(e) => setReason(e.target.value)} minLength={3} required />
+                <input
+                  id="hazardmap-reason-for-dismissing-cluster-dismissing" value={reason} onChange={(e) => setReason(e.target.value)} minLength={3} required />
               </label>
               <button type="submit" className="btn btn-secondary" disabled={reason.trim().length < 3}>
                 Dismiss cluster

@@ -192,9 +192,10 @@ function IncidentPanel({ inc, onChanged }: { inc: Incident; onChanged: () => Pro
           <p className="muted">Draft written by the System. Edit if needed, then Publish. It goes to the public "What's New" ticker.</p>
         )}
         <div className={o.formBox}>
-          <label>
+          <label htmlFor={`incidents-english-max-300-characters-${inc.id}`}>
             English (max 300 characters)
             <textarea
+              id={`incidents-english-max-300-characters-${inc.id}`}
               value={en}
               maxLength={300}
               disabled={inc.advisory_published || closed}
@@ -204,9 +205,10 @@ function IncidentPanel({ inc, onChanged }: { inc: Incident; onChanged: () => Pro
               }}
             />
           </label>
-          <label lang="kn">
+          <label lang="kn" htmlFor={`incidents-kannada-advisory-${inc.id}`}>
             ಕನ್ನಡ (max 300 characters)
             <textarea
+              id={`incidents-kannada-advisory-${inc.id}`}
               value={kn}
               maxLength={300}
               disabled={inc.advisory_published || closed}

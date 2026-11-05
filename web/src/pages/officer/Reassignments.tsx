@@ -173,9 +173,10 @@ export function ReassignmentsPanel({ onChanged }: { onChanged?: () => void }) {
               if (p) void decide(p, false);
             }}
           >
-            <label>
+            <label htmlFor="reassignments-reason-for-rejecting-the-proposal">
               <span className="required">Reason for rejecting the proposal</span>
-              <textarea value={reason} onChange={(e) => setReason(e.target.value)} minLength={5} required />
+              <textarea
+                id="reassignments-reason-for-rejecting-the-proposal" value={reason} onChange={(e) => setReason(e.target.value)} minLength={5} required />
             </label>
             <button type="submit" className="btn btn-secondary" disabled={reason.trim().length < 5}>
               Reject proposal
