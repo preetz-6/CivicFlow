@@ -1,0 +1,117 @@
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--gap-3);
+  background: var(--navy);
+  color: var(--text-on-dark);
+  padding: 6px var(--gap-4);
+  border-bottom: 3px solid var(--saffron);
+}
+.topLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-3);
+}
+.org {
+  font-size: var(--fs-sm);
+}
+.title {
+  font-size: var(--fs-md);
+  font-weight: 700;
+}
+.topRight {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-4);
+}
+.who {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  font-size: var(--fs-sm);
+  line-height: 1.3;
+}
+.body {
+  flex: 1;
+  display: flex;
+}
+.side {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--panel-bg);
+  border-right: 1px solid var(--border);
+}
+.side ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sideLink,
+.sideLink:visited {
+  display: block;
+  padding: 10px var(--gap-4);
+  color: var(--navy);
+  text-decoration: none;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
+  border-left: 4px solid transparent;
+}
+html[data-contrast="high"] .sideLink {
+  color: var(--text);
+}
+.sideLink:hover {
+  background: var(--white);
+  text-decoration: underline;
+}
+.sideActive,
+.sideActive:visited {
+  background: var(--white);
+  border-left-color: var(--saffron);
+}
+.content {
+  flex: 1;
+  min-width: 0;
+  padding: var(--gap-4) var(--gap-5);
+}
+.content:focus {
+  outline: none;
+}
+
+@media (max-width: 760px) {
+  .body {
+    flex-direction: column;
+  }
+  .side {
+    width: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .side ul {
+    display: flex;
+    overflow-x: auto;
+  }
+  .sideLink,
+  .sideLink:visited {
+    white-space: nowrap;
+    min-height: var(--touch);
+    border-bottom: 0;
+    border-left: 0;
+    border-bottom: 4px solid transparent;
+  }
+  .sideActive {
+    border-bottom-color: var(--saffron);
+  }
+  .who {
+    text-align: left;
+  }
+  .content {
+    padding: var(--gap-3);
+  }
+}
