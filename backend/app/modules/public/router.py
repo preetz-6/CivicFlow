@@ -69,16 +69,16 @@ def ticker(db: Session = Depends(get_db)):
 
 @router.post("/public/visit")
 def visit(db: Session = Depends(get_db)):
-    """Called once per browser session by the web app (footer 'Visitors: N')."""
-    from app.models import SystemState
+    """Called once per browser session by the web app (footer 'Visitors: N'). Atomic upsert: concurrent calls are safe."""
+    from sqlalchemy import text
 
-    row = db.get(SystemState, "visits")
-    if row is None:
-        row = SystemState(key="visits", value={"count": 12873})  # demo starting count
-        db.add(row)
-    row.value = {"count": int(row.value.get("count", 0)) + 1}
+    n = db.execute(text("""
+        INSERT INTO system_state (key, value) VALUES ('visits', '{"count": 12874}'::jsonb)
+        ON CONFLICT (key) DO UPDATE
+          SET value = jsonb_build_object('count', COALESCE((system_state.value->>'count')::int, 12873) + 1)
+        RETURNING (value->>'count')::int""")).scalar_one()
     db.commit()
-    return {"visits": row.value["count"]}
+    return {"visits": n}
 
 
 @router.get("/public/sla-policies")
