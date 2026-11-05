@@ -109,7 +109,7 @@ def run_agent(agent: Agent, trigger: str, payload: dict) -> int | None:
         db.add(run)
         db.commit()
         ctx = ToolContext(db=db, run_id=run.id, agent=agent.name, actor=Actor.agent(agent.name),
-                          subject_id=run.subject_id)
+                          subject_id=run.subject_id, live=True)
         out: BaseModel | None = None
         error = None
         model = "rules"

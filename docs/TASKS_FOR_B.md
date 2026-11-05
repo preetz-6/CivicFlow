@@ -6,8 +6,8 @@ Agency Inbox to **Agency Liaison**. Read the last commits before editing. Then r
 `docker compose up -d --build` and `docker compose restart web` (on Windows the web container does not always
 see file changes; restart it after a pull).
 
-Machine A owns `backend/`. You own `web/`. Backend endpoints below are being built now; mock them until the
-commit "agent-ops feed" lands.
+Machine A owns `backend/`. You own `web/`. **Backend for all three tasks is live** (commit "agent-ops feed"): citizen
+login refused, `/my/complaints` removed, `GET /agent-ops/feed` and `GET /agent-ops/summary` (`{runs, by_agent, autonomous_runs, actions, human_decisions, incidents}`).
 
 ## B-T1. Remove citizen login entirely
 

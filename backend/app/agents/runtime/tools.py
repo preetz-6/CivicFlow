@@ -68,6 +68,7 @@ class ToolContext:
     actor: Actor
     subject_id: str | None = None
     step: int = 0
+    live: bool = False  # set by run_agent: commit read-only steps as they happen
     scratch: dict = field(default_factory=dict)  # tools may stash facts for apply()/fallback
 
     def call(self, name: str, args: dict | None = None, *, by: str = "model") -> Any:
@@ -103,7 +104,15 @@ def invoke(ctx: ToolContext, name: str, args: dict, *, by: str = "model") -> Any
                          args=_summ(args, 1000), result_summary=_summ(result), error=err,
                          latency_ms=int((time.perf_counter() - t0) * 1000), at=now()))
     ctx.db.flush()
+    _publish_live(ctx, by)
     return result
+
+
+def _publish_live(ctx: ToolContext, by: str) -> None:
+    """Make lookup / check steps visible to the Agent Operations view while the run is still going.
+    Only outside apply(): actions stay in one all-or-nothing transaction (apply runs inside a savepoint)."""
+    if ctx.live and by != "apply" and not ctx.db.in_nested_transaction():
+        ctx.db.commit()
 
 
 def note(ctx: ToolContext, label: str, detail: Any) -> None:

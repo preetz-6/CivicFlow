@@ -79,8 +79,8 @@ DEPARTMENTS = [
     ("PARKS", "Parks & Trees", "ಉದ್ಯಾನ ಮತ್ತು ಮರಗಳು"),
 ]
 
-# Initial passwords for the seeded roster (one per role). Change them for any real deployment.
-PASSWORDS = {"CITIZEN": "Citizen@2026", "WARD_OFFICER": "Officer@2026", "FIELD_TEAM": "Field@2026",
+# Initial staff passwords (one per role). Citizens have no login. Change them for any real deployment.
+PASSWORDS = {"WARD_OFFICER": "Officer@2026", "FIELD_TEAM": "Field@2026",
              "CONTROL_ROOM": "Control@2026"}
 
 USERS = [
@@ -248,7 +248,7 @@ class Seeder:
         for un, name, role, desig, ward, zone, crew, lang, phone in USERS:
             u = User(username=un, name=name, role=role, designation=desig, ward_id=ward, zone=zone,
                      crew_id=crew, language=lang, phone=phone, created_at=E - D(120),
-                     password_hash=hash_password(PASSWORDS[role]))
+                     password_hash=hash_password(PASSWORDS[role]) if role in PASSWORDS else None)
             db.add(u)
             self.users[un] = u
             if role == "WARD_OFFICER" and ward:

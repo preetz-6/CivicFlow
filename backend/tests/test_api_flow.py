@@ -70,6 +70,11 @@ def test_wrong_password_rejected_and_right_one_sets_cookie(client):
     assert c.get("/api/v1/auth/me").json()["username"] == "officer.w12"
 
 
+def test_citizens_cannot_log_in(client):
+    r = client().post("/api/v1/auth/login", json={"username": "citizen1", "password": TEST_PASSWORD})
+    assert r.status_code == 401 and "do not need to log in" in r.json()["detail"]
+
+
 def test_full_happy_path(client):
     citizen = client()
     ack = lodge(citizen)

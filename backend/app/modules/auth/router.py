@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.core.security import COOKIE, SESSION_MAX_AGE, _DUMMY_HASH, current_user, make_session_token, verify_password
 from app.models import User
+from app.models.enums import Role
 from app.schemas.common import UserOut
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -18,11 +19,13 @@ class LoginIn(BaseModel):
 
 @router.post("/login", response_model=UserOut)
 def login(body: LoginIn, response: Response, db: Session = Depends(get_db)):
-    """Accounts are created by the Corporation (no self-registration)."""
+    """Staff login. Accounts are created by the Corporation (no self-registration); citizens never log in."""
     user = db.scalar(select(User).where(User.username == body.username.strip().lower()))
     ok = verify_password(body.password, user.password_hash if user else _DUMMY_HASH)
     if user is None or not ok:
         raise HTTPException(401, "Invalid user ID or password")
+    if user.role == Role.CITIZEN:
+        raise HTTPException(401, "Citizens do not need to log in: lodge and track grievances with the grievance number")
     # Route Handler: the cookie is set on the response object we return through.
     response.set_cookie(COOKIE, make_session_token(user.id), max_age=SESSION_MAX_AGE, httponly=True, samesite="lax",
                         path="/")

@@ -79,12 +79,6 @@ def track(no: str, code: str, db: Session = Depends(get_db)):
     return serialize.track_view(db, sr)
 
 
-@router.get("/my/complaints", response_model=list[QueueItem])
-def my_complaints(db: Session = Depends(get_db), actor: Actor = Depends(require_roles(Role.CITIZEN))):
-    q = scope.scope_srs(select(ServiceRequest), actor).order_by(ServiceRequest.created_at.desc()).limit(50)
-    return [serialize.queue_item(db, sr) for sr in db.scalars(q)]
-
-
 def _citizen_actor(db: Session, sr: ServiceRequest, code: str | None, user: User | None) -> tuple[Actor, bool]:
     if user is not None and user.role == Role.CITIZEN and scope.can_access_sr(db, Actor.from_user(user), sr.id):
         return Actor.from_user(user), False
