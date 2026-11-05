@@ -1,0 +1,13 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+node_modules/
+dist/
+media/
+!backend/app/seed/fixtures/**
+web/test-results/
+web/playwright-report/
+.DS_Store
