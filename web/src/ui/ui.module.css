@@ -1,0 +1,220 @@
+/* ---------- Table ---------- */
+.tableWrap {
+  margin: var(--gap-3) 0 var(--gap-4);
+}
+.tableBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--gap-3);
+  margin-bottom: var(--gap-2);
+  font-size: var(--fs-sm);
+}
+.scroll {
+  overflow-x: auto;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--border-strong);
+  background: var(--white);
+}
+.table th,
+.table td {
+  border: 1px solid var(--border);
+  padding: 7px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+.table thead th {
+  background: var(--navy);
+  color: var(--text-on-dark);
+  font-weight: 700;
+  border-color: var(--navy);
+  white-space: nowrap;
+}
+html[data-contrast="high"] .table thead th {
+  border-color: var(--border);
+}
+.table tbody tr:nth-child(even) {
+  background: var(--zebra);
+}
+.sno {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right !important;
+}
+.num {
+  text-align: right !important;
+}
+.empty {
+  text-align: center !important;
+  color: var(--text-muted);
+  padding: var(--gap-5) !important;
+}
+.clickable {
+  cursor: pointer;
+}
+.clickable:hover {
+  background: var(--info-bg) !important;
+}
+.selected {
+  background: var(--info-bg) !important;
+  outline: 2px solid var(--navy);
+  outline-offset: -2px;
+}
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--gap-3);
+  margin-top: var(--gap-2);
+  font-size: var(--fs-sm);
+}
+
+/* ---------- Forms ---------- */
+.fieldset {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  margin: 0 0 var(--gap-4);
+  padding: var(--gap-3) var(--gap-4) var(--gap-4);
+  background: var(--white);
+}
+.legend {
+  font-weight: 700;
+  font-size: var(--fs-md);
+  color: var(--white);
+  background: var(--navy);
+  padding: 3px 12px;
+}
+html[data-contrast="high"] .legend {
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--gap-3) var(--gap-4);
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.wide {
+  grid-column: 1 / -1;
+}
+.hint {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+.error {
+  font-size: var(--fs-sm);
+  color: var(--danger);
+  font-weight: 700;
+}
+
+/* ---------- Captcha ---------- */
+.captcha {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.captchaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-2);
+  flex-wrap: wrap;
+}
+.captchaBox {
+  font-family: "Courier New", monospace;
+  font-size: var(--fs-md);
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 4px 10px;
+  border: 1px dashed var(--border-strong);
+  background: var(--panel-bg);
+  user-select: none;
+}
+
+/* ---------- Tags ---------- */
+.tag {
+  display: inline-block;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  padding: 1px 7px;
+  border: 1px solid;
+  border-radius: var(--radius);
+  white-space: nowrap;
+}
+.tag_ok {
+  color: var(--ok);
+  background: var(--ok-bg);
+}
+.tag_warn {
+  color: var(--warn);
+  background: var(--warn-bg);
+}
+.tag_danger {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+.tag_info {
+  color: var(--info);
+  background: var(--info-bg);
+}
+.tag_neutral {
+  color: var(--text-muted);
+  background: var(--neutral-bg);
+}
+
+/* ---------- SLA ---------- */
+.sla {
+  font-weight: 700;
+  white-space: nowrap;
+}
+.sla_ok {
+  color: var(--ok);
+}
+.sla_risk {
+  color: var(--warn);
+}
+.sla_breached {
+  color: var(--danger);
+}
+.sla_paused {
+  color: var(--text-muted);
+}
+
+/* ---------- Timeline ---------- */
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 3px solid var(--navy);
+  margin-left: 8px;
+}
+.tlItem {
+  position: relative;
+  padding: 0 0 var(--gap-4) var(--gap-5);
+}
+.tlDot {
+  position: absolute;
+  left: -9px;
+  top: 4px;
+  width: 15px;
+  height: 15px;
+  background: var(--white);
+  border: 3px solid var(--saffron);
+  border-radius: 50%;
+}
+.tlTime {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+.tlStage {
+  font-weight: 700;
+}
+.tlRemarks {
+  font-size: var(--fs-base);
+}
