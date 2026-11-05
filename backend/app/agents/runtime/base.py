@@ -67,3 +67,7 @@ class Agent:
 
     def confidence(self, out: BaseModel) -> float | None:
         return getattr(out, "confidence", None)
+
+    def use_llm(self, inp: dict, mode: str) -> bool:
+        """Whether this run should use the model at all (rate-limited tiers record only the demo's key runs)."""
+        return True

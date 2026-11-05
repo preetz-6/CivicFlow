@@ -113,7 +113,7 @@ def run_agent(agent: Agent, trigger: str, payload: dict) -> int | None:
         out: BaseModel | None = None
         error = None
         model = "rules"
-        if llm.available():
+        if llm.available() and agent.use_llm(inp, getattr(llm, "mode", "live")):
             try:
                 budget = agent.timeout_s * (10 if getattr(llm, "mode", "live") == "record" else 1)  # recording may wait out rate limits
                 out, model = _llm_run(agent, ctx, inp, t0 + budget)
@@ -122,6 +122,8 @@ def run_agent(agent: Agent, trigger: str, payload: dict) -> int | None:
             except Exception as e:  # network, API status, anything: never break the pipeline
                 error = f"{type(e).__name__}: {e}"
                 log.warning("agent %s LLM path failed: %s", agent.name, error)
+        elif llm.available():
+            error = "rule-based by design for this case (model quota reserved for the demo's key runs)"
         else:
             error = "LLM not configured (AGENT_MODE=rules or no API key)"
         status = "OK"

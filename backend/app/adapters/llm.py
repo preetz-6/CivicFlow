@@ -6,8 +6,8 @@ AGENT_MODE=replay  -> serve saved responses; a miss raises CacheMiss (the runtim
 AGENT_MODE=rules   -> never call a model
 LLM_PROVIDER=anthropic (default, Claude via the anthropic SDK) | gemini (Google Gemini via google-genai)
 
-The cache key hashes the full request (agent, model, system, tool names, messages incl. tool results),
-i.e. one entry per TURN of the tool-use loop. Replay therefore needs a deterministic seed + clock.
+The cache key is (agent, model, prompt, tool names, normalised case input, turn number): see cache_key().
+Replay therefore needs the same demo story (same texts / coordinates / simulator seeds), not the same clock.
 """
 from __future__ import annotations
 
@@ -46,9 +46,34 @@ def _canon(obj) -> str:
     return json.dumps(obj, sort_keys=True, ensure_ascii=False, default=str, separators=(",", ":"))
 
 
+_TS = re.compile(r"\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?([+-]\d{2}:?\d{2}|Z)?")
+_IDS = re.compile(r"(SR|WO)-[0-9]{4}-[0-9]{6}")
+_FLOAT = re.compile(r"-?\d+\.\d{5,}")
+
+
+def _norm_text(s: str) -> str:
+    s = _TS.sub("<T>", s)
+    s = _IDS.sub(lambda m: f"{m.group(1)}-<ID>", s)
+    s = _FLOAT.sub(lambda m: f"{float(m.group(0)):.4f}", s)  # GPS noise below ~10 m does not change the key
+    return " ".join(s.lower().split())
+
+
+def _first_user_text(messages: list) -> str:
+    c = messages[0]["content"] if messages else ""
+    if isinstance(c, str):
+        return c
+    # images (vision calls) are keyed by their prompt only: the demo photos are re-stamped on every download
+    return " ".join(b.get("text", "") for b in c if b.get("type") == "text")
+
+
 def cache_key(agent: str, model: str, system: str, tools: list[dict], messages: list) -> str:
-    payload = {"agent": agent, "model": model, "system": system, "tools": sorted(t["name"] for t in tools),
-               "messages": messages}
+    """Stable across demo runs: agent + prompt + tool set + the NORMALISED case input + which turn of the loop.
+    Timestamps, SR/WO numbers and GPS noise are normalised away, so a presenter repeating the recorded story hits
+    the cache even when the clock or numbering differ. Tool results are not part of the key: on replay the tools
+    still run live (and are logged); only the model's turns come from the recording."""
+    turn = sum(1 for m in messages if m.get("role") == "assistant")
+    payload = {"agent": agent, "model": model, "system": hashlib.sha256(system.encode()).hexdigest()[:16],
+               "tools": sorted(t["name"] for t in tools), "input": _norm_text(_first_user_text(messages)), "turn": turn}
     return hashlib.sha256(_canon(payload).encode()).hexdigest()[:40]
 
 

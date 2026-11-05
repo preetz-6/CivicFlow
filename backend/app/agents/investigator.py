@@ -114,6 +114,13 @@ class CaseInvestigator(Agent):
             "emergency_keywords_found": is_emergency(sr.description),
         }
 
+    def use_llm(self, inp: dict, mode: str) -> bool:
+        # In record/replay (free-tier quota), only the demo's citizen pothole / streetlight reports use the model;
+        # rain-burst and vehicle-feed complaints run on rules in both, so a replay behaves exactly like the recording.
+        if mode in ("record", "replay"):
+            return inp.get("source") == "CITIZEN_WEB" and inp.get("category_chosen") in ("POTHOLE", "STREETLIGHT")
+        return True
+
     def decision(self, out: TriageBrief) -> str:
         bits = [f"{out.priority} {out.category.replace('_', ' ').title()} -> {out.department_id}/{out.ward_id}"]
         if out.duplicate_of:
@@ -270,7 +277,20 @@ class CaseInvestigator(Agent):
         merged = False
         if (sr.status == "SUBMITTED" and out.duplicate_of and out.duplicate_confidence >= MERGE_THRESHOLD):
             parent = db.get(ServiceRequest, out.duplicate_of)
-            if parent and parent.id != sr.id and parent.category == sr.category and parent.status not in ("CLOSED", "REJECTED"):
+            # Guard: a duplicate must really be the same place (a model, or a replayed recording, can name a wrong id)
+            near = parent is not None and geo.distance_m(geo.latlon(parent.location), geo.latlon(sr.location)) <= \
+                DUPLICATE_RADIUS_M.get(sr.category, 50) * 2
+            if parent is not None and not near:
+                note(ctx, "duplicate_rejected", {"duplicate_of": out.duplicate_of, "reason": "not within the duplicate radius"})
+                parent = None
+            if parent is None or not near:
+                rule = self.fallback(ctx, inp) if parent is None else None  # find the real duplicate, if any
+                if rule is not None and rule.duplicate_of and rule.duplicate_confidence >= MERGE_THRESHOLD:
+                    parent = db.get(ServiceRequest, rule.duplicate_of)
+                    out.duplicate_of, out.duplicate_confidence = rule.duplicate_of, rule.duplicate_confidence
+                elif rule is not None:
+                    out.duplicate_of, out.duplicate_confidence = None, 0.0  # the claimed duplicate does not hold
+            if parent and parent.id != sr.id and parent.category == sr.category and parent.status not in ("CLOSED", "REJECTED", "MERGED"):
                 merge_into(db, sr, parent, ctx.actor, confidence=out.duplicate_confidence,
                            note=f"System Analysis: same issue as {parent.id} (confidence {out.duplicate_confidence:.2f})")
                 merged = True

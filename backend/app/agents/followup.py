@@ -322,8 +322,12 @@ class FollowupAgent(Agent):
         sit = inp["situation"]
         owner = db.get(User, sr.owner_id) if sr.owner_id else None
         # reassignment: only to a real crew with the skill and spare capacity; an officer approves
-        if out.reassign_to_crew and out.reassign_wo_id:
-            wo, crew = db.get(WorkOrder, out.reassign_wo_id), db.get(Crew, out.reassign_to_crew)
+        if out.reassign_to_crew:
+            wo = db.get(WorkOrder, out.reassign_wo_id) if out.reassign_wo_id else None
+            if wo is None or wo.sr_id != sr.id:  # model / replay named another case's work order: use this case's own
+                wo = db.scalar(select(WorkOrder).where(WorkOrder.sr_id == sr.id, WorkOrder.status.in_(OPEN_WO))
+                               .order_by(WorkOrder.assigned_at).limit(1))
+            crew = db.get(Crew, out.reassign_to_crew)
             ok = (wo is not None and wo.sr_id == sr.id and wo.status in OPEN_WO and crew is not None
                   and CATEGORY_SKILL.get(sr.category, "ROADS") in (crew.skills or [])
                   and crew_load(db, crew.id) < crew.capacity and crew.id != wo.crew_id)
