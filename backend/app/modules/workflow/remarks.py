@@ -19,3 +19,21 @@ SR_REMARKS: dict[str, tuple[str, str, str]] = {
 WO_REMARKS: dict[str, tuple[str, str, str]] = {
     "REWORK": ("Sent for Rework", "The completion photo did not pass checks; the work has been sent back to the crew.", "ಪೂರ್ಣಗೊಂಡ ಫೋಟೋ ಪರಿಶೀಲನೆಯಲ್ಲಿ ಉತ್ತೀರ್ಣವಾಗಲಿಲ್ಲ; ಕೆಲಸವನ್ನು ತಂಡಕ್ಕೆ ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ."),
 }
+
+
+STAGE_KN = {
+    "Grievance Registered": "ದೂರು ನೋಂದಣಿ", "Assigned to Officer": "ಅಧಿಕಾರಿಗೆ ವಹಿಸಲಾಗಿದೆ",
+    "Linked with Similar Report": "ಸಮಾನ ದೂರಿನೊಂದಿಗೆ ಜೋಡಣೆ", "Not Accepted": "ಸ್ವೀಕರಿಸಲಾಗಿಲ್ಲ",
+    "Work in Progress": "ಕೆಲಸ ಪ್ರಗತಿಯಲ್ಲಿದೆ", "On Hold": "ತಡೆಹಿಡಿಯಲಾಗಿದೆ", "Work Completed": "ಕೆಲಸ ಪೂರ್ಣಗೊಂಡಿದೆ",
+    "Work Verified": "ಕೆಲಸ ಪರಿಶೀಲಿಸಲಾಗಿದೆ", "Resolved": "ಪರಿಹರಿಸಲಾಗಿದೆ", "Closed": "ಮುಕ್ತಾಯ", "Reopened": "ಮರುತೆರೆಯಲಾಗಿದೆ",
+    "Sent for Rework": "ಮರುಕೆಲಸಕ್ಕೆ ಕಳುಹಿಸಲಾಗಿದೆ", "System Analysis": "ವ್ಯವಸ್ಥೆಯ ವಿಶ್ಲೇಷಣೆ",
+    "Similar Report Linked": "ಸಮಾನ ದೂರು ಜೋಡಿಸಲಾಗಿದೆ", "Referred to Agency": "ಸಂಸ್ಥೆಗೆ ಕಳುಹಿಸಲಾಗಿದೆ",
+    "Agency Update": "ಸಂಸ್ಥೆಯ ಮಾಹಿತಿ", "Confirmed by Road Data": "ರಸ್ತೆ ಮಾಹಿತಿಯಿಂದ ದೃಢೀಕರಣ",
+    "Delay Update": "ವಿಳಂಬದ ಮಾಹಿತಿ", "Part of Active Incident": "ಸಕ್ರಿಯ ಘಟನೆಯ ಭಾಗ",
+}
+
+
+def stage_kn(stage: str) -> str:
+    if stage.startswith("Escalated to L"):
+        return f"ಹಂತ {stage[-1]} ಕ್ಕೆ ಹೆಚ್ಚಿಸಲಾಗಿದೆ"
+    return STAGE_KN.get(stage, stage)

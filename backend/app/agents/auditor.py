@@ -17,7 +17,7 @@ from sqlalchemy import func, or_, select
 from app.agents import vision
 from app.agents.runtime.base import Agent
 from app.agents.runtime.tools import ToolContext, note, props, tool
-from app.core.clock import now
+from app.core.clock import IST, now
 from app.domain_config import AUDIT_RADIUS_DEFAULT_M, AUDIT_RADIUS_M
 from app.models import AgentRun, Attachment, Crew, ServiceRequest, User, WorkOrder
 from app.modules import geo
@@ -151,14 +151,14 @@ def hard_checks(ctx: ToolContext, wo: WorkOrder, after: Attachment, *, by: str) 
     elif after.exif_time < wo.assigned_at:
         hours = (wo.assigned_at - after.exif_time).total_seconds() / 3600
         checks.append(Check(name="Photo taken after assignment", passed=False,
-                            detail=f"Photo was taken {hours:.0f} h BEFORE the job was assigned ({after.exif_time:%d %b %H:%M})."))
+                            detail=f"Photo was taken {hours:.0f} h BEFORE the job was assigned ({after.exif_time.astimezone(IST):%d %b %H:%M} IST)."))
         facts["before_assignment"] = True
     elif after.exif_time > after.uploaded_at + timedelta(minutes=10):
         checks.append(Check(name="Photo taken after assignment", passed=False,
                             detail="Photo capture time is later than its upload time: clock tampering suspected."))
     else:
         checks.append(Check(name="Photo taken after assignment", passed=True,
-                            detail=f"Taken {after.exif_time:%d %b %H:%M}, after assignment at {wo.assigned_at:%d %b %H:%M}."))
+                            detail=f"Taken {after.exif_time.astimezone(IST):%d %b %H:%M} IST, after assignment at {wo.assigned_at.astimezone(IST):%d %b %H:%M} IST."))
 
     radius = info["allowed_radius_m"]
     if meta["exif_lat"] is None:

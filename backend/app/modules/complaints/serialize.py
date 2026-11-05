@@ -56,7 +56,10 @@ def timeline(db: Session, sr_id: str, public_only: bool = True) -> list[dict]:
     q = select(Timeline).where(Timeline.sr_id == sr_id)
     if public_only:
         q = q.where(Timeline.public.is_(True))
-    return [{"at": t.at, "stage": t.stage, "remarks": t.remarks, "remarks_kn": t.remarks_kn, "actor_type": t.actor_type}
+    from app.modules.workflow.remarks import stage_kn
+
+    return [{"at": t.at, "stage": t.stage, "stage_kn": stage_kn(t.stage), "remarks": t.remarks, "remarks_kn": t.remarks_kn,
+             "actor_type": t.actor_type}
             for t in db.scalars(q.order_by(Timeline.at, Timeline.id))]
 
 
@@ -127,7 +130,15 @@ def track_view(db: Session, sr: ServiceRequest) -> dict:
     ).order_by(Attachment.id)).all()
     fb = db.scalar(select(Feedback.rating).where(Feedback.sr_id == sr.id, Feedback.rating.is_not(None))
                    .order_by(Feedback.id.desc()).limit(1))
-    verified_wo_ids = {w for w in db.scalars(select(WorkOrder.id).where(WorkOrder.sr_id == sr.id, WorkOrder.status == "VERIFIED"))}
+    # after-photos: only the APPROVED attempt of each verified work order (never a photo that failed the audit)
+    approved_after: set[int] = set()
+    for w in db.scalars(select(WorkOrder).where(WorkOrder.sr_id == sr.id, WorkOrder.status == "VERIFIED")):
+        q = select(Attachment.id).where(Attachment.wo_id == w.id, Attachment.kind == "AFTER")
+        if w.started_at:
+            q = q.where(Attachment.uploaded_at >= w.started_at)
+        last = db.scalar(q.order_by(Attachment.id.desc()).limit(1))
+        if last:
+            approved_after.add(last)
     return {
         "grievance_no": sr.id, "status": sr.status, "category": sr.category, "category_label": en,
         "category_label_kn": kn, "description": sr.description, "submitted_at": sr.created_at,
@@ -138,6 +149,6 @@ def track_view(db: Session, sr: ServiceRequest) -> dict:
         "citizen_photos": [attachment_out(p) for p in photos if p.kind == "CITIZEN"],
         "before_photos": [attachment_out(p) for p in photos if p.kind == "BEFORE"],
         # after-photos are shown to citizens only once the work is verified by a human
-        "after_photos": [attachment_out(p) for p in photos if p.kind == "AFTER" and p.wo_id in verified_wo_ids],
+        "after_photos": [attachment_out(p) for p in photos if p.id in approved_after],
         "can_confirm": sr.status == "RESOLVED", "can_reopen": sr.status == "RESOLVED", "feedback_rating": fb,
     }

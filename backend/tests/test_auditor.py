@@ -184,3 +184,20 @@ def test_model_fail_without_hard_evidence_becomes_flag(job, monkeypatch):
 def test_auditor_falls_back_when_llm_errors(job, monkeypatch):
     wo = _complete_no_agent(job, "after_far")
     assert _run(monkeypatch, wo, [RuntimeError("boom")]) == ("FALLBACK", "rules", "FAIL", "REWORK")
+
+
+def test_citizen_sees_only_the_approved_after_photo(job):
+    from app.modules.complaints.serialize import track_view
+
+    db, world, sr, wo, site = job
+    wo, _ = complete_with(job, "after_far")
+    clock.advance(timedelta(minutes=30))
+    transition(db, wo, "IN_PROGRESS", Actor.from_user(world.field12))
+    db.commit()
+    wo, run = complete_with(job, "after_good")
+    transition(db, wo, "VERIFIED", Actor.from_user(world.control))
+    db.commit()
+    tv = track_view(db, db.get(ServiceRequest, sr.id))
+    assert len(tv["after_photos"]) == 1
+    assert abs(tv["after_photos"][0]["exif_lat"] - site[0]) < 0.001  # the on-site photo, not the 2 km one
+    assert "IST" in checks(run)["Photo taken after assignment"]["detail"]

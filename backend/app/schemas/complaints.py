@@ -40,6 +40,7 @@ class AckSlip(BaseModel):
 class TimelineEntry(BaseModel):
     at: datetime
     stage: str
+    stage_kn: str | None = None
     remarks: str
     remarks_kn: str | None = None
     actor_type: str
