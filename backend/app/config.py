@@ -10,8 +10,12 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://civicflow:civicflow@localhost:5433/civicflow"
     test_database_url: str = "postgresql+psycopg://civicflow:civicflow@localhost:5433/civicflow_test"
 
+    llm_provider: str = "anthropic"  # anthropic | gemini
     anthropic_api_key: str = ""
     civicflow_llm_model: str = "claude-sonnet-5-5"
+    gemini_api_key: str = ""
+    google_api_key: str = ""  # accepted as a fallback name for the Gemini key
+    gemini_model: str = "gemini-2.5-flash"
     agent_mode: str = "live"  # live | record | replay | rules
     agent_cache_dir: str = "agent_cache"
 
@@ -34,7 +38,15 @@ class Settings(BaseSettings):
             return False
         if self.agent_mode == "replay":
             return True
-        return bool(self.anthropic_api_key)
+        return bool(self.provider_key)
+
+    @property
+    def provider_key(self) -> str:
+        return (self.gemini_api_key or self.google_api_key) if self.llm_provider == "gemini" else self.anthropic_api_key
+
+    @property
+    def llm_model(self) -> str:
+        return self.gemini_model if self.llm_provider == "gemini" else self.civicflow_llm_model
 
 
 @lru_cache

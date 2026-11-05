@@ -4,6 +4,7 @@ AGENT_MODE=live    -> call Claude
 AGENT_MODE=record  -> call Claude and save each request/response under agent_cache/<agent>/<key>.json
 AGENT_MODE=replay  -> serve saved responses; a miss raises CacheMiss (the runtime then uses rules)
 AGENT_MODE=rules   -> never call a model
+LLM_PROVIDER=anthropic (default, Claude via the anthropic SDK) | gemini (Google Gemini via google-genai)
 
 The cache key hashes the full request (agent, model, system, tool names, messages incl. tool results),
 i.e. one entry per TURN of the tool-use loop. Replay therefore needs a deterministic seed + clock.
@@ -62,7 +63,7 @@ class LLMClient:
             return False
         if self.mode == "replay":
             return True
-        return bool(settings.anthropic_api_key)
+        return bool(settings.provider_key)
 
     def _sdk(self):
         if self._client is None:
@@ -76,7 +77,7 @@ class LLMClient:
 
     def create(self, *, agent: str, system: str, tools: list[dict], messages: list, max_tokens: int = 4096,
                timeout_s: float = 30.0) -> LLMResult:
-        model = settings.civicflow_llm_model
+        model = settings.llm_model
         key = cache_key(agent, model, system, tools, messages)
         p = self._path(agent, key)
         if self.mode == "replay":
@@ -94,6 +95,13 @@ class LLMClient:
         return res
 
     def _call(self, model, system, tools, messages, max_tokens, timeout_s) -> LLMResult:
+        if settings.llm_provider == "gemini":
+            from app.adapters import gemini
+
+            blocks, stop, model_used, usage = gemini.generate(
+                api_key=settings.provider_key, model=model, system=system, tools=tools, messages=messages,
+                max_tokens=max_tokens, timeout_s=timeout_s)
+            return LLMResult(blocks, stop, model_used, "live", usage)
         import anthropic
 
         client = self._sdk().with_options(timeout=timeout_s)

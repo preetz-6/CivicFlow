@@ -58,6 +58,8 @@
   - **Simulator rain scenario:** `POST /demo/weather-alert {title?, severity?, area_name?, hours?}`, then about 25 `POST /complaints` (17 WATERLOGGING around `rain_areas[0]`, 8 DRAIN_BLOCKED around `rain_areas[1]`, ±400 m, varied text, distinct phone numbers). Incidents appear within about 20 s, or immediately with `POST /demo/run/surge`. `POST /demo/weather-alert/clear` resets.
   - **Demo triggers:** `POST /demo/run/sensing` · `/demo/run/surge` · `/demo/run/followup` (SLA sweep + agency timer) · `POST /demo/clock/advance {hours}`.
 
+- **Gemini option added:** `LLM_PROVIDER=gemini` + `GEMINI_API_KEY` (+ `GEMINI_MODEL`, default `gemini-2.5-flash`). `adapters/gemini.py` translates the runtime's messages to Gemini and back (function calling, images, thought signatures kept for record/replay). Agents, logging, fallbacks and replay are unchanged. Default stays Claude (`LLM_PROVIDER=anthropic`). Verified offline against a scripted Gemini client; **not yet tested against the real Gemini API** (no key). `GET /health` shows `llm_provider` / `llm_model`. **Rebuild the api image once:** `docker compose up -d --build api` (new dependency `google-genai`).
+
 ## Machine B (web / simulator / docs)
 - **Step 1: Vite scaffold + government frame (built, `npm run build` passes; not yet seen against the real API)**
   - `web/`: React 18 + Vite + TS, React Router, react-i18next (EN + Kannada), plain CSS with `styles/tokens.css` (navy/saffron, flat, 0-3 px corners, AA contrast, high-contrast overrides). Vite proxies `/api` and `/media` to `VITE_API_TARGET` (default `http://localhost:8000`).

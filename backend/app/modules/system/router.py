@@ -17,7 +17,8 @@ router = APIRouter(tags=["system"])
 @router.get("/health")
 def health(db: Session = Depends(get_db)):
     db.execute(text("SELECT 1"))
-    return {"ok": True, "agent_mode": settings.agent_mode, "llm": settings.llm_enabled, **clock.state()}
+    return {"ok": True, "agent_mode": settings.agent_mode, "llm": settings.llm_enabled,
+            "llm_provider": settings.llm_provider, "llm_model": settings.llm_model, **clock.state()}
 
 
 @router.get("/clock", response_model=ClockOut)
