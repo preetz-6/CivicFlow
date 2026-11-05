@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { PublicLayout } from "./frame/PublicLayout";
 import { Home } from "./pages/citizen/Home";
+import { Login } from "./pages/citizen/Login";
 import { INFO_PAGES } from "./pages/info/content";
 import { InfoPage } from "./pages/info/InfoPage";
 import { NotFound } from "./pages/info/NotFound";
@@ -14,6 +15,7 @@ export function App() {
         {INFO_PAGES.map((p) => (
           <Route key={p.slug} path={p.slug} element={<InfoPage page={p} />} />
         ))}
+        <Route path="login" element={<Login />} />
         <Route path="sitemap" element={<Sitemap />} />
         <Route path="*" element={<NotFound />} />
       </Route>

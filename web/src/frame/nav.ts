@@ -16,6 +16,7 @@ export const NAV: NavItem[] = [
   { key: "charter", to: "/citizen-charter" },
   { key: "faqs", to: "/faqs" },
   { key: "contact", to: "/contact" },
+  { key: "login", to: "/login" },
 ];
 
 /** Footer link columns. Every slug has a page in pages/info/content.ts. */
