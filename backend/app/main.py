@@ -62,3 +62,7 @@ app.include_router(public_router, prefix=API)
 from app.modules.work_orders.router import router as wo_router  # noqa: E402
 
 app.include_router(wo_router, prefix=API)
+
+from app.agents.router import router as agents_router  # noqa: E402
+
+app.include_router(agents_router, prefix=API)

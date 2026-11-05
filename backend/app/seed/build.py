@@ -288,7 +288,7 @@ class Seeder:
                          owner="MUNICIPAL", condition=rng.choice(["OK"] * 8 + ["POOR"]), feeder=f"F-{ward}-{rng.randint(1, 9):02d}"))
             n_lights += 1
         # the demo pole and its feeder neighbours: BESCOM-maintained feeder F-KGR-07
-        for n, (lat, lon) in [(870, (12.9087, 77.4842)), (871, geo.POLE_00871), (872, (12.9071, 77.4818))]:
+        for n, (lat, lon) in [(870, (12.9085, 77.4836)), (871, geo.POLE_00871), (872, (12.9071, 77.4818))]:
             db.add(Asset(id=f"STREETLIGHT-W12-{n:05d}", type="STREETLIGHT", name="LED streetlight pole (bus stand stretch)",
                          location=pt(lat, lon), ward_id="W12", owner="BESCOM", condition="FAULTY" if n == 871 else "POOR",
                          feeder="F-KGR-07"))
@@ -428,7 +428,7 @@ class Seeder:
 
     def streetlight_context(self) -> None:
         """Two open streetlight complaints near pole 00871 (different poles, same feeder)."""
-        for (lat, lon), age_h, asset in [((12.9087, 77.4842), 50, "STREETLIGHT-W12-00870"),
+        for (lat, lon), age_h, asset in [((12.9085, 77.4836), 50, "STREETLIGHT-W12-00870"),
                                          ((12.9071, 77.4818), 26, "STREETLIGHT-W12-00872")]:
             created = E - H(age_h)
             sr = self.make_sr(category="STREETLIGHT", lat=lat, lon=lon, created=created, status="ASSIGNED", priority="P3",

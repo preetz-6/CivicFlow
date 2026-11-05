@@ -40,6 +40,10 @@ def _schema():
 def _clean():
     tables = ", ".join(t.name for t in Base.metadata.sorted_tables)
     with dbmod.engine.begin() as conn:
+        # a session left open by a failed test must never deadlock the next TRUNCATE
+        conn.execute(text("SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = current_database() "
+                          "AND pid <> pg_backend_pid() AND state LIKE 'idle in transaction%'"))
+        conn.execute(text("SET LOCAL lock_timeout = '10s'"))
         conn.execute(text(f"TRUNCATE {tables} RESTART IDENTITY CASCADE"))
     bus.sync = True
     bus.clear()
