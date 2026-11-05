@@ -1,0 +1,68 @@
+name: civicflow
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: civicflow
+      POSTGRES_PASSWORD: civicflow
+      POSTGRES_DB: civicflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+      - ./backend/db-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U civicflow -d civicflow"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  api:
+    build: ./backend
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+psycopg://civicflow:civicflow@db:5432/civicflow
+      TEST_DATABASE_URL: postgresql+psycopg://civicflow:civicflow@db:5432/civicflow_test
+      MEDIA_ROOT: /media
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir app"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - media:/media
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    image: node:22-alpine
+    working_dir: /web
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    environment:
+      VITE_API_TARGET: http://api:8000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./web:/web
+      - web_node_modules:/web/node_modules
+    depends_on:
+      - api
+
+  simulator:
+    build: ./simulator
+    profiles: ["sim"]
+    environment:
+      CIVICFLOW_API: http://api:8000
+    env_file:
+      - path: .env
+        required: false
+    depends_on:
+      - api
+
+volumes:
+  dbdata:
+  media:
+  web_node_modules:
