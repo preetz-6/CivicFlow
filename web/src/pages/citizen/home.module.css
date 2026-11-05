@@ -92,3 +92,25 @@ html[data-contrast="high"] .icon {
   font-size: var(--fs-xl);
   font-weight: 700;
 }
+.agentsBtn,
+.agentsBtn:visited {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 var(--gap-4);
+  padding: var(--gap-3) var(--gap-4);
+  color: var(--text-on-dark);
+  background: var(--navy);
+  border-left: 6px solid var(--saffron);
+  text-decoration: none;
+}
+.agentsBtn strong {
+  font-size: var(--fs-md);
+}
+.agentsBtn span {
+  font-size: var(--fs-sm);
+}
+.agentsBtn:hover {
+  background: var(--navy-dark);
+  text-decoration: underline;
+}

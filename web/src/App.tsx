@@ -19,6 +19,7 @@ import { Lodge } from "./pages/citizen/Lodge";
 import { Ack } from "./pages/citizen/Ack";
 import { Track } from "./pages/citizen/Track";
 import { Wards } from "./pages/citizen/Wards";
+import { AgentFlow } from "./pages/citizen/AgentFlow";
 import { INFO_PAGES } from "./pages/info/content";
 import { InfoPage } from "./pages/info/InfoPage";
 import { NotFound } from "./pages/info/NotFound";
@@ -103,6 +104,7 @@ export function App() {
         <Route path="ack/:no" element={<Ack />} />
         <Route path="track" element={<Track />} />
         <Route path="wards" element={<Wards />} />
+        <Route path="agents" element={<AgentFlow />} />
         <Route path="login" element={<Login />} />
         <Route path="*" element={<NotFound />} />
       </Route>

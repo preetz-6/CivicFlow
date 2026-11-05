@@ -81,3 +81,6 @@ app.include_router(incidents_router, prefix=API)
 from app.agents.ops import router as ops_router  # noqa: E402
 
 app.include_router(ops_router, prefix=API)
+from app.agents.flow import router as flow_router  # noqa: E402
+
+app.include_router(flow_router, prefix=API)

@@ -80,6 +80,10 @@ export function Home() {
         <section>
           <h1 style={{ marginTop: 24 }}>{t("home.title")}</h1>
           <p>{t("home.intro")}</p>
+          <Link to="/agents" className={h.agentsBtn}>
+            <strong>{t("homeX.agents")} →</strong>
+            <span>{t("homeX.agentsSub")}</span>
+          </Link>
 
           <h2>{t("homeX.services")}</h2>
           <ul className={h.tiles}>

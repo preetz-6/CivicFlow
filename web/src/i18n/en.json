@@ -197,6 +197,8 @@
     "rated": "You rated this work {{n}} of 5."
   },
   "homeX": {
+    "agents": "See how our AI agents work",
+    "agentsSub": "Follow any complaint step by step: what each agent looked up, decided and did.",
     "services": "Citizen Services",
     "lodge": "Lodge Grievance",
     "track": "Track Status",
