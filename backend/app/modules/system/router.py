@@ -69,22 +69,29 @@ def demo_run(agent: str):
     """DEMO ONLY: run a scheduled agent now (sensing). Event-driven agents run by themselves."""
     if not settings.demo_mode:
         raise HTTPException(404)
+    import threading
+
     if agent == "sensing":
         from app.agents.sensing import run_sensing
 
-        return {"run_id": run_sensing(force=True)}
-    if agent == "surge":
+        job = lambda: run_sensing(force=True)  # noqa: E731
+    elif agent == "surge":
         from app.agents.surge import run_surge_check
 
-        return {"run_id": run_surge_check(force=True)}
-    if agent == "followup":
+        job = lambda: run_surge_check(force=True)  # noqa: E731
+    elif agent == "followup":
         from app.agents.followup import run_followup_timer
         from app.modules.sla.engine import run_sweep
 
-        run_sweep()
-        run_followup_timer()
-        return {"ok": True}
-    raise HTTPException(404, "Unknown scheduled agent")
+        def job():
+            run_sweep()
+            run_followup_timer()
+    else:
+        raise HTTPException(404, "Unknown scheduled agent")
+    # Model calls can take minutes on a rate-limited tier: start the run and return at once.
+    # Progress shows in the Agent Activity Log (status RUNNING -> OK / FALLBACK).
+    threading.Thread(target=job, name=f"demo-{agent}", daemon=True).start()
+    return {"started": True, "run_id": None, "agent": agent}
 
 
 class AdvanceIn(BaseModel):

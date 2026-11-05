@@ -114,6 +114,23 @@ class CaseInvestigator(Agent):
             "emergency_keywords_found": is_emergency(sr.description),
         }
 
+    @staticmethod
+    def rule_duplicate(nearby_same: list[dict], inp: dict) -> tuple[str | None, float]:
+        """Brief 5.2 duplicate rule: same category, within the category radius, within 72 h, similar text."""
+        cat = inp["category_chosen"]
+        dup, dup_conf = None, 0.0
+        radius = DUPLICATE_RADIUS_M.get(cat, 50)
+        for c in nearby_same:
+            if c["category"] != cat or c["distance_m"] > radius or c["hours_ago"] > DUPLICATE_WINDOW_HOURS:
+                continue
+            if c["source"] == "VEHICLE_FEED" and inp["source"] == "VEHICLE_FEED":
+                continue
+            sim = c.get("text_similarity") or 0
+            conf = 0.72 + 0.15 * (1 - c["distance_m"] / radius) + (0.1 if sim >= 55 else 0.04 if sim >= 35 else 0)
+            if conf > dup_conf:
+                dup, dup_conf = c["sr_id"], round(min(conf, 0.99), 2)
+        return dup, dup_conf
+
     def use_llm(self, inp: dict, mode: str) -> bool:
         # In record/replay (free-tier quota), only the demo's citizen pothole / streetlight reports use the model;
         # rain-burst and vehicle-feed complaints run on rules in both, so a replay behaves exactly like the recording.
@@ -186,16 +203,7 @@ class CaseInvestigator(Agent):
                            f"({', '.join(c['sr_id'] for c in cluster[:3])}): likely a supply/feeder fault, not one fitting.")
                 if referral:
                     referral["reason"] += f"; {len(cluster) + 1} lights out on the same stretch, repeat failures: likely feeder fault"
-        # duplicate rule: same category, within category radius, within 72 h, similar text
-        dup, dup_conf = None, 0.0
-        radius = DUPLICATE_RADIUS_M.get(cat, 50)
-        for c in nearby_same:
-            if c["distance_m"] > radius or c["hours_ago"] > DUPLICATE_WINDOW_HOURS or c["source"] == "VEHICLE_FEED" and inp["source"] == "VEHICLE_FEED":
-                continue
-            sim = c.get("text_similarity") or 0
-            conf = 0.72 + 0.15 * (1 - c["distance_m"] / radius) + (0.1 if sim >= 55 else 0.04 if sim >= 35 else 0)
-            if conf > dup_conf:
-                dup, dup_conf = c["sr_id"], round(min(conf, 0.99), 2)
+        dup, dup_conf = self.rule_duplicate(nearby_same, inp)
         if dup:
             why.append(f"Same {cat.lower().replace('_', ' ')} reported in {dup} nearby within {DUPLICATE_WINDOW_HOURS} h "
                        f"(confidence {dup_conf:.2f}{', will be linked' if dup_conf >= MERGE_THRESHOLD else ', suggestion only'}).")
@@ -251,7 +259,12 @@ class CaseInvestigator(Agent):
             sr.category = out.category
         if db.get(Department, out.department_id):
             sr.department_id = out.department_id
-        if not sr.emergency or out.priority == "P1":
+        if sr.emergency:
+            sr.priority = "P1"  # danger to life stays P1 whatever the analysis says
+        elif out.priority == "P1" and not is_emergency(sr.description):
+            note(ctx, "p1_capped", {"reason": "P1 is reserved for danger to life (emergency keywords); set to P2"})
+            out.priority = sr.priority = "P2"
+        else:
             sr.priority = out.priority
         if out.asset_id:
             from app.models import Asset
@@ -275,22 +288,29 @@ class CaseInvestigator(Agent):
             draft_referral(db, sr, out.interagency_referral.agency, out.interagency_referral.reason, ctx.run_id)
 
         merged = False
-        if (sr.status == "SUBMITTED" and out.duplicate_of and out.duplicate_confidence >= MERGE_THRESHOLD):
-            parent = db.get(ServiceRequest, out.duplicate_of)
-            # Guard: a duplicate must really be the same place (a model, or a replayed recording, can name a wrong id)
-            near = parent is not None and geo.distance_m(geo.latlon(parent.location), geo.latlon(sr.location)) <= \
-                DUPLICATE_RADIUS_M.get(sr.category, 50) * 2
-            if parent is not None and not near:
-                note(ctx, "duplicate_rejected", {"duplicate_of": out.duplicate_of, "reason": "not within the duplicate radius"})
-                parent = None
-            if parent is None or not near:
-                rule = self.fallback(ctx, inp) if parent is None else None  # find the real duplicate, if any
-                if rule is not None and rule.duplicate_of and rule.duplicate_confidence >= MERGE_THRESHOLD:
-                    parent = db.get(ServiceRequest, rule.duplicate_of)
-                    out.duplicate_of, out.duplicate_confidence = rule.duplicate_of, rule.duplicate_confidence
-                elif rule is not None:
-                    out.duplicate_of, out.duplicate_confidence = None, 0.0  # the claimed duplicate does not hold
-            if parent and parent.id != sr.id and parent.category == sr.category and parent.status not in ("CLOSED", "REJECTED", "MERGED"):
+        if sr.status == "SUBMITTED":
+            radius = DUPLICATE_RADIUS_M.get(sr.category, 50)
+            lat, lon = geo.latlon(sr.location)
+            nearby = ctx.call("find_nearby_open_complaints", {"lat": lat, "lon": lon, "category": sr.category,
+                                                              "radius_m": radius * 2, "hours": DUPLICATE_WINDOW_HOURS,
+                                                              "text": sr.description}, by="rules")
+            rule_dup, rule_conf = self.rule_duplicate(nearby, {**inp, "category_chosen": sr.category})
+            model_dup = out.duplicate_of
+            if model_dup and model_dup not in {c["sr_id"] for c in nearby}:
+                note(ctx, "duplicate_rejected", {"duplicate_of": model_dup, "reason": "not an open complaint within the duplicate radius"})
+                model_dup = None
+            # brief 5.2: auto-merge at >= 0.9; the radius/time/text rule decides, the model can only add agreement
+            if rule_dup:
+                conf = max(rule_conf, out.duplicate_confidence if model_dup == rule_dup else 0.0)
+                out.duplicate_of, out.duplicate_confidence = rule_dup, round(conf, 2)
+            elif model_dup:
+                out.duplicate_of = model_dup
+                out.duplicate_confidence = min(out.duplicate_confidence, 0.89)  # suggestion only: rule did not confirm
+            else:
+                out.duplicate_of, out.duplicate_confidence = None, 0.0
+            parent = db.get(ServiceRequest, out.duplicate_of) if out.duplicate_of else None
+            if (parent is not None and out.duplicate_confidence >= MERGE_THRESHOLD and parent.id != sr.id
+                    and parent.category == sr.category and parent.status not in ("CLOSED", "REJECTED", "MERGED")):
                 merge_into(db, sr, parent, ctx.actor, confidence=out.duplicate_confidence,
                            note=f"System Analysis: same issue as {parent.id} (confidence {out.duplicate_confidence:.2f})")
                 merged = True

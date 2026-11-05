@@ -130,7 +130,8 @@ class LLMClient:
         model = settings.llm_model
         key = cache_key(agent, model, system, tools, messages)
         p = self._path(agent, key)
-        if self.mode == "replay":
+        if self.mode == "replay" or (self.mode == "record" and p.exists() and not settings.record_overwrite):
+            # record mode only fills gaps (re-running a recording does not spend quota again)
             if not p.exists():
                 raise CacheMiss(f"no recorded response for {agent} turn {key}")
             d = json.loads(p.read_text(encoding="utf-8"))

@@ -154,7 +154,7 @@ def test_llm_loop_tools_and_validated_output(seeded, monkeypatch):
     run = s.get(AgentRun, rid)
     assert run.status == "OK" and run.model == "claude-test" and run.confidence == 0.86
     steps = s.scalars(select(AgentStep).where(AgentStep.run_id == rid)).all()
-    assert [st.tool for st in steps] == ["get_sensitive_places_nearby"]
+    assert [st.tool for st in steps if not st.tool.startswith("rule:")] == ["get_sensitive_places_nearby"]
     assert "Govt. Higher Primary School" in json.dumps(steps[0].result_summary)
     # tool result was sent back to the model with the matching id
     msgs = fake.calls[1]["messages"]  # [user, assistant(tool_use), user(tool_result), ...]

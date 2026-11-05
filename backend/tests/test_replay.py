@@ -88,3 +88,30 @@ def test_rain_complaints_use_rules_in_record_and_replay(seeded):
     assert investigator.use_llm({"source": "CITIZEN_WEB", "category_chosen": "WATERLOGGING"}, "record") is False
     assert investigator.use_llm({"source": "VEHICLE_FEED", "category_chosen": "POTHOLE"}, "replay") is False
     assert investigator.use_llm({"source": "CITIZEN_WEB", "category_chosen": "WATERLOGGING"}, "live") is True
+
+
+def test_cautious_model_still_merges_when_rule_is_sure_and_p1_is_capped(seeded, monkeypatch):
+    """Gemini said duplicate 0.65 and P1 for 'two wheelers falling': the radius rule merges, P1 is capped to P2."""
+    from app.agents.investigator import investigator
+    from app.core.bus import bus
+    from app.modules.complaints.service import create_complaint
+
+    db = seeded
+    bus.enabled = False
+    try:
+        first = create_complaint(db, category="POTHOLE", description="Huge pothole near the school gate, kids at risk",
+                                 lat=geo.POTHOLE_SCHOOL[0], lon=geo.POTHOLE_SCHOOL[1], contact_phone="9811111111")
+        sr = create_complaint(db, category="POTHOLE", description="Pothole at the school gate, two wheelers falling",
+                              lat=geo.POTHOLE_SCHOOL[0] - 0.00002, lon=geo.POTHOLE_SCHOOL[1], contact_phone="9811111112")
+        db.commit()
+    finally:
+        bus.enabled = True
+    cautious = {"category": "POTHOLE", "priority": "P1", "department_id": "ROADS", "ward_id": "W12", "duplicate_of": first.id,
+                "duplicate_confidence": 0.65, "rationale": ["recorded answer"], "confidence": 0.8}
+    monkeypatch.setattr("app.agents.runtime.loop.llm", Fake(cautious))
+    rid = run_agent(investigator, "complaint.submitted", {"id": sr.id})
+    s = SessionLocal()
+    got = s.get(ServiceRequest, sr.id)
+    assert got.status == "MERGED" and got.parent_sr_id == first.id
+    assert s.get(AgentRun, rid).output["duplicate_confidence"] >= 0.9 and s.get(AgentRun, rid).output["priority"] == "P2"
+    s.close()

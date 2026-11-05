@@ -101,7 +101,7 @@ def test_investigator_runs_on_gemini(seeded, monkeypatch):
     s = SessionLocal()
     run = s.get(AgentRun, rid)
     assert run.status == "OK" and run.model == "gemini-test" and run.confidence == 0.83
-    assert [st.tool for st in s.scalars(select(AgentStep).where(AgentStep.run_id == rid))] == ["get_sensitive_places_nearby"]
+    assert [st.tool for st in s.scalars(select(AgentStep).where(AgentStep.run_id == rid)) if not st.tool.startswith("rule:")] == ["get_sensitive_places_nearby"]
     assert s.get(ServiceRequest, sr.id).priority == "P2"
     s.close()
     second = fake.models.calls[1]
