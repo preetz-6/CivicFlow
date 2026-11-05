@@ -72,6 +72,17 @@ def demo_run(agent: str):
         from app.agents.sensing import run_sensing
 
         return {"run_id": run_sensing(force=True)}
+    if agent == "surge":
+        from app.agents.surge import run_surge_check
+
+        return {"run_id": run_surge_check(force=True)}
+    if agent == "followup":
+        from app.agents.followup import run_followup_timer
+        from app.modules.sla.engine import run_sweep
+
+        run_sweep()
+        run_followup_timer()
+        return {"ok": True}
     raise HTTPException(404, "Unknown scheduled agent")
 
 

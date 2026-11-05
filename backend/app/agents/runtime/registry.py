@@ -25,8 +25,9 @@ def register_agents() -> None:
     from app.agents.investigator import investigator
     from app.agents.followup import followup
     from app.agents.sensing import sensing
+    from app.agents.surge import surge
 
-    for a in (investigator, auditor, sensing, followup):
+    for a in (investigator, auditor, sensing, followup, surge):
         AGENTS[a.name] = a
         for trig in a.triggers:
             bus.subscribe(trig, agent_handler(a))
@@ -55,4 +56,7 @@ def register_all() -> None:
     from app.agents.followup import run_followup_timer
 
     scheduler.add_job("agency_followups", run_followup_timer, 20)
+    from app.agents.surge import run_surge_check
+
+    scheduler.add_job("surge_check", run_surge_check, 20)
     log.info("handlers and agents registered: %s", ", ".join(AGENTS))
