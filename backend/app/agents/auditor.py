@@ -247,8 +247,17 @@ class EvidenceAuditor(Agent):
         after = latest_after(db, wo)
         if after is None:
             return None
+        sr = db.get(ServiceRequest, wo.sr_id)
+        far = after.exif_lat is not None and geo.distance_m((after.exif_lat, after.exif_lon), geo.latlon(sr.location)) > HARD_GPS_M
+        early = after.exif_time is not None and after.exif_time < wo.assigned_at - timedelta(minutes=2)
+        reused = db.scalar(select(func.count()).select_from(Attachment).where(
+            Attachment.id != after.id, Attachment.sha256 == after.sha256)) > 0
         return {"subject_id": wo.id, "wo_id": wo.id, "sr_id": wo.sr_id, "crew_id": wo.crew_id,
-                "after_photo_id": after.id, "rework_count": wo.rework_count}
+                "after_photo_id": after.id, "rework_count": wo.rework_count, "_hard_fail": bool(far or early or reused)}
+
+    def use_llm(self, inp: dict, mode: str) -> bool:
+        # Hard evidence (far GPS, taken before assignment, identical file) already decides FAIL; the model adds nothing.
+        return not inp.get("_hard_fail")
 
     def decision(self, out: AuditVerdict) -> str:
         failed = [c.detail.rstrip(".") for c in out.checks if c.passed is False]

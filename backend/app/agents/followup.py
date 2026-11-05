@@ -215,6 +215,10 @@ class FollowupAgent(Agent):
     tools = ["get_case_timeline", "get_crew_load", "find_available_crews", "check_material_stock", "get_referral_status",
              "get_sensitive_places_nearby"]
 
+    def use_llm(self, inp: dict, mode: str) -> bool:
+        # Rate-limited tiers: record/replay keep this agent rule-based (its rule output is already specific).
+        return mode not in ("record", "replay")
+
     def build_input(self, db, payload):
         situation = {"sla.at_risk": "AT_RISK", "sla.breached": "BREACHED"}.get(payload.get("_event"), "AGENCY_FOLLOWUP")
         sr = db.get(ServiceRequest, payload.get("id") or payload.get("sr_id"))

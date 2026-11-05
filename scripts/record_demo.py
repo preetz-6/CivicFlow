@@ -28,9 +28,12 @@ pub = httpx.Client(base_url=B, timeout=120)
 
 
 def login(user: str) -> httpx.Client:
+    from app.seed.build import PASSWORDS
+
+    role = {"control": "CONTROL_ROOM", "officer": "WARD_OFFICER", "field": "FIELD_TEAM", "citizen": "CITIZEN"}[
+        user.split(".")[0].rstrip("0123456789")]
     c = httpx.Client(base_url=B, timeout=120)
-    otp = c.post("/auth/login", json={"username": user}).json()["otp_demo"]
-    c.post("/auth/verify", json={"username": user, "otp": otp}).raise_for_status()
+    c.post("/auth/login", json={"username": user, "password": PASSWORDS[role]}).raise_for_status()
     return c
 
 

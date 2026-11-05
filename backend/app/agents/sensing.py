@@ -255,6 +255,10 @@ class RoadHazardSensing(Agent):
     tools = ["cluster_detections", "get_cluster_stats", "check_known_features", "find_nearby_open_complaints",
              "get_recent_repairs", "get_road_class"]
 
+    def use_llm(self, inp: dict, mode: str) -> bool:
+        # Rate-limited tiers: record/replay keep this agent rule-based (its rule output is already specific).
+        return mode not in ("record", "replay")
+
     def build_input(self, db, payload):
         cursor = db.get(SystemState, CURSOR_KEY)
         last = (cursor.value or {}).get("max_id", 0) if cursor else 0

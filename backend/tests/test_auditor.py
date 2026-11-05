@@ -173,7 +173,8 @@ def _run(monkeypatch, wo, script):
 
 def test_model_cannot_pass_a_far_photo(job, monkeypatch):
     wo = _complete_no_agent(job, "after_far")
-    assert _run(monkeypatch, wo, [final(verdict("PASS"))]) == ("OK", "claude-test", "FAIL", "REWORK")
+    # hard evidence decides before the model is even asked: no model call, FAIL -> REWORK
+    assert _run(monkeypatch, wo, [final(verdict("PASS"))]) == ("FALLBACK", "rules", "FAIL", "REWORK")
 
 
 def test_model_fail_without_hard_evidence_becomes_flag(job, monkeypatch):

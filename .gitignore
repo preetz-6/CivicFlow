@@ -12,3 +12,4 @@ backend/media/
 web/test-results/
 web/playwright-report/
 .DS_Store
+/photos/
