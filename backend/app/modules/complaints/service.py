@@ -157,3 +157,13 @@ def citizen_reopen(db: Session, sr: ServiceRequest, actor: Actor, reason: str, s
     transition(db, sr, "REOPENED", actor, reopen_reason=reason, scope_verified=scope_verified)
     db.add(Feedback(sr_id=sr.id, reopen_reason=reason, created_at=now()))
     notify_citizen(db, sr, "REOPENED", dedupe=str(sr.reopen_count))
+
+
+def ward_name_kn(db: Session, ward_id: str | None) -> str | None:
+    w = db.get(Ward, ward_id) if ward_id else None
+    return f"{w.id} {w.name_kn}" if w and w.name_kn else None
+
+
+def dept_name_kn(db: Session, dept_id: str | None) -> str | None:
+    d = db.get(Department, dept_id) if dept_id else None
+    return d.name_kn if d else None

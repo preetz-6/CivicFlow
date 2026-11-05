@@ -35,6 +35,8 @@ class AckSlip(BaseModel):
     department_name: str | None
     expected_resolution: datetime | None
     status: str
+    ward_name_kn: str | None = None
+    department_name_kn: str | None = None
 
 
 class TimelineEntry(BaseModel):
@@ -56,6 +58,8 @@ class TrackView(BaseModel):
     submitted_at: datetime
     ward_name: str | None
     department_name: str | None
+    ward_name_kn: str | None = None
+    department_name_kn: str | None = None
     priority: str
     expected_resolution: datetime | None
     reporter_count: int

@@ -14,8 +14,8 @@ from app.models import AgentRun, AuditLog, ServiceRequest, User
 from app.models.enums import ActorKind, Role
 from app.modules.complaints import serialize
 from app.modules.complaints.service import (
-    apply_sla, citizen_confirm, citizen_reopen, create_complaint, dept_name, find_by_tracking, get_sr, labels,
-    ward_name,
+    apply_sla, citizen_confirm, citizen_reopen, create_complaint, dept_name, dept_name_kn, find_by_tracking, get_sr,
+    labels, ward_name, ward_name_kn,
 )
 from app.modules.notifications.service import notify_citizen
 from app.modules.sla.service import compute
@@ -37,6 +37,7 @@ def ack_slip(db: Session, sr: ServiceRequest) -> dict:
         "category": sr.category, "category_label": en, "category_label_kn": kn, "ward_id": sr.ward_id,
         "ward_name": ward_name(db, sr.ward_id), "department_id": sr.department_id,
         "department_name": dept_name(db, sr.department_id), "expected_resolution": sr.sla_due_at, "status": sr.status,
+        "ward_name_kn": ward_name_kn(db, sr.ward_id), "department_name_kn": dept_name_kn(db, sr.department_id),
     }
 
 

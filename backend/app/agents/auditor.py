@@ -197,6 +197,8 @@ def hard_checks(ctx: ToolContext, wo: WorkOrder, after: Attachment, *, by: str) 
 def score_and_verdict(checks: list[Check], facts: dict) -> tuple[int, str, bool]:
     score = 100
     for c in checks:
+        if c.passed is None and c.detail.startswith("Skipped"):
+            continue  # vision not available (rules mode): neither evidence for nor against
         if c.passed is None:
             score -= 25
         elif c.passed is False:

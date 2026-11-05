@@ -10,7 +10,7 @@ from app.models import (
 )
 from app.models.enums import Role
 from app.modules import geo
-from app.modules.complaints.service import dept_name, labels, ward_name
+from app.modules.complaints.service import dept_name, dept_name_kn, labels, ward_name, ward_name_kn
 from app.modules.media.service import attachment_out
 from app.modules.sla.service import compute
 from app.modules.workflow.table import allowed_targets
@@ -143,6 +143,7 @@ def track_view(db: Session, sr: ServiceRequest) -> dict:
         "grievance_no": sr.id, "status": sr.status, "category": sr.category, "category_label": en,
         "category_label_kn": kn, "description": sr.description, "submitted_at": sr.created_at,
         "ward_name": ward_name(db, sr.ward_id), "department_name": dept_name(db, sr.department_id),
+        "ward_name_kn": ward_name_kn(db, sr.ward_id), "department_name_kn": dept_name_kn(db, sr.department_id),
         "priority": sr.priority, "expected_resolution": compute(sr).due_at or sr.sla_due_at,
         "reporter_count": sr.reporter_count, "escalation_level": sr.escalation_level, "merged_into": sr.parent_sr_id,
         "lat": lat, "lon": lon, "landmark": sr.landmark, "timeline": timeline(db, sr.id),

@@ -58,6 +58,13 @@ def random_point_in(ward_id: str) -> tuple[float, float]:
             return lat, lon
 
 
+def nearest_landmark(lat: float, lon: float, max_m: float = 450) -> str | None:
+    from app.modules.geo import distance_m
+
+    name, d = min(((n, distance_m((lat, lon), p)) for n, _t, p in SENSITIVE), key=lambda x: x[1])
+    return f"Near {name}" if d <= max_m else None
+
+
 def tracking_code() -> str:
     return "".join(rng.choices(string.ascii_uppercase + string.digits, k=8))
 
@@ -93,7 +100,7 @@ USERS = [
 
 CREWS = [
     # id, ward, skills, capacity, base, contractor, target open-WO load
-    ("W12-A", "W12", ["ROADS", "DRAINS"], 4, (12.9120, 77.4800), "Sri Manjunatha Constructions", 4),
+    ("W12-A", "W12", ["ROADS", "DRAINS"], 4, (12.9120, 77.4800), "Sri Manjunatha Constructions", 3),
     ("W12-B", "W12", ["ROADS", "ELECTRICAL"], 4, (12.9050, 77.4780), "Kengeri Civil Works", 6),
     ("W13-A", "W13", ["ROADS", "DRAINS"], 4, (12.9300, 77.5200), "RR Infra Services", 2),
     ("W13-B", "W13", ["ROADS", "ELECTRICAL"], 4, (12.9170, 77.5030), "RR Infra Services", 0),
@@ -250,7 +257,7 @@ class Seeder:
                               description=f"{cat.replace('_', ' ').title()} {pr}: resolve within {resolution_hours(cat, pr):g} h")
                 db.add(p)
                 self.policy[(cat, pr)] = p
-        db.add(DataSource(id="oem-sim", name="Connected two-wheeler OEM feed (SIMULATED)", kind="VEHICLE_OEM",
+        db.add(DataSource(id="oem-sim", name="Connected two-wheeler OEM feed", kind="VEHICLE_OEM",
                           api_key_hash=hash_api_key(settings.oem_sim_api_key), simulated=True))
         db.add(DataSource(id="citizen-photo", name="Citizen complaint photos", kind="CITIZEN_PHOTO",
                           api_key_hash=hash_api_key("internal-only-" + settings.secret_key), simulated=False))
@@ -331,7 +338,7 @@ class Seeder:
         sr = ServiceRequest(
             id=self.sr_id(created), tracking_code=tracking_code(), category=category, citizen_category=category,
             description=description or rng.choice(DESCRIPTIONS[category]), location=pt(lat, lon),
-            address=f"Near {rng.choice(SENSITIVE)[0]}" if rng.random() < 0.3 else None,
+            address=nearest_landmark(lat, lon) if rng.random() < 0.4 else None,
             ward_id=ward, department_id=CATEGORY_DEPARTMENT[category], status=status, priority=priority,
             owner_id=self.officer_of[ward].id if owner and ward else None, source=source,
             sla_policy_id=pol.id, sla_started_at=created, sla_due_at=created + H(pol.resolution_hours),
@@ -490,6 +497,20 @@ class Seeder:
                 self.history_rows(sr, [("SUBMITTED", created, "HUMAN")])
 
 
+def analyse_submitted(db) -> None:
+    """Seeded complaints awaiting acceptance get a System Analysis too (rule-based, so seeding never spends model quota)."""
+    from app.agents.investigator import investigator
+    from app.agents.runtime.loop import run_agent
+
+    ids = list(db.scalars(text("SELECT id FROM service_requests WHERE status = 'SUBMITTED' ORDER BY id")))
+    mode, settings.agent_mode = settings.agent_mode, "rules"
+    try:
+        for sr_id in ids:
+            run_agent(investigator, "seed.backfill", {"id": sr_id})
+    finally:
+        settings.agent_mode = mode
+
+
 DEMO_STEPS = """
 =====================================================================
  CivicFlow demo is seeded.  Clock frozen-origin: {epoch}  TIME_SCALE={scale}
@@ -535,6 +556,7 @@ def main() -> None:
         clock.configure(settings.time_scale, E)
         clock_state.save(db)
         db.commit()
+        analyse_submitted(db)
         counts = {t: db.scalar(text(f'SELECT count(*) FROM "{t}"')) for t in
                   ("service_requests", "work_orders", "assets", "users", "sensitive_places", "status_events")}
         print("Seeded:", counts)
