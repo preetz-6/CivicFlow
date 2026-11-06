@@ -518,25 +518,13 @@ def analyse_submitted(db) -> None:
 
 DEMO_STEPS = """
 =====================================================================
- CivicFlow demo is seeded.  Clock frozen-origin: {epoch}  TIME_SCALE={scale}
+ CivicFlow demo is seeded.  SLA clock starts at {epoch}  (x{scale:g}: 1 real minute = {scale:g} SLA minutes)
+ {paused}
  Web: http://localhost:5173    API docs: http://localhost:8000/docs
 ---------------------------------------------------------------------
- Logins (OTP is shown on screen):
-   citizen1 (Kannada) | citizen2 | citizen3
-   officer.w12 | officer.w13 | officer.w14 | officer.w15 | zonal.west
-   field.w12a | field.w12b | field.w13a | field.w13b | field.w14a | field.w15a
-   control  (Executive Engineer / Commissioner)
----------------------------------------------------------------------
- 1. citizen1 lodges a pothole near Govt. Higher Primary School, Kengeri (pin is preset)
- 2. citizen2 and citizen3 report the same pothole -> auto-merged, reporter count 3
- 3. make sim  -> vehicles confirm the school pothole, new Mysore Road complaint, speed breakers filtered
- 4. citizen2 reports streetlight at Kengeri bus stand -> repeat failure, BESCOM referral
-    (advance the clock; follow-ups, then L2 escalation; reply from the Agency Inbox)
- 5. officer.w12 accepts the pothole brief -> work order -> field.w12a uploads far photo -> FAIL -> good photo -> PASS
-    -> control approves -> citizen1 confirms with 5 stars
- 6. Wait ~6 min (or advance 6 h): crew W12-B job hits 75% SLA -> reassignment to W13-B proposed -> officer approves
- 7. make rain -> ~25 flood complaints -> 2 incidents, advisory -> control publishes -> ticker
- 8. control: KPIs
+ Staff logins (Staff Login): control / Control@2026, officer.w12 / Officer@2026, field.w12a / Field@2026
+ Citizens do not log in: Lodge Grievance, then Track with the Grievance No. + tracking code.
+ Follow docs/DEMO_SCRIPT.md. Show: /agents (flowchart), Control Room > Agent Operations, Ask CivicFlow.
 =====================================================================
 """
 
@@ -545,6 +533,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--reset", action="store_true")
     ap.add_argument("--demo", action="store_true")
+    ap.add_argument("--paused", action="store_true", help="leave the SLA clock paused (resume: scripts/ops.py resume)")
     args = ap.parse_args()
     db = SessionLocal()
     try:
@@ -559,6 +548,8 @@ def main() -> None:
         Seeder(db).run()
         clock.load(clock.dump() | {"frozen": None})
         clock.configure(settings.time_scale, E)
+        if args.paused:
+            clock.freeze(E)
         clock_state.save(db)
         db.commit()
         analyse_submitted(db)
@@ -566,7 +557,9 @@ def main() -> None:
                   ("service_requests", "work_orders", "assets", "users", "sensitive_places", "status_events")}
         print("Seeded:", counts)
         if args.demo:
-            print(DEMO_STEPS.format(epoch=E.isoformat(), scale=settings.time_scale))
+            print(DEMO_STEPS.format(epoch=E.isoformat(), scale=settings.time_scale,
+                                    paused="SLA clock is PAUSED. When you start presenting: python scripts/ops.py resume"
+                                    if args.paused else "SLA clock is running."))
     finally:
         db.close()
 

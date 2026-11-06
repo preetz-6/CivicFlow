@@ -1,98 +1,97 @@
-# CivicFlow: Demo Script (about 8 minutes)
+# CivicFlow: Demo Script (about 10 minutes)
 
 Follows the demo story in `docs/BRIEF.md` §11. Every step uses real screens and the real API; the external parts (vehicle feed, SMS gateway, BESCOM/BWSSB, weather) are simulated behind adapters; see the README.
 
-## Before you start (10 minutes before)
+## Before you start
 
-1. Start everything and load a fresh demo seed:
+1. **Reset the data (any time before the presentation).**
    ```bash
    docker compose up -d --build
    make demo            # Windows without make: scripts\cf.ps1 demo
    ```
-   If ports 5433 / 8000 / 5173 are taken on the demo laptop, set `DB_PORT`, `API_PORT`, `WEB_PORT` in `.env` and, for a local `npm run dev`, `VITE_API_TARGET` in `web/.env.local`.
-2. For a fast, network-independent run use the recorded agent answers: `AGENT_MODE=replay` in `.env` (falls back to rules on a cache miss). With no API key at all, every agent still works on rules and says "Rule-based analysis".
-3. Open http://localhost:5173 in **two browser windows** (or one normal + one private window), so the citizen and the staff user are logged in at the same time.
-4. Logins: **Login** → User ID + password. Passwords: citizens `Citizen@2026`, officers `Officer@2026`, field teams `Field@2026`, Control Room `Control@2026`. Nothing about the demo is shown on screen; keep this script (or the user list) beside you.
-5. Replay only matches the **recorded** story, so use these exact inputs (they are also in `backend/app/seed/demo_story.py`): citizen1's pothole description `ಶಾಲೆಯ ಗೇಟಿನ ಮುಂದೆ ದೊಡ್ಡ ರಸ್ತೆ ಗುಂಡಿ, ಮಕ್ಕಳು ಸುತ್ತಿ ನಡೆಯಬೇಕಾಗಿದೆ. Big pothole at the school gate.` (mobile `9845000001`), then `Huge pothole near the school gate, kids at risk` (`9845000002`) and `Pothole at the school gate, two wheelers falling` (`9845000003`); streetlight `Streetlight not working at Kengeri bus stand, very dark at night, women feel unsafe` (`9845000002`); simulator `--seed 7` and `--scenario rain --seed 3`. Anything else still works, on rule-based analysis.
+   This reseeds the city and **pauses the SLA clock** at 09:00. The clock runs 60x real time (1 real minute = 1 SLA hour), so without the pause every case would be breached an hour later. Check with `python scripts/ops.py clock` (it says `PAUSED`).
+2. **When you start presenting:** `python scripts/ops.py resume`. Pause again any time with `python scripts/ops.py pause`.
+3. If ports 5433 / 8000 / 5173 are taken, set `DB_PORT`, `API_PORT`, `WEB_PORT` in `.env`.
+4. Agents: `AGENT_MODE=replay` replays the recorded model answers and falls back to rules on a miss; `AGENT_MODE=live` uses the model (Gemini free tier: few requests per day). With no key everything still works on rules and says "Rule-based".
+5. Open http://localhost:5173 in **two browser windows** (one normal, one private) so a citizen and a staff user can be on screen at once. Put **http://localhost:5173/agents** in a third tab: it follows the latest case live.
+6. Exact inputs that match the recordings (also in `backend/app/seed/demo_story.py`): pothole description `ಶಾಲೆಯ ಗೇಟಿನ ಮುಂದೆ ದೊಡ್ಡ ರಸ್ತೆ ಗುಂಡಿ, ಮಕ್ಕಳು ಸುತ್ತಿ ನಡೆಯಬೇಕಾಗಿದೆ. Big pothole at the school gate.` (mobile `9845000001`), then `Huge pothole near the school gate, kids at risk` (`9845000002`) and `Pothole at the school gate, two wheelers falling` (`9845000003`); streetlight `Streetlight not working at Kengeri bus stand, very dark at night, women feel unsafe` (`9845000002`); simulator `--seed 7` and `--scenario rain --seed 3`. Anything else still works, on rule-based analysis.
 
-| User ID | Role | Used for |
-|---|---|---|
-| `citizen1` | Citizen (Kannada) | Steps 1, 5 |
-| `officer.w12` | Ward Officer, Ward 12 Kengeri | Steps 2, 4, 5, 6 |
-| `field.w12a` | Field Team, crew W12-A | Step 5 |
-| `control` | Control Room / Executive Engineer | Steps 3, 4, 5, 7, 8 |
+| User ID | Password | Role | Used in steps |
+|---|---|---|---|
+| `officer.w12` | `Officer@2026` | Ward Officer, Ward 12 Kengeri | 2, 4, 5, 6 |
+| `field.w12a` | `Field@2026` | Field crew W12-A | 5 |
+| `control` | `Control@2026` | Control Room / Commissioner | 3, 4, 5, 7, 8, 9 |
+
+Citizens never log in: they **Lodge Grievance** and **Track Grievance** with the Grievance No. and the tracking code or mobile number.
 
 Keep a terminal open in the repo root for the simulator, the clock (`python scripts/ops.py ...`) and the photo tool (`python scripts/photos.py`).
 
 ---
 
-## 1. A citizen reports a pothole (Kannada UI), 1 min
+## 1. A citizen reports a pothole (Kannada), 1.5 min
 
-- Window A, top strip: click **ಕನ್ನಡ**. Point out the government portal frame: A-/A/A+, high contrast, prototype banner, "What's New" ticker.
-- Menu **ದೂರು ದಾಖಲಿಸಿ** (Lodge Grievance). The map pin is already at the school pothole (12.9099, 77.4855).
-- Category **ರಸ್ತೆ ಗುಂಡಿ** (Pothole), a description, a photo (upload the original file: its GPS and time are kept), mobile number, tick both boxes, answer the sum, **ಸಲ್ಲಿಸಿ**.
-- **Say:** "The citizen gets an acknowledgement slip at once: grievance number, tracking code, ward, department and expected date." Click **ಮುದ್ರಿಸಿ** (Print) to show the slip prints cleanly.
+- Window A, home page: the hero banner, the **Live now** card (AI agent actions in the last hour) and the **See how our AI agents work** button. Top strip: click **ಕನ್ನಡ**; point out A-/A/A+ and high contrast.
+- **ದೂರು ದಾಖಲಿಸಿ** (Lodge Grievance). The pin is already at the school pothole (12.9099, 77.4855). Category **ರಸ್ತೆ ಗುಂಡಿ**, the description, a photo (its GPS and time are kept), mobile number, tick both boxes, answer the sum, **ಸಲ್ಲಿಸಿ**.
+- The acknowledgement slip appears, and below it **"Our AI agent is checking your complaint"**: the Case Investigator's lookups appear one by one (ward, school 55 m away, road class, nearby complaints, SLA policy), ending with **Checked and routed** and the decision. **Say:** "Within seconds of submitting, an agent has investigated and routed it; nobody clicked anything."
+- Switch to the **/agents** tab: the same case as a chain of boxes. Click the Case Investigator box: started by, each lookup, why, any safety rule applied, result.
 
-## 2. The Case Investigator investigates; two more reports merge, 1 min
+## 2. Officer reviews; two more reports merge, 1 min
 
-- Window B: log in as `officer.w12` → the complaint is at the top of **Complaint Queue** with its System Suggestion. Open it.
-- **System Analysis** panel: P2 because it is 55 m from the Govt. school and on Mysore Road; routed to Roads, Ward 12. Expand **Steps taken**: every tool call (ward lookup, sensitive places, nearby complaints, asset history...) with its input and result.
-- Window A: lodge the same pothole twice more (as `citizen2`, `citizen3`, or anonymously with other mobile numbers).
-- Refresh the officer's case: reporter count **3**; the two new ones were auto-merged (the merge is visible in the Status History and in each citizen's Track timeline: "System linked your complaint with a similar report").
+- Window B: **Staff Login** as `officer.w12` → **Complaint Queue** → open the complaint. **System Analysis**: P2 (school, Mysore Road), routed to Roads, Ward 12. **Steps taken** shows every tool call.
+- Window A: lodge the same pothole twice more with the other two descriptions and mobiles.
+- Refresh the officer's case: reporter count **3**; the two new ones were auto-merged (Status History; each citizen's Track timeline says so).
 
 ## 3. Connected vehicles confirm it and find one nobody reported, 1 min
 
 - Terminal:
   ```bash
   docker compose run --rm simulator python sim.py --once
-  # without Docker: python simulator/sim.py --once --api http://localhost:8000
   ```
-  It prints `accepted 183, rejected 4` and the 4 rejection reasons (outside the city, in the future, 40 days old, contains a VIN): the ingestion API refuses personal data.
-- Window B: log in as `control` → **Road Hazard Map**. **Say:** "Vehicle makers don't publish this data; this feed follows the partner API contract we designed."
-  - Grey dashed circles = **filtered** (5 speed breakers and the railway crossing: hover them).
-  - Green = confirms a citizen complaint. Open the school pothole: "Confirmed by 7 connected vehicles".
-  - Red on Mysore Road = **new complaint created from vehicle data**; no citizen reported it.
-  - Purple = possible repair failure (a spot repaired 10 days ago is being hit again; the crew is flagged for audit).
-  - Scroll to **Data Sources**: accepted / rejected counts and the dead-letter reasons.
+  It prints `accepted 183, rejected 4` and the rejection reasons (outside the city, in the future, too old, contains a VIN): the ingestion API refuses personal data.
+- Window B: `control` → **Road Hazard Map** (satellite view; Map / Satellite switch top right). Grey dashed = filtered (speed breakers, rail crossing); green = confirms a citizen complaint ("Confirmed by 7 connected vehicles"); red on Mysore Road = **new complaint created from vehicle data**; purple = possible repair failure. **Data Sources**: accepted / rejected and why.
+- **/agents** tab: the Mysore Road case shows the hand-off **Vehicle feed → Road Hazard Sensing → Case Investigator**.
 
 ## 4. Streetlight: repeat failure, BESCOM referral, follow-ups, escalation, 1.5 min
 
-- Window A (citizen): lodge **Streetlight Not Working**; drag the pin to the Kengeri bus stand (12.9079, 77.4828).
-- Window B (`officer.w12`): open it. System Analysis: **"repeat failure; refer BESCOM"**: pole `STREETLIGHT-W12-00871` failed twice in 60 days, 3 lights out on the stretch, BESCOM feeder F-KGR-07, P2 because of the bus stand. Click **Accept**: the referral goes to BESCOM.
-- Terminal: `python scripts/ops.py advance 24` twice (two unanswered follow-ups, then L2). Refresh the Control Room **Dashboard**. **Say:** "No reply from BESCOM, so the Follow-up agent chased them twice, then escalated to L2 with a written reason."
-- Dashboard → **Escalations**: "...followed up 2 times with no response. Not municipal inaction." **Steps taken** opens the agent run.
-- **Agency Liaison**: the referral and both follow-ups. Record BESCOM's response: *Work in progress*, "Feeder fault found, repair tomorrow 11 am". The citizen's Track page shows the honest reason for the delay.
+- Window A: lodge **Streetlight Not Working**; drag the pin to the Kengeri bus stand (12.9079, 77.4828).
+- Window B (`officer.w12`): System Analysis **"repeat failure; refer BESCOM"** (pole failed twice in 60 days, BESCOM feeder F-KGR-07, P2 because of the bus stand). **Accept**: the referral goes to BESCOM.
+- Terminal: `python scripts/ops.py advance 24` twice. **Say:** "No reply from BESCOM, so the Follow-up agent chased them twice, then escalated to L2 with a written reason." Staff screens show a pop-up notice each time an agent finishes something.
+- Control Room → Dashboard → **Escalations**; **Agency Liaison**: record BESCOM's reply (*Work in progress*, "Feeder fault found, repair tomorrow 11 am"). The citizen's Track page shows the honest reason.
 
 ## 5. Work order, fake completion photo caught, rework, approval, 2 min
 
-- Window B (`officer.w12`): open the school pothole → **Create work order** → crew **W12-A** → scope → **Create and assign**.
-- Window A: log out, log in as `field.w12a` (phone-sized screen: use the browser's device toolbar). **My Jobs** → the job → **Start job**.
-- Terminal: `python scripts/photos.py` (writes stamped photos for the newest open job to `photos/<work order>/`). **Upload after photo** → `2_after_2km_away.jpg` → **Mark completed**.
-- In a few seconds the job comes back as **Rework**: "Auto-check failed: Photo location 2.1 km from complaint site (limit 50 m)."
-- **Restart job**, run `python scripts/photos.py` again (fresh timestamps), upload `1_after_at_site.jpg`, **Mark completed** → auto-check result.
-- Window B (`control`) → **Verification Queue**: before / after photos side by side, each check (time, location, not reused, vision), verdict PASS. **Approve**. **Say:** "The agent can send work back on hard evidence, but only a human can verify it."
-- Window A: log in as `citizen1` (or use **Track Grievance** with the number and mobile): status **Resolved**, before / after photos. Choose **5 stars** → **Confirm Resolution** → **Closed**.
+- Window B (`officer.w12`): school pothole → **Create work order** → crew **W12-A** → **Create and assign**.
+- Window A: **Staff Login** as `field.w12a` (phone-sized: browser device toolbar). **My Jobs** → the job → **Start job**.
+- Terminal: `python scripts/photos.py` (stamped photos for the newest open job in `photos/<work order>/`). Upload `2_after_2km_away.jpg` → **Mark completed**.
+- Seconds later the job is back as **Rework**: "Photo location 2.1 km from complaint site (limit 50 m)."
+- **Restart job**, run `python scripts/photos.py` again, upload `1_after_at_site.jpg`, **Mark completed**.
+- Window B (`control`) → **Verification Queue**: before / after side by side, every check, PASS → **Approve**. **Say:** "The agent can send work back on hard evidence, but only a human can verify it."
+- Window A: **Track Grievance** with the number and mobile: the progress bar shows **Resolved**; before / after photos. **5 stars** → **Confirm Resolution** → **Closed**.
 
 ## 6. Follow-up agent: overloaded crew, no stock, honest delay, 1 min
 
-- The seeded streetlight job on crew W12-B reaches 75 % of its SLA about 6 minutes after `make demo` (or `python scripts/ops.py advance 6`).
-- Window B (`officer.w12`) → **Complaint Queue**: **Pending Reassignment Proposals** shows the Follow-up agent's diagnosis (crew W12-B over capacity, material out of stock) and its proposal: crew W13-B, free, about 1.2 km away. **Steps taken** shows how it worked that out. **Approve**.
-- The citizen's Track timeline now says why it is late, in plain words.
+- About 6 minutes after `resume`, the seeded streetlight job on crew W12-B reaches 75 % of its SLA (or `python scripts/ops.py advance 6`).
+- Window B (`officer.w12`) → **Pending Reassignment Proposals**: crew W12-B over capacity, material out of stock; proposal crew W13-B, free, about 1.2 km away. **Approve**. The citizen's Track timeline says why it is late.
 
 ## 7. Rain: 25 reports become 2 incidents and a public advisory, 1 min
 
-- Terminal:
-  ```bash
-  make rain            # or: docker compose run --rm simulator python sim.py --scenario rain
-  ```
-- Window B (`control`) → **Incidents**: weather alert, **Kengeri Underpass Waterlogging — 17 reports** and **RR Nagar Arch Drain Overflow — 8 reports**, crew suggestion as text, the Commissioner's situation summary.
-- Edit the advisory if you like (English and Kannada) → **Publish advisory**.
-- Window A: home page: the advisory scrolls in **What's New** with a red NEW label (in Kannada when ಕನ್ನಡ is selected).
+- Terminal: `make rain` (or `docker compose run --rm simulator python sim.py --scenario rain`).
+- `control` → **Incidents**: **Kengeri Underpass Waterlogging — 17 reports**, **RR Nagar Arch Drain Overflow — 8 reports**, crew suggestion, the Commissioner's situation summary. **Publish advisory** (English and Kannada).
+- Window A, home page: the advisory scrolls in **What's New** with a red NEW label.
 
-## 8. Close on the numbers, 30 s
+## 8. Ask CivicFlow, 1 min
 
-- Control Room → **Dashboard**: total reports vs unique issues (duplicates and incidents collapse them), citizen-confirmed vs automatic closures counted separately, within-SLA %, reopen rate.
-- **Agent Activity Log**: every agent decision of the demo, which ones were rule-based, which ones an officer accepted or overrode; open any row for the full tool trace.
+- `control` → **Ask CivicFlow**. Click the examples or type your own (let a judge ask one):
+  - "Why is SR-… late?" (use the W12-B streetlight from step 6): overloaded crew, not started, LED driver out of stock.
+  - "Which ward is worst this week and why?"
+  - "How many potholes did vehicles find that no citizen reported?"
+  - "What does the charter say about reopening a grievance?" (answer quoted from the Charter, source shown)
+- Open **how it found this**: each lookup the agent chose. **Say:** "Same tools as the other agents, over the live data; every number links back to a case."
+
+## 9. Close on the numbers, 30 s
+
+- Control Room → **Dashboard**: the satellite live map (hover a pin: photo, status, time left, the agent's decision; click: **How the agents handled it**), total reports vs unique issues, within-SLA %, reopen rate.
+- **Agent Operations**: every run of the demo with what started it ("Started by: SLA timer", "Road Hazard Sensing created SR-…") and the runs nobody clicked.
 
 ---
 
@@ -100,9 +99,10 @@ Keep a terminal open in the repo root for the simulator, the clock (`python scri
 
 | Problem | Fix |
 |---|---|
-| System Analysis says "not available yet" | Click **Refresh** on the case after a few seconds; agents run in the background. |
-| A step needs the model and the network is down | It falls back to rules on its own ("Rule-based analysis"); the flow is the same. |
+| Every case shows as breached | The clock ran while you were away: `make demo` again (it pauses the clock), then `python scripts/ops.py resume` when you start. |
+| System Analysis says "not available yet" | Refresh after a few seconds; agents run in the background. |
+| The model is unavailable or out of quota | Agents fall back to rules on their own ("Rule-based"); the flow is the same. |
 | The W12-B job has not reached 75 % yet | `python scripts/ops.py advance 6` |
-| Incidents did not appear | `python simulator/sim.py --scenario rain` triggers the Surge Commander directly; or wait 20 s. |
+| Incidents did not appear | `python scripts/ops.py run surge`, or wait 20 s. |
+| A new page shows "Page not found" after `git pull` | `docker compose restart web` (Windows file watching). |
 | Start again from a clean state | `make demo`, then `python simulator/sim.py --clear-weather`. |
-| Backup | The recorded demo video (see README). |

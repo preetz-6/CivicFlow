@@ -98,6 +98,29 @@ class AdvanceIn(BaseModel):
     hours: float
 
 
+@router.post("/demo/clock/pause", response_model=ClockOut)
+def pause_clock(db: Session = Depends(get_db)):
+    """Stop the SLA clock (e.g. right after reseeding, so the data stays fresh until the presentation)."""
+    if not settings.demo_mode:
+        raise HTTPException(404)
+    if not clock.frozen:
+        clock.freeze()
+        clock_state.save(db)
+        db.commit()
+    return clock.state()
+
+
+@router.post("/demo/clock/resume", response_model=ClockOut)
+def resume_clock(db: Session = Depends(get_db)):
+    if not settings.demo_mode:
+        raise HTTPException(404)
+    if clock.frozen:
+        clock.unfreeze()
+        clock_state.save(db)
+        db.commit()
+    return clock.state()
+
+
 @router.post("/demo/clock/advance", response_model=ClockOut)
 def advance(body: AdvanceIn, db: Session = Depends(get_db)):
     if not settings.demo_mode:

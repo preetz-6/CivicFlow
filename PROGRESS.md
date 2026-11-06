@@ -111,3 +111,10 @@
   - B-T2: policy, terms, help and sitemap pages deleted; footer is one row: © · Accessibility · Visitors. Screen Reader Access stays in the top strip.
   - B-T3: `/control/operations` (first Control Room menu item): 2 s polling of `/agent-ops/feed`, keyed diff with enter animation, RUNNING pulse with steps filling in, "Started by" icons, hand-off links (scroll + highlight), amber guardrails, human outcome, counters, filters, pause, aria-live, chain view. Verified: `sim.py --once` shows Vehicle feed → Road Hazard Sensing → Case Investigator in the chain.
   - Playwright happy path passed on the password-login backend (1.2 min).
+- **Demo polish by Machine A (2026-11-06)**
+  - Public **"How the agents work"** page `/agents` (home page button): one case as a chain of boxes, click for steps / why / safety rules / result; follows the latest case live. `GET /public/agent-flow` (roles only, no personal data).
+  - **Live map:** satellite view (Esri) with Map / Satellite switch on every map; pins coloured by SLA, green = fixed, big = P1, V = found by vehicles; hover card with photo, status, time left and the agent's decision. `GET /officer/map`.
+  - **Livelier UI:** colour refresh (rounded cards, shadows, gradient hero and nav; off in high contrast), home hero + **Live now** card + count-up stats, Ack slip shows the Case Investigator's steps live, Track progress stepper, staff pop-up notices, new table rows flash. `GET /public/agent-activity`.
+  - **Agent 6 Ask CivicFlow:** `/control/ask`, `/officer/ask`; `POST /ask`, `GET /ask/history`. Tools over live data + retrieval over the Charter / FAQs / service rules; rule-based version when there is no model.
+  - **Demo reset:** `make demo` / `cf.ps1 demo` now leaves the SLA clock **paused** (`--paused`); `python scripts/ops.py pause | resume`; `POST /demo/clock/pause | resume`. `docs/DEMO_SCRIPT.md` rewritten for all of the above.
+  - 327 backend tests; Playwright happy path passed on the new UI.

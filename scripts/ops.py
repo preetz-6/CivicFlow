@@ -1,6 +1,8 @@
 """Operator commands for running the story on cue (standard library only).
 
     python scripts/ops.py clock              # show the SLA clock
+    python scripts/ops.py pause              # stop the SLA clock (after a reset, until you go on stage)
+    python scripts/ops.py resume             # start it again
     python scripts/ops.py advance 6          # move the SLA clock forward 6 hours, then run the SLA check
     python scripts/ops.py run followup       # SLA check + agency follow-ups now
     python scripts/ops.py run sensing        # Road Hazard Sensing now
@@ -30,6 +32,8 @@ def main() -> int:
     ap.add_argument("--api", default=os.environ.get("CIVICFLOW_API", "http://localhost:8000"))
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("clock")
+    sub.add_parser("pause")
+    sub.add_parser("resume")
     adv = sub.add_parser("advance")
     adv.add_argument("hours", type=float)
     run = sub.add_parser("run")
@@ -38,7 +42,10 @@ def main() -> int:
     base = a.api.rstrip("/") + "/api/v1"
     if a.cmd == "clock":
         c = call(base, "GET", "/clock")
-        print(f"SLA clock: {c['now']}  (x{c['scale']:g})")
+        print(f"SLA clock: {c['now']}  (x{c['scale']:g}){'  PAUSED' if c.get('frozen') else ''}")
+    elif a.cmd in ("pause", "resume"):
+        c = call(base, "POST", f"/demo/clock/{a.cmd}", {})
+        print(f"SLA clock {'paused' if c.get('frozen') else 'running'} at {c['now']}")
     elif a.cmd == "advance":
         c = call(base, "POST", "/demo/clock/advance", {"hours": a.hours})
         print(f"SLA clock moved forward {a.hours:g} h -> {c['now']}")

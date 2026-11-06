@@ -4,11 +4,11 @@
 
 Problem statement DL-SJBIT-HK26-SSF009: an agentic civic operations system for smart cities.
 
-City corporations get thousands of complaints (potholes, garbage, broken streetlights, water leaks, blocked drains). Routing them is slow and manual, nobody chases stuck cases or silent agencies, and citizens never learn what happened. CivicFlow puts **five AI agents** on top of a deterministic workflow engine. They investigate, route, chase, verify and coordinate each issue from report to verified closure, and **humans approve every decision that affects a citizen's case**.
+City corporations get thousands of complaints (potholes, garbage, broken streetlights, water leaks, blocked drains). Routing them is slow and manual, nobody chases stuck cases or silent agencies, and citizens never learn what happened. CivicFlow puts **six AI agents** on top of a deterministic workflow engine (five that act on events, one you can ask questions). They investigate, route, chase, verify and coordinate each issue from report to verified closure, and **humans approve every decision that affects a citizen's case**.
 
 Citizen journey: report → acknowledgement slip → track progress → before/after photos → confirm or reopen → closed.
 
-## The five agents
+## The six agents
 
 | Agent | What it does | Human decision |
 |---|---|---|
@@ -17,8 +17,21 @@ Citizen journey: report → acknowledgement slip → track progress → before/a
 | **3 Road Hazard Sensing** | Clusters connected-vehicle detections (PostGIS DBSCAN), filters speed breakers, confirms citizen complaints, creates complaints nobody filed, flags failed repairs | Officer reviews weak clusters |
 | **4 Evidence Auditor** | Checks completion photos: taken after assignment, at the site, not reused, issue visibly fixed. Sends work back on hard evidence | Control Room **Approve** (always human) |
 | **5 Surge Commander** | Turns a flood of rain complaints into a few incidents, suggests crews, drafts a public advisory and a situation summary | Control Room **Publish** |
+| **6 Ask CivicFlow** | Answers staff questions in plain English ("Why is SR-… late?", "Which ward is worst this week?") by choosing its own lookups over the live data and searching the Citizen Charter and service rules | Read-only: never changes a case |
 
 Every run is logged with each tool call, its rationale and confidence, and whether a human overrode it: see the **Agent Activity Log**. Details and diagrams: [docs/AGENTS.md](docs/AGENTS.md).
+
+### Where to see the agents work
+
+| Page | Who | What it shows |
+|---|---|---|
+| Acknowledgement slip (after lodging) | Public | The Case Investigator's lookups appearing one by one, then the routing decision |
+| `/agents`, "See how our AI agents work" on the home page | Public | One case as a chain of boxes (citizen, agents, people, timers); click a box for what the agent looked up, why, and the safety rules applied. Follows the latest case live |
+| Home page **Live now** | Public | Agent actions in the last hour, marked "on its own" when nobody clicked |
+| Control Room **Agent Operations** | Staff | Every run, what started it, hand-offs between agents |
+| Control Room **Dashboard** | Staff | Satellite live map; hover a pin for photo, status, time left and the agent's decision |
+| **Ask CivicFlow** | Control Room, officers | Questions answered from live data, with the cases and the lookups behind the answer |
+| Staff screens | Staff | A pop-up notice whenever an agent finishes something |
 
 The app works **without any LLM API key**: every agent has a rule-based fallback, and `AGENT_MODE=replay` serves recorded answers for a fast, offline demo.
 
@@ -29,7 +42,8 @@ Requirements: Docker Desktop (WSL2 on Windows). For the end-to-end test also Nod
 ```bash
 cp .env.example .env          # optional: add ANTHROPIC_API_KEY; without it agents use rules
 docker compose up -d --build  # db (PostGIS), api (FastAPI), web (Vite)
-make demo                     # fresh demo seed (Windows: .\scripts\cf.ps1 demo)
+make demo                     # fresh demo seed, SLA clock paused (Windows: .\scripts\cf.ps1 demo)
+python scripts/ops.py resume  # start the SLA clock when you begin the demo
 ```
 
 | What | URL |
@@ -51,7 +65,7 @@ Citizens never log in: they lodge a grievance without an account and track it wi
 | `field.w12a`, `field.w12b`, `field.w13a`, `field.w13b`, ... | Field Team (sees only its jobs, never citizen phone numbers) | My Jobs |
 | `control` | Control Room / Executive Engineer / Commissioner | Dashboard; **Agent Operations** is the first menu item (live timeline of agent runs, what started each one, and the hand-off chain) |
 
-The full eight-minute walkthrough is in [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
+The full ten-minute walkthrough is in [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
 
 ## Simulator (Simulated OEM feed and rain)
 
@@ -87,7 +101,7 @@ flowchart TB
     WF["workflow: transition table + transition()"]
     SLA[SLA engine + clock<br/>TIME_SCALE]
     BUS[(Event bus<br/>+ events table)]
-    AG[Agent runtime<br/>5 agents, tool registry,<br/>decision log, fallback,<br/>record/replay]
+    AG[Agent runtime<br/>6 agents, tool registry,<br/>decision log, fallback,<br/>record/replay]
     ING[Ingestion API]
   end
   DB[(PostgreSQL 16 + PostGIS)]
@@ -110,7 +124,7 @@ flowchart TB
 
 | Real | Simulated |
 |---|---|
-| The 5 agents, runtime, Activity Log, fallbacks, record/replay | Connected-vehicle (OEM) feed: no OEM data is public; `simulator/` follows a documented ingestion contract |
+| The 6 agents, runtime, Activity Log, fallbacks, record/replay | Connected-vehicle (OEM) feed: no OEM data is public; `simulator/` follows a documented ingestion contract |
 | Workflow engine, SLA engine, escalation rules, append-only audit log, role and ward scoping | SMS / WhatsApp: on-screen outbox only |
 | PostGIS ward lookup, radius queries, DBSCAN clustering (ward polygons approximate) | BESCOM / BWSSB replies: the **Agency Liaison** page, where staff record replies, played by the presenter |
 | Photo EXIF checks and perceptual hashing; vision with an API key | Weather alerts |

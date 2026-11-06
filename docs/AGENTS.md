@@ -1,6 +1,6 @@
 # CivicFlow agents
 
-Five agents run on one shared runtime inside the FastAPI backend (`backend/app/agents/`). They **propose, and act only on safe, reversible steps**. Deterministic code enforces the rules: status transitions, permissions, SLA clocks and the append-only audit log. **No agent can reject or close a complaint.** Humans approve every decision that changes a citizen's outcome.
+Six agents run on one shared runtime: five act on events and timers, and **Ask CivicFlow** answers staff questions on demand inside the FastAPI backend (`backend/app/agents/`). They **propose, and act only on safe, reversible steps**. Deterministic code enforces the rules: status transitions, permissions, SLA clocks and the append-only audit log. **No agent can reject or close a complaint.** Humans approve every decision that changes a citizen's outcome.
 
 In the UI, agent output is always labelled **System Analysis**, **System Suggestion** or **Auto-check result**, and every run is in the **Agent Activity Log** (Control Room), with each tool call it made.
 
@@ -22,7 +22,7 @@ flowchart LR
 
   A1[1 Case Investigator] -->|triage brief| OFF{{Ward Officer<br/>Accept / Override}}
   OFF -->|ASSIGNED + work order| FT[Field Team]
-  OFF -->|referral sent| AG[BESCOM / BWSSB<br/>Agency Inbox, Simulated]
+  OFF -->|referral sent| AG[BESCOM / BWSSB<br/>Agency Liaison, Simulated]
 
   SLA[SLA engine<br/>sweep every 15 s] -->|sla.at_risk / sla.breached| A2[2 Follow-up & Escalation]
   AG -.no reply.-> A2
@@ -143,6 +143,17 @@ sequenceDiagram
 | Needs a human | Control Room **Publish** (→ public "What's New" ticker); actual crew allocation |
 | Where in the UI | Control Room → **Incidents** |
 
+### 6. Ask CivicFlow (answers staff questions)
+
+| | |
+|---|---|
+| Trigger | A question typed by the Control Room or a ward officer (`POST /ask`) |
+| Tools | ward summary, matching cases, vehicle-feed findings, all crews, **search the Citizen Charter, FAQs, service rules and the SLA table** (retrieval), plus the case timeline, crew load, material stock, referral status and SLA policy lookups shared with the other agents |
+| Output | `AskAnswer`: a short answer, supporting points, the grievance numbers it refers to, the policy sources it used, confidence |
+| Acts alone | Nothing: read-only. It never changes a case. |
+| Fallback | Recognises the kind of question by keywords (a grievance number, wards, crews, vehicles, late cases, rules) and calls the same tools |
+| Where in the UI | **Ask CivicFlow** in the Control Room and officer menus; each question also appears in Agent Operations ("X asked: …"), never on public pages |
+
 ## What is real and what is simulated
 
 | Part | Status |
@@ -154,5 +165,5 @@ sequenceDiagram
 | Ingestion API, validation, dead letter | Real |
 | Connected-vehicle (OEM) feed | **Simulated** (`simulator/sim.py`; no OEM data is public) |
 | SMS / WhatsApp | **Simulated** (on-screen outbox) |
-| BESCOM / BWSSB | **Simulated** (Agency Inbox page, played by the presenter) |
-| Weather alerts, OTP login | **Simulated** |
+| BESCOM / BWSSB | **Simulated** (Agency Liaison page, played by the presenter) |
+| Weather alerts | **Simulated** |

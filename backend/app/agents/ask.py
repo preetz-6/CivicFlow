@@ -275,8 +275,14 @@ vehicle_findings, ...) and search_policies for rules, timelines and citizen righ
         if not w:
             return AskAnswer(answer="There is no case data yet.", confidence=0.5)
         worst, best = w[0], w[-1]
+        if not any(x["breached"] or x["at_risk"] for x in w):
+            busiest = max(w, key=lambda x: x["open"])
+            worst_answer = (f"No ward has late or at-risk cases right now. {busiest['ward_id']} {busiest['ward']} has the "
+                            f"most open work ({busiest['open']} cases).")
+        else:
+            worst_answer = None
         return AskAnswer(
-            answer=(f"{worst['ward_id']} {worst['ward']} needs the most attention: {worst['breached']} breached and "
+            answer=worst_answer or (f"{worst['ward_id']} {worst['ward']} needs the most attention: {worst['breached']} breached and "
                     f"{worst['at_risk']} at-risk cases out of {worst['open']} open. {best['ward_id']} {best['ward']} is "
                     f"doing best with {best['breached']} breached."),
             points=[f"{x['ward_id']} {x['ward']}: {x['open']} open, {x['at_risk']} at risk, {x['breached']} breached, "
