@@ -98,6 +98,19 @@ class AdvanceIn(BaseModel):
     hours: float
 
 
+@router.post("/demo/clock/realtime", response_model=ClockOut)
+def realtime_clock(db: Session = Depends(get_db)):
+    """Set the SLA clock to the real date and time, running at normal speed (x1). Jumps: /demo/clock/advance."""
+    from datetime import datetime, timezone
+
+    if not settings.demo_mode:
+        raise HTTPException(404)
+    clock.configure(1.0, datetime.now(timezone.utc))
+    clock_state.save(db)
+    db.commit()
+    return clock.state()
+
+
 @router.post("/demo/clock/pause", response_model=ClockOut)
 def pause_clock(db: Session = Depends(get_db)):
     """Stop the SLA clock (e.g. right after reseeding, so the data stays fresh until the presentation)."""

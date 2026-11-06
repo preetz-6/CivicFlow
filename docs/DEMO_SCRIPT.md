@@ -11,6 +11,7 @@ Follows the demo story in `docs/BRIEF.md` §11. Every step uses real screens and
    ```
    This reseeds the city and **pauses the SLA clock** at 09:00. The clock runs 60x real time (1 real minute = 1 SLA hour), so without the pause every case would be breached an hour later. Check with `python scripts/ops.py clock` (it says `PAUSED`).
 2. **When you start presenting:** `python scripts/ops.py resume`. Pause again any time with `python scripts/ops.py pause`.
+   For everyday testing with today's real date instead: `python scripts/ops.py realtime` (normal speed; use `python scripts/ops.py advance N` to jump N hours).
 3. If ports 5433 / 8000 / 5173 are taken, set `DB_PORT`, `API_PORT`, `WEB_PORT` in `.env`.
 4. Agents: `AGENT_MODE=replay` replays the recorded model answers and falls back to rules on a miss; `AGENT_MODE=live` uses the model (Gemini free tier: few requests per day). With no key everything still works on rules and says "Rule-based".
 5. Open http://localhost:5173 in **two browser windows** (one normal, one private) so a citizen and a staff user can be on screen at once. Put **http://localhost:5173/agents** in a third tab: it follows the latest case live.

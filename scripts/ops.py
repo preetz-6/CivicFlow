@@ -1,6 +1,7 @@
 """Operator commands for running the story on cue (standard library only).
 
     python scripts/ops.py clock              # show the SLA clock
+    python scripts/ops.py realtime           # SLA clock = today's real date and time, normal speed (x1)
     python scripts/ops.py pause              # stop the SLA clock (after a reset, until you go on stage)
     python scripts/ops.py resume             # start it again
     python scripts/ops.py advance 6          # move the SLA clock forward 6 hours, then run the SLA check
@@ -33,6 +34,7 @@ def main() -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("clock")
     sub.add_parser("pause")
+    sub.add_parser("realtime")
     sub.add_parser("resume")
     adv = sub.add_parser("advance")
     adv.add_argument("hours", type=float)
@@ -43,6 +45,9 @@ def main() -> int:
     if a.cmd == "clock":
         c = call(base, "GET", "/clock")
         print(f"SLA clock: {c['now']}  (x{c['scale']:g}){'  PAUSED' if c.get('frozen') else ''}")
+    elif a.cmd == "realtime":
+        c = call(base, "POST", "/demo/clock/realtime", {})
+        print(f"SLA clock set to the real time {c['now']} (x{c['scale']:g})")
     elif a.cmd in ("pause", "resume"):
         c = call(base, "POST", f"/demo/clock/{a.cmd}", {})
         print(f"SLA clock {'paused' if c.get('frozen') else 'running'} at {c['now']}")

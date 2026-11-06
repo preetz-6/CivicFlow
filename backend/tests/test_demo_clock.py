@@ -17,3 +17,15 @@ def test_pause_and_resume():
         assert r["frozen"] is False and r["now"] >= p["now"]
     finally:
         clock.load(saved)
+
+
+def test_realtime():
+    from datetime import datetime, timezone
+
+    saved = clock.dump()
+    try:
+        r = TestClient(app).post("/api/v1/demo/clock/realtime").json()
+        assert r["scale"] == 1 and r["frozen"] is False
+        assert abs((datetime.fromisoformat(r["now"]) - datetime.now(timezone.utc)).total_seconds()) < 5
+    finally:
+        clock.load(saved)
