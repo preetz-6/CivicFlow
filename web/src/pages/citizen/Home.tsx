@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { get } from "../../api/client";
 import type { PublicStats } from "../../api/types";
-import { CountUp, LiveNow } from "../../ui/Lively";
+import { CountUp } from "../../ui/Lively";
 import h from "./home.module.css";
 
 /* Simple 1.5px line icons (no emoji, no fills), 32x32 */
@@ -53,7 +53,6 @@ const ICONS: Record<string, ReactNode> = {
 const TILES = [
   { key: "lodge", to: "/lodge" },
   { key: "track", to: "/track" },
-  { key: "pothole", to: "/lodge?category=POTHOLE" },
   { key: "charter", to: "/citizen-charter" },
   { key: "wards", to: "/wards" },
 ];
@@ -95,7 +94,6 @@ export function Home() {
             <span>{t("homeX.agentsSub")}</span>
           </Link>
         </div>
-        <LiveNow />
       </section>
 
       <div className={h.grid}>
