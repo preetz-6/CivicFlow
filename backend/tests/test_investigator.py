@@ -274,3 +274,21 @@ def test_model_cannot_merge_far_complaint(seeded, monkeypatch):
     s = SessionLocal()
     assert s.get(ServiceRequest, far.id).status == "SUBMITTED"  # ~65 m: outside the 25 m radius, never merged
     s.close()
+
+
+def test_model_limit(seeded, monkeypatch):
+    """LLM_AGENTS keeps the model for the named agents; the others run on rules without calling it."""
+    from app.config import settings
+
+    db = seeded
+    sr = make_sr(db)
+    fake = FakeLLM([final(BRIEF)])
+    monkeypatch.setattr("app.agents.runtime.loop.llm", fake)
+    monkeypatch.setattr(settings, "llm_agents", "auditor,ask")
+    from app.agents.investigator import investigator
+
+    run = get_run(run_agent(investigator, "complaint.submitted", {"id": sr.id}))
+    assert fake.calls == [] and run.model == "rules" and "LLM_AGENTS" in run.error
+    monkeypatch.setattr(settings, "llm_agents", "investigator,auditor,ask")
+    run = get_run(run_agent(investigator, "complaint.submitted", {"id": sr.id}))
+    assert len(fake.calls) == 1 and run.model == "claude-test"

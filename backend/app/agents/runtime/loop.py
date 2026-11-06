@@ -19,6 +19,7 @@ import time
 from pydantic import BaseModel, ValidationError
 
 from app.adapters.llm import LLMUnavailable, llm, text_of
+from app.config import settings
 from app.agents.runtime.base import Agent
 from app.agents.runtime.tools import REGISTRY, ToolContext, invoke
 from app.core.actor import Actor
@@ -113,7 +114,9 @@ def run_agent(agent: Agent, trigger: str, payload: dict) -> int | None:
         out: BaseModel | None = None
         error = None
         model = "rules"
-        if llm.available() and agent.use_llm(inp, getattr(llm, "mode", "live")):
+        if llm.available() and not settings.model_allowed(agent.name):
+            error = f"rule-based by design (LLM_AGENTS={settings.llm_agents}: the model is kept for those agents)"
+        elif llm.available() and agent.use_llm(inp, getattr(llm, "mode", "live")):
             try:
                 budget = agent.timeout_s * (10 if getattr(llm, "mode", "live") == "record" else 1)  # recording may wait out rate limits
                 out, model = _llm_run(agent, ctx, inp, t0 + budget)

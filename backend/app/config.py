@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     llm_min_interval_s: float = 0.0
     record_overwrite: bool = False  # AGENT_MODE=record re-calls the model even for turns already recorded
     agent_mode: str = "live"  # live | record | replay | rules
+    # Which agents may use the model (comma-separated agent names; "all" = every agent). The others always run on
+    # rules, so background agents (follow-ups, sensing, surge) do not use up a small free-tier quota.
+    llm_agents: str = "investigator,auditor,ask"
     agent_cache_dir: str = "agent_cache"
 
     time_scale: float = 60.0
@@ -42,6 +45,10 @@ class Settings(BaseSettings):
         if self.agent_mode == "replay":
             return True
         return bool(self.provider_key)
+
+    def model_allowed(self, agent: str) -> bool:
+        names = {a.strip().lower() for a in self.llm_agents.split(",") if a.strip()}
+        return "all" in names or agent in names
 
     @property
     def provider_key(self) -> str:

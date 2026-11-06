@@ -6,6 +6,7 @@ os.environ["DATABASE_URL"] = os.environ.get(
 )
 os.environ["AGENT_MODE"] = "rules"
 os.environ["SCHEDULER_ENABLED"] = "false"
+os.environ["LLM_AGENTS"] = "all"  # scripted-model tests exercise every agent; test_model_limit checks the limit
 
 from datetime import datetime  # noqa: E402
 
