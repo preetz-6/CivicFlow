@@ -194,6 +194,7 @@ class AskAgent(Agent):
     name = "ask"
     label = "Ask CivicFlow"
     subject_type = "QUERY"
+    output_model = AskAnswer
     tools = ["ward_summary", "list_cases", "vehicle_findings", "crew_overview", "search_policies", "get_case_timeline",
              "get_crew_load", "check_material_stock", "get_referral_status", "get_sla_policy"]
     max_steps = 6

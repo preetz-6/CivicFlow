@@ -49,3 +49,17 @@ def test_ask_questions(seeded):  # noqa: F811
     # staff only
     assert TestClient(app).post("/api/v1/ask", json={"question": "hello there"}).status_code == 401
     assert login(TestClient(app), "field.w12a").post("/api/v1/ask", json={"question": "hello there"}).status_code == 403
+
+
+def test_ask_model_path(seeded, monkeypatch):  # noqa: F811
+    """The model chooses the lookups and writes the answer (scripted fake model)."""
+    from tests.test_investigator import FakeLLM, final, tool_use
+
+    fake = FakeLLM([tool_use("ward_summary", {"days": 7}),
+                    final({"answer": "W12 has the most open cases.", "points": ["W12: 3 open"], "cases": [],
+                           "sources": [], "confidence": 0.8})])
+    monkeypatch.setattr("app.agents.runtime.loop.llm", fake)
+    a = ask(login(TestClient(app), "control"), "Which ward has the most open cases?")
+    assert a["answer"] == "W12 has the most open cases." and a["how"].startswith("AI model")
+    assert [s["label"] for s in a["steps"]] == ["ward summary"]
+    assert "ward_summary" in [t["name"] for t in fake.calls[0]["tools"]]
