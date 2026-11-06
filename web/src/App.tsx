@@ -11,6 +11,7 @@ import { Dashboard } from "./pages/control/Dashboard";
 import { HazardMap } from "./pages/control/HazardMap";
 import { Incidents } from "./pages/control/Incidents";
 import { Operations } from "./pages/control/Operations";
+import { Ask } from "./pages/control/Ask";
 import { AgencyInbox } from "./pages/agency/Inbox";
 import { PublicLayout } from "./frame/PublicLayout";
 import { Home } from "./pages/citizen/Home";
@@ -29,6 +30,7 @@ const FIELD_ROLES = ["FIELD_TEAM"];
 const CONTROL_ROLES = ["CONTROL_ROOM"];
 const CONTROL_MENU = [
   { to: "/control/operations", label: "Agent Operations" },
+  { to: "/control/ask", label: "Ask CivicFlow" },
   { to: "/control", label: "Dashboard", end: true },
   { to: "/control/complaints", label: "All Complaints" },
   { to: "/control/verification", label: "Verification Queue" },
@@ -49,6 +51,7 @@ export function App() {
             roles={OFFICER_ROLES}
             menu={[
               { to: "/officer", label: "Complaint Queue", end: true },
+              { to: "/officer/ask", label: "Ask CivicFlow" },
               { to: "/officer/agency", label: "Agency Liaison" },
             ]}
           />
@@ -56,6 +59,7 @@ export function App() {
       >
         <Route index element={<Queue />} />
         <Route path="complaints/:id" element={<CaseDetail />} />
+        <Route path="ask" element={<Ask />} />
         <Route
           path="activity/:id"
           element={<RunDetail backTo="/officer" backLabel="Complaint Queue" srBase="/officer/complaints" />}
@@ -85,6 +89,7 @@ export function App() {
         <Route path="complaints" element={<Queue />} />
         <Route path="complaints/:id" element={<CaseDetail />} />
         <Route path="operations" element={<Operations />} />
+        <Route path="ask" element={<Ask />} />
         <Route path="verification" element={<Verification />} />
         <Route path="hazards" element={<HazardMap />} />
         <Route path="incidents" element={<Incidents />} />

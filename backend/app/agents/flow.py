@@ -78,6 +78,8 @@ def _plain_step(s: AgentStep) -> dict:
         st["kind"] = "lookup"
     if st["kind"] == "lookup":
         st["label"] = re.sub(r"^(get|find|check|compare with) ", "", name.replace("_", " "))
+        st["label"] = {"search policies": "the Citizen Charter and rules", "list cases": "matching cases",
+                       "crew overview": "all crews", "vehicle findings": "vehicle feed findings"}.get(st["label"], st["label"])
     if st["summary"] in ("sent: True", "sent: true"):
         st["summary"] = "done"
     if isinstance(s.result_summary, dict) and s.result_summary.get("material_request_id"):
@@ -172,7 +174,7 @@ def agent_flow(sr: str | None = Query(None, max_length=24), db: Session = Depend
                                  f"Grievance {case.id} registered (no login needed)"))
 
     rest: list[dict] = []
-    runs = list(db.scalars(select(AgentRun).where(AgentRun.trigger != "seed.backfill", AgentRun.agent != "sensing",
+    runs = list(db.scalars(select(AgentRun).where(AgentRun.trigger != "seed.backfill", AgentRun.agent.notin_(["sensing", "ask"]),
                                                   AgentRun.subject_id.in_(ids))))
     runs += [r for r in db.scalars(select(AgentRun).where(AgentRun.agent == "followup").order_by(AgentRun.id.desc()).limit(500))
              if (r.input_summary or {}).get("sr_id") == case.id and r.subject_id not in ids]
@@ -208,7 +210,7 @@ def agent_activity(limit: int = Query(6, ge=1, le=20), db: Session = Depends(get
     # the app clock can run faster than real time (TIME_SCALE): "last hour" and "ago" are in real time
     scale = max(clock.scale, 1e-9)
     t = now()
-    base = select(AgentRun).where(AgentRun.trigger != "seed.backfill", AgentRun.status != "RUNNING")
+    base = select(AgentRun).where(AgentRun.trigger != "seed.backfill", AgentRun.status != "RUNNING", AgentRun.agent != "ask")
     hour = len(db.scalars(base.where(AgentRun.started_at >= t - timedelta(hours=scale))).all())
     latest = [{"id": r.id, "agent": r.agent, "agent_label": LABELS.get(r.agent, r.agent), "subject_id": r.subject_id,
                "text": _short(_plain(r.decision) or "checked the case", 90), "at": r.started_at,

@@ -17,7 +17,7 @@ from app.modules.complaints.serialize import run_summary
 
 router = APIRouter(tags=["agents"])
 LABELS = {"investigator": "Case Investigator", "followup": "Follow-up & Escalation", "sensing": "Road Hazard Sensing",
-          "auditor": "Evidence Auditor", "surge": "Surge Commander"}
+          "auditor": "Evidence Auditor", "surge": "Surge Commander", "ask": "Ask CivicFlow"}
 
 
 def row(db: Session, r: AgentRun, users: dict) -> dict:

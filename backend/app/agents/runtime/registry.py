@@ -26,8 +26,9 @@ def register_agents() -> None:
     from app.agents.followup import followup
     from app.agents.sensing import sensing
     from app.agents.surge import surge
+    from app.agents.ask import ask_agent
 
-    for a in (investigator, auditor, sensing, followup, surge):
+    for a in (investigator, auditor, sensing, followup, surge, ask_agent):
         AGENTS[a.name] = a
         for trig in a.triggers:
             bus.subscribe(trig, agent_handler(a))

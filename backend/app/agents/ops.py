@@ -143,6 +143,19 @@ def _readable(tool: str, r) -> str | None:
             return "; ".join(a["title"] for a in r) if r else "no weather alert"
         if tool == "get_recent_complaints":
             return f"{r['total']} flood / drain reports in the last hour"
+        if tool == "ward_summary":
+            w = r["wards"]
+            return f"{len(w)} wards over {r['window_days']} days; most breached: {w[0]['ward_id']} ({w[0]['breached']})" if w else "no data"
+        if tool == "list_cases":
+            return f"{_n(r['total'], 'matching case')}" + (f", e.g. {', '.join(c['sr_id'] for c in r['cases'][:3])}" if r["cases"] else "")
+        if tool == "vehicle_findings":
+            return (f"{r['complaints_created_by_vehicles']} complaints filed by vehicles, {r['citizen_complaints_confirmed']} "
+                    f"confirmed, {r['failed_repairs_flagged']} failed repairs")
+        if tool == "crew_overview":
+            over = [c["crew_id"] for c in r["crews"] if c["overloaded"]]
+            return f"{_n(len(r['crews']), 'crew')}, overloaded: {', '.join(over) or 'none'}"
+        if tool == "search_policies":
+            return "; ".join(h["source"] for h in r if h.get("source")) or "nothing relevant"
         if tool == "triage_tables":
             return f"priority {r['priority']} for {r['department']}" + (f" ({'; '.join(r['bumps'])})" if r.get("bumps") else "")
     except (KeyError, TypeError, IndexError, AttributeError, ValueError):
@@ -186,6 +199,9 @@ def _cause(db: Session, r: AgentRun) -> dict:
             return {"type": "clock", "label": "Hourly situation summary due"}
         lab = f"{reports} flood / drain reports in the last hour"
         return {"type": "weather", "label": f"{alert.title} + {lab}" if alert and alert.active else lab}
+    if r.agent == "ask":
+        inp = r.input_summary or {}
+        return {"type": "human", "label": f"{inp.get('asked_by', 'Staff')} asked: {_short(inp.get('question', ''), 90)}"}
     return {"type": "clock", "label": r.trigger}
 
 
