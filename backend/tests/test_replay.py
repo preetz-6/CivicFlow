@@ -81,8 +81,11 @@ def test_replayed_duplicate_of_a_far_record_is_not_merged(seeded, monkeypatch):
     s.close()
 
 
-def test_rain_complaints_use_rules_in_record_and_replay(seeded):
+def test_rain_complaints_use_rules_in_record_and_replay(seeded, monkeypatch):
     from app.agents.investigator import investigator
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "llm_provider", "anthropic")  # live on a paid model: every complaint
 
     assert investigator.use_llm({"source": "CITIZEN_WEB", "category_chosen": "POTHOLE"}, "replay") is True
     assert investigator.use_llm({"source": "CITIZEN_WEB", "category_chosen": "WATERLOGGING"}, "record") is False

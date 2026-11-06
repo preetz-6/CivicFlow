@@ -22,7 +22,7 @@ reset:
 	$(API) python -m app.seed.build --reset
 
 demo:
-	$(API) python -m app.seed.build --reset --demo --paused
+	$(API) python -m app.seed.build --reset --demo --paused --today
 
 test:
 	$(API) pytest

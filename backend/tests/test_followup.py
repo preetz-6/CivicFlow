@@ -42,7 +42,7 @@ def test_at_risk_overloaded_crew_and_no_material(seeded):
     sr = db.get(ServiceRequest, wo.sr_id)
     engine.sweep(db)
     db.commit()
-    assert db.scalar(select(ReassignmentProposal)) is None  # 70%: still on track
+    assert db.scalar(select(ReassignmentProposal).where(ReassignmentProposal.wo_id == wo.id)) is None  # 70%: on track
     clock.advance(timedelta(hours=6, minutes=5))  # -> 75%
     engine.sweep(db)
     db.commit()
@@ -61,7 +61,7 @@ def test_at_risk_overloaded_crew_and_no_material(seeded):
 
     off = login(TestClient(app), "officer.w12")
     pending = off.get("/api/v1/reassignments").json()
-    assert [x["id"] for x in pending] == [p.id]
+    assert p.id in [x["id"] for x in pending]  # (the seeded late case has its own proposal too)
     assert login(TestClient(app), "officer.w13").get("/api/v1/reassignments").json() == []  # other ward
     assert off.post(f"/api/v1/reassignments/{p.id}/approve", json={}).status_code == 200
     db.expire_all()

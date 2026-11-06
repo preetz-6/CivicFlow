@@ -8,7 +8,7 @@ from __future__ import annotations
 import argparse
 import random
 import string
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from geoalchemy2.shape import from_shape
 from shapely.geometry import Point
@@ -113,9 +113,9 @@ CREWS = [
 ]
 
 INVENTORY = [
-    ("cold_mix_bitumen", "Cold-mix bitumen", 0, "tonne", E - D(3)),
+    ("cold_mix_bitumen", "Cold-mix bitumen", 0, "tonne", D(3)),  # out since: days before the demo epoch
     ("hot_mix_bitumen", "Hot-mix bitumen", 3.5, "tonne", None),
-    ("led_driver_40w", "LED driver 40W", 0, "nos", E - D(2) - H(6)),  # out since 3 Nov
+    ("led_driver_40w", "LED driver 40W", 0, "nos", D(2) + H(6)),
     ("led_luminaire_40w", "LED luminaire 40W", 22, "nos", None),
     ("streetlight_cable", "Streetlight supply cable", 400, "m", None),
     ("manhole_cover_ci", "Manhole cover (CI)", 14, "nos", None),
@@ -228,6 +228,7 @@ class Seeder:
         self.repaired_spot()
         self.streetlight_context()
         self.atrisk_job()
+        self.late_case()
         self.open_backlog()
         db.execute(text(f"SELECT setval('sr_seq', {self.sr_n})"))
         db.execute(text(f"SELECT setval('wo_seq', {self.wo_n})"))
@@ -254,7 +255,7 @@ class Seeder:
             if role == "WARD_OFFICER" and ward:
                 self.officer_of[ward] = u
         for item, name, qty, unit, out in INVENTORY:
-            db.add(Inventory(item=item, name=name, qty=qty, unit=unit, out_since=out, updated_at=E - D(1)))
+            db.add(Inventory(item=item, name=name, qty=qty, unit=unit, out_since=E - out if out else None, updated_at=E - D(1)))
         for cat in CATEGORY_DEPARTMENT:
             for pr in DEFAULT_RESOLUTION_HOURS:
                 p = SlaPolicy(category=cat, priority=pr, resolution_hours=resolution_hours(cat, pr),
@@ -459,6 +460,18 @@ class Seeder:
         self.make_wo(sr, "W12-B", "ASSIGNED", created + H(4), scope="Fill and compact pothole (approx. 1.2 m x 0.8 m)",
                      root_cause="Water stagnation weakened the surface", est_cost_inr=7500,
                      materials={"cold_mix_bitumen": 0.5})
+        self.atrisk_sr = sr.id
+
+    def late_case(self) -> None:
+        """Already past its deadline at the start of the demo: for "Why is SR-... late?" in Ask CivicFlow.
+        Overloaded crew W12-B, work not started, LED driver out of stock."""
+        created = E - H(200)  # P3 streetlight: 168 h SLA -> breached by ~32 h
+        sr = self.make_sr(category="STREETLIGHT", lat=12.9112, lon=77.4895, created=created, status="ASSIGNED",
+                          priority="P3", description="Streetlight off for a week on 3rd Cross, Kengeri; the lane is completely dark.")
+        self.history_rows(sr, [("SUBMITTED", created, "HUMAN"), ("ASSIGNED", created + H(3), "HUMAN")])
+        self.make_wo(sr, "W12-B", "ASSIGNED", created + H(4), scope="Replace LED driver and test the fitting",
+                     materials={"led_driver_40w": 1})
+        self.late_sr = sr.id
 
     def open_backlog(self) -> None:
         """Open complaints: ones next to 'seeded_open' potholes, then fill crews to their target load."""
@@ -524,7 +537,9 @@ DEMO_STEPS = """
 ---------------------------------------------------------------------
  Staff logins (Staff Login): control / Control@2026, officer.w12 / Officer@2026, field.w12a / Field@2026
  Citizens do not log in: Lodge Grievance, then Track with the Grievance No. + tracking code.
- Follow docs/DEMO_SCRIPT.md. Show: /agents (flowchart), Control Room > Agent Operations, Ask CivicFlow.
+ Already late (Ask CivicFlow "Why is ... late?"): {late}
+ Crew W12-B job that reaches 75 % about 6 min after resume (reassignment): {atrisk}
+ Follow docs/DEMO_PLAN.md (10 minutes).
 =====================================================================
 """
 
@@ -534,7 +549,13 @@ def main() -> None:
     ap.add_argument("--reset", action="store_true")
     ap.add_argument("--demo", action="store_true")
     ap.add_argument("--paused", action="store_true", help="leave the SLA clock paused (resume: scripts/ops.py resume)")
+    ap.add_argument("--today", action="store_true", help="start the demo day today at 09:00 IST instead of DEMO_EPOCH")
     args = ap.parse_args()
+    if args.today:
+        global E
+        from app.core.clock import IST
+
+        E = datetime.now(IST).replace(hour=9, minute=0, second=0, microsecond=0)
     db = SessionLocal()
     try:
         if args.reset:
@@ -545,7 +566,8 @@ def main() -> None:
         clock_state.reset(db, E)
         db.commit()
         clock.freeze(E)  # seed timestamps (default=now()) land exactly on the epoch
-        Seeder(db).run()
+        seeder = Seeder(db)
+        seeder.run()
         clock.load(clock.dump() | {"frozen": None})
         clock.configure(settings.time_scale, E)
         if args.paused:
@@ -559,7 +581,8 @@ def main() -> None:
         if args.demo:
             print(DEMO_STEPS.format(epoch=E.isoformat(), scale=settings.time_scale,
                                     paused="SLA clock is PAUSED. When you start presenting: python scripts/ops.py resume"
-                                    if args.paused else "SLA clock is running."))
+                                    if args.paused else "SLA clock is running.",
+                                    late=seeder.late_sr, atrisk=seeder.atrisk_sr))
     finally:
         db.close()
 

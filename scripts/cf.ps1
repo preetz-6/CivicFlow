@@ -8,7 +8,7 @@ switch ($Target) {
   "migrate" { docker compose exec api alembic upgrade head }
   "seed"    { docker compose exec api python -m app.seed.build }
   "reset"   { docker compose exec api python -m app.seed.build --reset }
-  "demo"    { docker compose exec api python -m app.seed.build --reset --demo --paused }
+  "demo"    { docker compose exec api python -m app.seed.build --reset --demo --paused --today }
   "test"    { docker compose exec api pytest; Push-Location web; npx playwright test; Pop-Location }
   "record"  { docker compose exec -e AGENT_MODE=record api python -m app.seed.record_demo }
   "sim"     { docker compose run --rm simulator python sim.py --stream --rate 5 }

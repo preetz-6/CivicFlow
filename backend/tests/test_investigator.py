@@ -292,3 +292,25 @@ def test_model_limit(seeded, monkeypatch):
     monkeypatch.setattr(settings, "llm_agents", "investigator,auditor,ask")
     run = get_run(run_agent(investigator, "complaint.submitted", {"id": sr.id}))
     assert len(fake.calls) == 1 and run.model == "claude-test"
+
+
+def test_rule_based_reason_has_no_agent_reading(seeded):
+    db = seeded
+    lodge(db, "POTHOLE", *geo.POTHOLE_SCHOOL, "this pothole is very big and disturbs people who are travelling")
+    second = lodge(db, "POTHOLE", geo.POTHOLE_SCHOOL[0] + 0.00015, geo.POTHOLE_SCHOOL[1], "Deep hole in front of the school", phone="9822222222")
+    from app.modules.complaints.serialize import duplicate_info
+
+    info = duplicate_info(db, second, last_run(db, second.id))
+    assert info and "Agent's reading" not in (info["reason"] or "")
+
+
+def test_gemini_free_tier_keeps_model_for_citizen_potholes(monkeypatch):
+    from app.agents.investigator import investigator
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "llm_provider", "gemini")
+    assert investigator.use_llm({"source": "CITIZEN_WEB", "category_chosen": "POTHOLE"}, "live")
+    assert not investigator.use_llm({"source": "CITIZEN_WEB", "category_chosen": "WATERLOGGING"}, "live")
+    assert not investigator.use_llm({"source": "VEHICLE_FEED", "category_chosen": "POTHOLE"}, "live")
+    monkeypatch.setattr(settings, "llm_provider", "anthropic")
+    assert investigator.use_llm({"source": "VEHICLE_FEED", "category_chosen": "POTHOLE"}, "live")

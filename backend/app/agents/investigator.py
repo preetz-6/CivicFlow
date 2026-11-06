@@ -138,7 +138,11 @@ class CaseInvestigator(Agent):
     def use_llm(self, inp: dict, mode: str) -> bool:
         # In record/replay (free-tier quota), only the demo's citizen pothole / streetlight reports use the model;
         # rain-burst and vehicle-feed complaints run on rules in both, so a replay behaves exactly like the recording.
-        if mode in ("record", "replay"):
+        # On Gemini's free tier the same applies live: a rain burst (25 reports) or a vehicle-feed batch would use up
+        # the daily quota in one go. Those still get the full rule-based investigation.
+        from app.config import settings
+
+        if mode in ("record", "replay") or settings.llm_provider == "gemini":
             return inp.get("source") == "CITIZEN_WEB" and inp.get("category_chosen") in ("POTHOLE", "STREETLIGHT")
         return True
 
@@ -208,6 +212,7 @@ class CaseInvestigator(Agent):
                 if referral:
                     referral["reason"] += f"; {len(cluster) + 1} lights out on the same stretch, repeat failures: likely feeder fault"
         dup, dup_conf = self.rule_duplicate(nearby_same, inp)
+        ctx.scratch["rule_based"] = True  # apply(): no "agent's reading" on a rule-based run
         dup_reason = None
         if dup:
             c = next(x for x in nearby_same if x["sr_id"] == dup)
@@ -310,7 +315,7 @@ class CaseInvestigator(Agent):
             # brief 5.2: auto-merge at >= 0.9. The radius/time/text rule must find the same open complaint; when the
             # rule alone is not sure (wording differs), the model's reading of both reports can confirm it.
             decided_by = "rules"
-            model_reason = out.duplicate_reason if model_dup else None
+            model_reason = out.duplicate_reason if model_dup and not ctx.scratch.get("rule_based") else None
             if rule_dup:
                 agrees = model_dup == rule_dup
                 conf = max(rule_conf, out.duplicate_confidence if agrees else 0.0)
