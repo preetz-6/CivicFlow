@@ -63,7 +63,6 @@ test("citizen lodges, officer accepts, field fixes, auditor passes, control appr
   const dx = (Math.random() < 0.5 ? -1 : 1) * (90 + Math.random() * 60);
   const dy = (Math.random() < 0.5 ? -1 : 1) * (60 + Math.random() * 40);
   await map.click({ position: { x: box.width / 2 + dx, y: box.height / 2 + dy } });
-  await citizen.getByLabel("Landmark").fill("E2E bus shelter");
   await citizen.getByLabel("Mobile number").fill(mobile);
   await citizen.getByLabel(/I declare that/).check();
   await citizen.getByLabel(/I agree that the Corporation/).check();

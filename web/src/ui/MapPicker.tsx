@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import L from "leaflet";
-import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { MapContainer, Marker, useMap, useMapEvents } from "react-leaflet";
+import { BaseLayers } from "./CityMap";
 import "leaflet/dist/leaflet.css";
 import iconUrl from "leaflet/dist/images/marker-icon.png";
 import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
@@ -60,10 +61,7 @@ export function MapPicker({
   return (
     <div role="group" aria-label={label} style={{ border: "1px solid var(--border-strong)" }}>
       <MapContainer center={[value.lat, value.lon]} zoom={17} style={{ height }} scrollWheelZoom={false}>
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        <BaseLayers />
         <Marker
           position={[value.lat, value.lon]}
           draggable
@@ -92,10 +90,7 @@ export function MapView({ lat, lon, height = 220, label }: { lat: number; lon: n
         zoomControl={false}
         attributionControl
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        <BaseLayers />
         <Marker position={[lat, lon]} />
       </MapContainer>
     </div>

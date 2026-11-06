@@ -7,46 +7,54 @@ export const CITY_CENTER: [number, number] = [12.915, 77.505];
 
 const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services";
 
-/** Base map for staff screens, with a Map / Satellite switch (top right). */
+/** Map / Satellite base layers with a switch (top right). Satellite is the default everywhere. */
+export function BaseLayers({ satellite = true }: { satellite?: boolean }) {
+  return (
+    <LayersControl position="topright">
+      <LayersControl.BaseLayer checked={!satellite} name="Map">
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          maxZoom={19}
+        />
+      </LayersControl.BaseLayer>
+      <LayersControl.BaseLayer checked={satellite} name="Satellite">
+        <LayerGroup>
+          <TileLayer
+            attribution="Imagery &copy; Esri, Maxar, Earthstar Geographics"
+            url={`${ESRI}/World_Imagery/MapServer/tile/{z}/{y}/{x}`}
+            maxZoom={19}
+          />
+          {/* road names and places on top of the photo */}
+          <TileLayer url={`${ESRI}/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}`} maxZoom={19} />
+          <TileLayer url={`${ESRI}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`} maxZoom={19} />
+        </LayerGroup>
+      </LayersControl.BaseLayer>
+    </LayersControl>
+  );
+}
+
+/** Base map for staff screens. */
 export function CityMap({
   children,
   height = 420,
   label,
   center = CITY_CENTER,
   zoom = 13,
-  satellite = false,
+  satellite = true,
 }: {
   children?: ReactNode;
   height?: number;
   label: string;
   center?: [number, number];
   zoom?: number;
-  /** start in satellite view */
+  /** start in satellite view (default) */
   satellite?: boolean;
 }) {
   return (
     <div role="region" aria-label={label} style={{ border: "1px solid var(--border-strong)" }}>
       <MapContainer center={center} zoom={zoom} style={{ height }} scrollWheelZoom={false}>
-        <LayersControl position="topright">
-          <LayersControl.BaseLayer checked={!satellite} name="Map">
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-          </LayersControl.BaseLayer>
-          <LayersControl.BaseLayer checked={satellite} name="Satellite">
-            <LayerGroup>
-              <TileLayer
-                attribution="Imagery &copy; Esri, Maxar, Earthstar Geographics"
-                url={`${ESRI}/World_Imagery/MapServer/tile/{z}/{y}/{x}`}
-                maxZoom={19}
-              />
-              {/* road names and places on top of the photo */}
-              <TileLayer url={`${ESRI}/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}`} maxZoom={19} />
-              <TileLayer url={`${ESRI}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`} maxZoom={19} />
-            </LayerGroup>
-          </LayersControl.BaseLayer>
-        </LayersControl>
+        <BaseLayers satellite={satellite} />
         {children}
       </MapContainer>
     </div>

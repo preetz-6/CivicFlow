@@ -26,8 +26,6 @@ export function Lodge() {
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [pin, setPin] = useState<LatLon>(DEFAULT_PIN);
-  const [landmark, setLandmark] = useState("");
-  const [address, setAddress] = useState("");
   const [anonymous, setAnonymous] = useState(false);
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -83,8 +81,6 @@ export function Lodge() {
     setDescription("");
     setPhoto(null);
     setPin(DEFAULT_PIN);
-    setLandmark("");
-    setAddress("");
     setAnonymous(false);
     setName("");
     setMobile("");
@@ -108,8 +104,6 @@ export function Lodge() {
     fd.append("description", description.trim());
     fd.append("lat", pin.lat.toFixed(6));
     fd.append("lon", pin.lon.toFixed(6));
-    if (landmark.trim()) fd.append("landmark", landmark.trim());
-    if (address.trim()) fd.append("address", address.trim());
     fd.append("anonymous", anonymous ? "true" : "false");
     if (!anonymous) {
       if (name.trim()) fd.append("contact_name", name.trim());
@@ -211,12 +205,6 @@ export function Lodge() {
               </p>
             ) : null}
           </div>
-          <Field label={t("lodge.landmark")} htmlFor="landmark">
-            <input id="landmark" value={landmark} onChange={(e) => setLandmark(e.target.value)} maxLength={200} />
-          </Field>
-          <Field label={t("lodge.address")} htmlFor="address">
-            <input id="address" value={address} onChange={(e) => setAddress(e.target.value)} maxLength={300} />
-          </Field>
         </Fieldset>
 
         <Fieldset legend={t("lodge.contact")}>
