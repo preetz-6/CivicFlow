@@ -194,7 +194,8 @@
     "reopen": "Reopen",
     "confirmed": "Thank you. Your confirmation has been recorded.",
     "reopened": "Your grievance has been reopened.",
-    "rated": "You rated this work {{n}} of 5."
+    "rated": "You rated this work {{n}} of 5.",
+    "mergeWhy": "Why it was linked"
   },
   "homeX": {
     "agents": "See how our AI agents work",

@@ -11,6 +11,7 @@ import { EscalationBadge, PriorityTag, StatusTag } from "../../ui/StatusTag";
 import { Table } from "../../ui/Table";
 import { Timeline } from "../../ui/Timeline";
 import { SystemAnalysis } from "./SystemAnalysis";
+import { DuplicateBox, type DuplicateInfo } from "../../ui/DuplicateBox";
 import { useConsoleBase } from "../consoleBase";
 import o from "./officer.module.css";
 
@@ -155,6 +156,9 @@ export function CaseDetail() {
 
       <div className={o.cols}>
         <div>
+          {(sr as { duplicate_info?: DuplicateInfo | null }).duplicate_info ? (
+            <DuplicateBox info={(sr as { duplicate_info?: DuplicateInfo | null }).duplicate_info!} base={base} />
+          ) : null}
           <SystemAnalysis sr={sr} categories={categories} departments={departments} onDone={done} />
 
           {canHold || canResume || canReject || canMerge || canUnmerge ? (

@@ -14,7 +14,7 @@ PRIORITY_ORDER = ["P1", "P2", "P3", "P4"]
 
 
 def merge_into(db: Session, dup: ServiceRequest, parent: ServiceRequest, actor: Actor, *,
-               confidence: float | None = None, note: str | None = None) -> None:
+               confidence: float | None = None, note: str | None = None, details: dict | None = None) -> None:
     if dup.id == parent.id:
         raise DomainError("Cannot merge a grievance into itself")
     while parent.status == "MERGED" and parent.parent_sr_id:  # always merge into the root
@@ -23,7 +23,7 @@ def merge_into(db: Session, dup: ServiceRequest, parent: ServiceRequest, actor: 
         raise DomainError(f"{parent.id} is already {parent.status.lower()}")
     transition(db, dup, "MERGED", actor, parent_sr_id=parent.id,
                reason=note or (f"Duplicate (confidence {confidence:.2f})" if confidence is not None else "Duplicate"),
-               meta={"confidence": confidence} if confidence is not None else None)
+               meta=({"confidence": confidence} if confidence is not None else {}) | (details or {}) or None)
     for r in db.scalars(select(SrReporter).where(SrReporter.sr_id == dup.id)):
         db.add(SrReporter(sr_id=parent.id, citizen_user_id=r.citizen_user_id, contact_name=r.contact_name,
                           contact_phone=r.contact_phone, language=r.language, merged_from_sr_id=dup.id))

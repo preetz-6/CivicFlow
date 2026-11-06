@@ -156,6 +156,9 @@ def _readable(tool: str, r) -> str | None:
             return f"{_n(len(r['crews']), 'crew')}, overloaded: {', '.join(over) or 'none'}"
         if tool == "search_policies":
             return "; ".join(h["source"] for h in r if h.get("source")) or "nothing relevant"
+        if tool == "duplicate_confirmed_by_model":
+            return (f"wording alone gave {r['rule_confidence']:.2f}; the agent read both reports and confirmed "
+                    f"{r['duplicate_of']} ({r['model_confidence']:.2f})")
         if tool == "triage_tables":
             return f"priority {r['priority']} for {r['department']}" + (f" ({'; '.join(r['bumps'])})" if r.get("bumps") else "")
     except (KeyError, TypeError, IndexError, AttributeError, ValueError):

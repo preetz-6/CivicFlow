@@ -65,6 +65,7 @@ class TrackView(BaseModel):
     reporter_count: int
     escalation_level: int
     merged_into: str | None
+    merge_reason: str | None = None
     lat: float
     lon: float
     landmark: str | None
@@ -150,6 +151,7 @@ class ComplaintDetail(QueueItem):
     allowed_actions: list[str]
     analysis: dict | None = None  # latest Case Investigator run (C2)
     duplicates: list[str] = []
+    duplicate_info: dict | None = None  # why it was merged / may be a duplicate
     referrals: list[dict] = []
     escalations: list[dict] = []
 

@@ -75,6 +75,8 @@ def track(no: str, code: str, db: Session = Depends(get_db)):
     if sr.status == "MERGED" and sr.parent_sr_id:
         view = serialize.track_view(db, db.get(ServiceRequest, sr.parent_sr_id))
         view["grievance_no"], view["merged_into"] = sr.id, sr.parent_sr_id
+        info = serialize.duplicate_info(db, sr)
+        view["merge_reason"] = (info or {}).get("reason")
         return view
     return serialize.track_view(db, sr)
 

@@ -74,6 +74,24 @@ def allowed_actions(sr: ServiceRequest, actor: Actor) -> list[str]:
     return out
 
 
+def duplicate_info(db: Session, sr: ServiceRequest, run: AgentRun | None = None) -> dict | None:
+    """Why this grievance was merged into another one (or why the agent thinks it may be the same)."""
+    if sr.status == "MERGED" and sr.parent_sr_id:
+        ev = db.scalar(select(StatusEvent).where(StatusEvent.object_id == sr.id, StatusEvent.to_state == "MERGED")
+                       .order_by(StatusEvent.id.desc()).limit(1))
+        meta = (ev.meta or {}) if ev else {}
+        human = ev is not None and ev.actor_type == "HUMAN"
+        return {"merged": True, "parent": sr.parent_sr_id, "confidence": meta.get("confidence"),
+                "reason": meta.get("reason") or (ev.reason if ev else None),
+                "decided_by": "officer" if human else meta.get("decided_by", "rules"),
+                "by": ev.actor_label if ev else None, "at": ev.at if ev else None}
+    out = (run.output or {}) if run else {}
+    if out.get("duplicate_of") and sr.status == "SUBMITTED":
+        return {"merged": False, "parent": out["duplicate_of"], "confidence": out.get("duplicate_confidence"),
+                "reason": out.get("duplicate_reason"), "decided_by": None, "by": None, "at": None}
+    return None
+
+
 def detail(db: Session, sr: ServiceRequest, actor: Actor) -> dict:
     d = queue_item(db, sr)
     show_contact = scope.can_see_contact(actor)
@@ -100,6 +118,7 @@ def detail(db: Session, sr: ServiceRequest, actor: Actor) -> dict:
         "allowed_actions": allowed_actions(sr, actor),
         "analysis": run_summary(db, run) if run else None,
         "duplicates": list(db.scalars(select(ServiceRequest.id).where(ServiceRequest.parent_sr_id == sr.id))),
+        "duplicate_info": duplicate_info(db, sr, run),
         "referrals": [{"id": r.id, "agency": r.agency, "status": r.status, "reason": r.reason, "sent_at": r.sent_at,
                        "followups_sent": r.followups_sent, "agency_status": r.agency_status, "agency_reply": r.agency_reply}
                       for r in db.scalars(select(Referral).where(Referral.sr_id == sr.id))],

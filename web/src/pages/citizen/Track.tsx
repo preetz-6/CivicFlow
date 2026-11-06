@@ -209,7 +209,14 @@ export function Track() {
                 {view.merged_into ? (
                   <tr>
                     <th scope="row">{t("track.mergedInto")}</th>
-                    <td>{view.merged_into}</td>
+                    <td>
+                      {view.merged_into}
+                      {(view as { merge_reason?: string | null }).merge_reason ? (
+                        <div className="muted" style={{ marginTop: 4 }}>
+                          {t("track.mergeWhy")}: {(view as { merge_reason?: string | null }).merge_reason}
+                        </div>
+                      ) : null}
+                    </td>
                   </tr>
                 ) : null}
                 <tr>

@@ -47,6 +47,8 @@ class TriageBrief(BaseModel):
     asset_id: str | None = None
     duplicate_of: str | None = None
     duplicate_confidence: float = Field(0.0, ge=0, le=1)
+    duplicate_reason: str | None = Field(None, description="Why it is (or may be) the same problem: compare place, "
+                                         "time and what both reports describe, in one or two plain sentences")
     repeat_failure: bool = False
     repeat_failure_note: str | None = None
     planned_work_conflict: str | None = None
@@ -76,7 +78,9 @@ Work through:
    on the same feeder/stretch suggests an upstream fault (e.g. a BESCOM feeder) rather than one bad fitting.
 4. Who owns the asset. BESCOM (electricity) or BWSSB (water) ownership -> propose an inter-agency referral.
 5. Duplicates: an open complaint of the same category within ~25-100 m filed in the last 72 h, with similar text,
-   is likely the same issue. duplicate_confidence >= 0.9 means you are sure (it will be merged automatically).
+   is likely the same issue. Compare what the two descriptions actually say (different wording can describe the same
+   pothole). duplicate_confidence >= 0.9 means you are sure (it will be merged automatically); always fill
+   duplicate_reason when you set duplicate_of.
 6. Priority: P1 only for danger to life (live wire, open manhole, someone fell). Raise by one level (towards P2)
    near a school, hospital, bus stand, market or metro (within ~150 m), on an arterial road, when several citizens
    report it, or when connected vehicles confirm it. Otherwise use the category default (P3 for most).
@@ -204,7 +208,11 @@ class CaseInvestigator(Agent):
                 if referral:
                     referral["reason"] += f"; {len(cluster) + 1} lights out on the same stretch, repeat failures: likely feeder fault"
         dup, dup_conf = self.rule_duplicate(nearby_same, inp)
+        dup_reason = None
         if dup:
+            c = next(x for x in nearby_same if x["sr_id"] == dup)
+            dup_reason = (f"Same {cat.lower().replace('_', ' ')} {c['distance_m']:.0f} m away, reported "
+                          f"{c['hours_ago']:.0f} h earlier; descriptions {c.get('text_similarity') or 0:.0f}% similar by wording.")
             why.append(f"Same {cat.lower().replace('_', ' ')} reported in {dup} nearby within {DUPLICATE_WINDOW_HOURS} h "
                        f"(confidence {dup_conf:.2f}{', will be linked' if dup_conf >= MERGE_THRESHOLD else ', suggestion only'}).")
 
@@ -235,7 +243,7 @@ class CaseInvestigator(Agent):
             summary += f" Needs action by {referral['agency']}; a referral is being prepared."
         return TriageBrief(category=cat, priority=prio, department_id=dept, ward_id=ward.get("ward_id"),
                            suggested_officer_id=officer, asset_id=asset_id, duplicate_of=dup,
-                           duplicate_confidence=dup_conf, repeat_failure=repeat, repeat_failure_note=repeat_note,
+                           duplicate_confidence=dup_conf, duplicate_reason=dup_reason, repeat_failure=repeat, repeat_failure_note=repeat_note,
                            planned_work_conflict=conflict, interagency_referral=referral,
                            vehicle_corroboration=veh.get("distinct_vehicles", 0) or 0,
                            rationale=why[:6] or ["Routed by category and location."], citizen_summary=summary,
@@ -299,10 +307,22 @@ class CaseInvestigator(Agent):
             if model_dup and model_dup not in {c["sr_id"] for c in nearby}:
                 note(ctx, "duplicate_rejected", {"duplicate_of": model_dup, "reason": "not an open complaint within the duplicate radius"})
                 model_dup = None
-            # brief 5.2: auto-merge at >= 0.9; the radius/time/text rule decides, the model can only add agreement
+            # brief 5.2: auto-merge at >= 0.9. The radius/time/text rule must find the same open complaint; when the
+            # rule alone is not sure (wording differs), the model's reading of both reports can confirm it.
+            decided_by = "rules"
+            model_reason = out.duplicate_reason if model_dup else None
             if rule_dup:
-                conf = max(rule_conf, out.duplicate_confidence if model_dup == rule_dup else 0.0)
+                agrees = model_dup == rule_dup
+                conf = max(rule_conf, out.duplicate_confidence if agrees else 0.0)
+                if agrees and out.duplicate_confidence > rule_conf and conf >= MERGE_THRESHOLD > rule_conf:
+                    decided_by = "model"
+                    note(ctx, "duplicate_confirmed_by_model", {"duplicate_of": rule_dup, "rule_confidence": rule_conf,
+                                                               "model_confidence": out.duplicate_confidence})
                 out.duplicate_of, out.duplicate_confidence = rule_dup, round(conf, 2)
+                c = next(x for x in nearby if x["sr_id"] == rule_dup)
+                facts = (f"Same {sr.category.lower().replace('_', ' ')} {c['distance_m']:.0f} m away, reported "
+                         f"{c['hours_ago']:.0f} h earlier; descriptions {c.get('text_similarity') or 0:.0f}% similar by wording.")
+                out.duplicate_reason = facts + (f" Agent's reading: {model_reason}" if agrees and model_reason else "")
             elif model_dup:
                 out.duplicate_of = model_dup
                 out.duplicate_confidence = min(out.duplicate_confidence, 0.89)  # suggestion only: rule did not confirm
@@ -312,7 +332,8 @@ class CaseInvestigator(Agent):
             if (parent is not None and out.duplicate_confidence >= MERGE_THRESHOLD and parent.id != sr.id
                     and parent.category == sr.category and parent.status not in ("CLOSED", "REJECTED", "MERGED")):
                 merge_into(db, sr, parent, ctx.actor, confidence=out.duplicate_confidence,
-                           note=f"System Analysis: same issue as {parent.id} (confidence {out.duplicate_confidence:.2f})")
+                           note=f"System Analysis: same issue as {parent.id} (confidence {out.duplicate_confidence:.2f})",
+                           details={"reason": out.duplicate_reason, "decided_by": decided_by})
                 merged = True
         if not merged:
             db.add(Timeline(sr_id=sr.id, stage="System Analysis",

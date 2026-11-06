@@ -215,3 +215,62 @@ def test_replay_cache_roundtrip(tmp_path, monkeypatch):
     assert got.source == "replay" and got.model == "claude-x"
     with pytest.raises(CacheMiss):
         client.create(agent="a", system="s", tools=[], messages=[{"role": "user", "content": "different"}])
+
+
+def test_merge_reason_rules(seeded):
+    db = seeded
+    first = lodge(db, "POTHOLE", *geo.POTHOLE_SCHOOL, "Big pothole in front of the school gate, children at risk", phone="9811111111")
+    second = lodge(db, "POTHOLE", geo.POTHOLE_SCHOOL[0] + 0.00003, geo.POTHOLE_SCHOOL[1], "Huge pothole near the school gate", phone="9822222222")
+    from app.modules.complaints.serialize import duplicate_info
+
+    info = duplicate_info(db, second)
+    assert info["merged"] and info["parent"] == first.id and info["decided_by"] == "rules"
+    assert "m away" in info["reason"] and "similar by wording" in info["reason"]
+
+
+def test_model_confirms_borderline_duplicate(seeded, monkeypatch):
+    """Different wording, 20 m apart: the rule alone is not sure; the model reads both and confirms -> merged."""
+    db = seeded
+    first = lodge(db, "POTHOLE", *geo.POTHOLE_SCHOOL, "this pothole is very big and disturbs people who are travelling")
+    from app.core.bus import bus
+
+    bus.enabled = False
+    try:
+        second = lodge(db, "POTHOLE", geo.POTHOLE_SCHOOL[0] + 0.00018, geo.POTHOLE_SCHOOL[1],
+                       "Very big pothole. i fell in it while going. it is a busy road.", phone="9822222222")
+    finally:
+        bus.enabled = True
+    said = {**BRIEF, "duplicate_of": first.id, "duplicate_confidence": 0.95,
+            "duplicate_reason": "Both describe one large pothole on the same stretch that is hurting road users."}
+    monkeypatch.setattr("app.agents.runtime.loop.llm", FakeLLM([final(said)]))
+    from app.agents.investigator import investigator
+    from app.modules.complaints.serialize import duplicate_info
+
+    rid = run_agent(investigator, "complaint.submitted", {"id": second.id})
+    s = SessionLocal()
+    got = s.get(ServiceRequest, second.id)
+    assert got.status == "MERGED" and got.parent_sr_id == first.id
+    info = duplicate_info(s, got)
+    assert info["decided_by"] == "model" and "Agent's reading: Both describe" in info["reason"]
+    assert "rule:duplicate_confirmed_by_model" in s.scalars(select(AgentStep.tool).where(AgentStep.run_id == rid)).all()
+    s.close()
+
+
+def test_model_cannot_merge_far_complaint(seeded, monkeypatch):
+    db = seeded
+    first = lodge(db, "POTHOLE", *geo.POTHOLE_SCHOOL, "Big pothole in front of the school gate")
+    from app.core.bus import bus
+
+    bus.enabled = False
+    try:
+        far = lodge(db, "POTHOLE", geo.POTHOLE_SCHOOL[0] + 0.0006, geo.POTHOLE_SCHOOL[1], "Big pothole near the school", phone="9822222222")
+    finally:
+        bus.enabled = True
+    said = {**BRIEF, "duplicate_of": first.id, "duplicate_confidence": 0.97, "duplicate_reason": "Same pothole."}
+    monkeypatch.setattr("app.agents.runtime.loop.llm", FakeLLM([final(said)]))
+    from app.agents.investigator import investigator
+
+    run_agent(investigator, "complaint.submitted", {"id": far.id})
+    s = SessionLocal()
+    assert s.get(ServiceRequest, far.id).status == "SUBMITTED"  # ~65 m: outside the 25 m radius, never merged
+    s.close()
